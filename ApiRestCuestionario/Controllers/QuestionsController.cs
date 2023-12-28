@@ -1,6 +1,7 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -126,17 +127,49 @@ namespace ApiRestCuestionario.Controllers
             context.SaveChanges();
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = questionsSave });
         }
-
-        // PUT api/<QuestionsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost("test")]
+        public ActionResult TestFormCreation([FromBody] JsonElement value)
         {
+            List<Questions> questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
+            int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
+            var cuestions = questionsSave.Select(x =>
+            {
+
+                var parsedItem = x.title.Trim().ToLower().Replace(" ","_");
+                
+                return parsedItem;
+            }).ToList();
+            var elementTypes = string.Join(", ", questionsSave.Select(x => "NVARCHAR(MAX)"));
+            Dictionary<string, int> contadorDeElementos = new Dictionary<string, int>();
+
+            for (int i = 0; i < cuestions.Count; i++)
+            {
+                string pregunta = cuestions[i];
+
+                if (contadorDeElementos.ContainsKey(pregunta))
+                {
+                    int contador = contadorDeElementos[pregunta];
+                    contador++;
+                    contadorDeElementos[pregunta] = contador;
+                    cuestions[i] = $"{pregunta}_{contador}";
+                }
+                else
+                {
+                    contadorDeElementos.Add(pregunta, 1); 
+                }
+            }
+            var storedProcedureName = "AddColumnsAndInsertData";
+            var param1 = new SqlParameter("@columnNames", string.Join(", ", cuestions));
+            var param2 = new SqlParameter("@columnTypes", elementTypes);
+            var param3 = new SqlParameter("@formId", form_id);
+
+            var result = context.Database.ExecuteSqlRaw($"EXEC {storedProcedureName} @columnNames, @columnTypes, @formId", param1, param2, param3);
+
+
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { form_id, cuestions , elementTypes }  });
+
         }
 
-        // DELETE api/<QuestionsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        
     }
 }
