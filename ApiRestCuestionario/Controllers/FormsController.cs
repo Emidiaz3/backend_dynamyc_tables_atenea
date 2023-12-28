@@ -148,6 +148,7 @@ namespace ApiRestCuestionario.Controllers
               .ExecuteSqlInterpolatedAsync($@"exec sp_guardar_encuesta
                     @encuestaid={form.id},
                     @nombreencuesta={form.form_name},
+                    @nombreencuestaDB={form.form_db},
                     @labelencuesta={form.form_label},
                     @resumenencuesta={form.form_abstract},
                     @idproyecto={proy_id},
