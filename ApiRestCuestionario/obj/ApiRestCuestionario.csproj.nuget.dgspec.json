@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Administrador\\Documents\\github_dinamyc_tables_backend\\CuestionarioBack\\ApiRestCuestionario\\ApiRestCuestionario.csproj": {}
+    "C:\\Users\\User\\Desktop\\D\\work\\Digital\\Atenea\\back-final\\backend_dynamyc_tables_atenea\\ApiRestCuestionario\\ApiRestCuestionario.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Administrador\\Documents\\github_dinamyc_tables_backend\\CuestionarioBack\\ApiRestCuestionario\\ApiRestCuestionario.csproj": {
+    "C:\\Users\\User\\Desktop\\D\\work\\Digital\\Atenea\\back-final\\backend_dynamyc_tables_atenea\\ApiRestCuestionario\\ApiRestCuestionario.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrador\\Documents\\github_dinamyc_tables_backend\\CuestionarioBack\\ApiRestCuestionario\\ApiRestCuestionario.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\D\\work\\Digital\\Atenea\\back-final\\backend_dynamyc_tables_atenea\\ApiRestCuestionario\\ApiRestCuestionario.csproj",
         "projectName": "ApiRestCuestionario",
-        "projectPath": "C:\\Users\\Administrador\\Documents\\github_dinamyc_tables_backend\\CuestionarioBack\\ApiRestCuestionario\\ApiRestCuestionario.csproj",
-        "packagesPath": "C:\\Users\\Administrador\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrador\\Documents\\github_dinamyc_tables_backend\\CuestionarioBack\\ApiRestCuestionario\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\D\\work\\Digital\\Atenea\\back-final\\backend_dynamyc_tables_atenea\\ApiRestCuestionario\\ApiRestCuestionario.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\D\\work\\Digital\\Atenea\\back-final\\backend_dynamyc_tables_atenea\\ApiRestCuestionario\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Administrador\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -59,7 +59,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -71,7 +72,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.403\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
         }
       }
     }
