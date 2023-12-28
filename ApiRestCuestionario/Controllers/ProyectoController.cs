@@ -90,7 +90,7 @@ namespace ApiRestCuestionario.Controllers
                      .ExecuteSqlInterpolatedAsync($@"Exec SP_GUARDAR_PROYECTO 
                     @IdProyecto={ent.IdProyecto},
                     @NombreProyecto={ent.NombreProyecto},
-                    @NombreDB={ent.NombreBaseDatos},
+                    @NombreDB={ent.NombreDB},
                     @IdEmpresa={ent.IdEmpresa},
                     @EstadoProyecto={ent.EstadoProyecto},
                     @UsuarioAccion={ent.UsuarioAccion},

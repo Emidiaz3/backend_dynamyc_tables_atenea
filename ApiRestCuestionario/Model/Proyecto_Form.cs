@@ -26,7 +26,7 @@ namespace ApiRestCuestionario.Model
     {
         public int IdProyecto { get; set; }
         public string NombreProyecto { get; set; }
-        public string NombreBaseDatos { get; set; }
+        public string NombreDB { get; set; }
         public int IdEmpresa { get; set; }
         public int EstadoProyecto { get; set; }
         public int? UsuarioAccion { get; set; }
