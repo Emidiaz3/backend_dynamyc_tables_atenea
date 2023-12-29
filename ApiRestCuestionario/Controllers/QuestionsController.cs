@@ -128,7 +128,7 @@ namespace ApiRestCuestionario.Controllers
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = questionsSave });
         }
         [HttpPost("test")]
-        public ActionResult TestFormCreation([FromBody] JsonElement value)
+        public async Task<ActionResult> TestFormCreation([FromBody] JsonElement value)
         {
             List<Questions> questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
             int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
@@ -141,7 +141,10 @@ namespace ApiRestCuestionario.Controllers
             }).ToList();
             var elementTypes = string.Join(", ", questionsSave.Select(x => "NVARCHAR(MAX)"));
             Dictionary<string, int> contadorDeElementos = new Dictionary<string, int>();
-
+            var props_ui = string.Join(", ", questionsSave.Select(x =>
+            {
+                return JsonConvert.SerializeObject(x);
+            }));
             for (int i = 0; i < cuestions.Count; i++)
             {
                 string pregunta = cuestions[i];
@@ -159,14 +162,13 @@ namespace ApiRestCuestionario.Controllers
                 }
             }
             var storedProcedureName = "AddColumnsAndInsertData";
-            var param1 = new SqlParameter("@columnNames", string.Join(", ", cuestions));
-            var param2 = new SqlParameter("@columnTypes", elementTypes);
-            var param3 = new SqlParameter("@formId", form_id);
+          
+            
 
-            var result = context.Database.ExecuteSqlRaw($"EXEC {storedProcedureName} @columnNames, @columnTypes, @formId", param1, param2, param3);
+            //var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={string.Join(", ", cuestions)}, @columnTypes={elementTypes}, @props_ui = {props_ui}, @formId={form_id};");
 
 
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { form_id, cuestions , elementTypes }  });
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { form_id, cuestions , elementTypes, props_ui }  });
 
         }
 
