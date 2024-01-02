@@ -1,12 +1,15 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -130,45 +133,66 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("test")]
         public async Task<ActionResult> TestFormCreation([FromBody] JsonElement value)
         {
-            List<Questions> questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
+            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
             int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
-            var cuestions = questionsSave.Select(x =>
-            {
+            var columns = context.column_types.Where(x => x.form_id == form_id).Select(x=>x.nombre_columna_db).ToList();
+            Dictionary<string, int> itemsCounter = new Dictionary<string, int>();
 
-                var parsedItem = x.title.Trim().ToLower().Replace(" ","_");
-                
-                return parsedItem;
-            }).ToList();
-            var elementTypes = string.Join(", ", questionsSave.Select(x => "NVARCHAR(MAX)"));
-            Dictionary<string, int> contadorDeElementos = new Dictionary<string, int>();
-            var props_ui = string.Join(", ", questionsSave.Select(x =>
-            {
-                return JsonConvert.SerializeObject(x);
-            }));
-            for (int i = 0; i < cuestions.Count; i++)
-            {
-                string pregunta = cuestions[i];
+            foreach (var x in columns) {
 
-                if (contadorDeElementos.ContainsKey(pregunta))
+                var items = x.Trim().Split("_");
+                var isNumeric = int.TryParse(items.Last(), out int n);
+
+                if (items.Length > 1 && isNumeric)
                 {
-                    int contador = contadorDeElementos[pregunta];
-                    contador++;
-                    contadorDeElementos[pregunta] = contador;
-                    cuestions[i] = $"{pregunta}_{contador}";
+                    var verificationString = string.Join("_", items.Take(items.Length - 1));
+                    if (itemsCounter.ContainsKey(verificationString) && n > itemsCounter[verificationString])
+                    {
+                        itemsCounter[verificationString] = n;
+
+                    } else
+                    {
+                        itemsCounter[x] = 1;
+                    }
+
+                } else
+                {
+                    itemsCounter[x] = 1;
+                }
+            }
+                
+       
+            var columnNames = string.Join(",", questionsSave.Select(x =>
+            {
+                string normalizedString = x.title.Normalize(NormalizationForm.FormD);
+                StringBuilder stringBuilder = new StringBuilder();
+                foreach (char c in normalizedString)
+                {
+                    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                        stringBuilder.Append(c);
+                }
+                ;
+                var item = stringBuilder.ToString().Trim().ToLower().Replace(" ", "_");
+                if (itemsCounter.ContainsKey(item))
+                {
+                    itemsCounter[item]++;
+                    return $"{item}_{itemsCounter[item]}";
                 }
                 else
                 {
-                    contadorDeElementos.Add(pregunta, 1); 
+                    itemsCounter[item] = 1;
+                    return item;
                 }
-            }
+            }));
+            var columnTypes = string.Join(",", questionsSave.Select(x => "NVARCHAR(MAX)"));
+            var props_ui = string.Join(",", questionsSave.Select(x =>$"\"{JsonConvert.SerializeObject(x)}\"" ));
+           
             var storedProcedureName = "AddColumnsAndInsertData";
-          
             
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
 
-            //var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={string.Join(", ", cuestions)}, @columnTypes={elementTypes}, @props_ui = {props_ui}, @formId={form_id};");
 
-
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { form_id, cuestions , elementTypes, props_ui }  });
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnTypes, props_ui, form_id }  });
 
         }
 
