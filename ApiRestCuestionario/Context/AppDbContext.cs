@@ -54,5 +54,7 @@ namespace ApiRestCuestionario.Context
         public DbSet<ReporteFinalDetail> ReporteFinal { get; set; }
         public DbSet<entity_get_proys> GetDBProys { get; set; }
         public DbSet<ColumnType> column_types { get; set; }
+        public DbSet<QuestionType> question_types { get; set; }
+
     }
 }
