@@ -2,6 +2,7 @@
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -34,10 +35,10 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                object questionsList = context.Questions.Where(c => c.form_id == formId).OrderBy(c=>c.position).ToList();
-                object form_aparence = context.Form_Aparence.Where(c => c.form_id == formId).ToList();
+                object questions = context.column_types.Where(c => c.form_id == formId && c.props_ui !=null).Select(c=> c.props_ui);
+                object aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
                 
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence= form_aparence,questions= questionsList } });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence,questions } });
             }
             catch (InvalidCastException e)
             {
@@ -103,7 +104,8 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("test")]
         public async Task<ActionResult> TestFormCreation([FromBody] JsonElement value)
         {
-            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
+            var questionBody = value.GetProperty("questions").ToString();
+            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(questionBody);
             int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
             var columns = context.column_types.Where(x => x.form_id == form_id).Select(x=>x.nombre_columna_db).ToList();
             Dictionary<string, int> itemsCounter = new Dictionary<string, int>();
@@ -130,9 +132,9 @@ namespace ApiRestCuestionario.Controllers
                     itemsCounter[x] = 1;
                 }
             }
-                
+            var columnNames = string.Join(",", questionsSave.Select(x => x.title));
        
-            var columnNames = string.Join(",", questionsSave.Select(x =>
+            var columnNamesDB = string.Join(",", questionsSave.Select(x =>
             {
                 string normalizedString = x.title.Normalize(NormalizationForm.FormD);
                 StringBuilder stringBuilder = new StringBuilder();
@@ -159,10 +161,10 @@ namespace ApiRestCuestionario.Controllers
            
             var storedProcedureName = "AddColumnsAndInsertData";
             
-            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {questionBody}, @formId={form_id};");
 
 
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnTypes, props_ui, form_id }  });
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnNamesDB, columnTypes, props_ui, form_id, questionBody }  });
 
         }
 
