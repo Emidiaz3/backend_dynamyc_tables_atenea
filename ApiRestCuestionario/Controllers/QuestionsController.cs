@@ -191,7 +191,7 @@ namespace ApiRestCuestionario.Controllers
 
 
             
-            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
 
             
 
