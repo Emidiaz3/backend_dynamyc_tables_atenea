@@ -175,7 +175,7 @@ namespace ApiRestCuestionario.Controllers
            
             var storedProcedureName = "AddColumnsAndInsertData";
             
-            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
 
 
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnNamesDB, columnTypes, props_ui, form_id }  });
