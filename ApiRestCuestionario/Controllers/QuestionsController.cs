@@ -14,7 +14,8 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
@@ -28,7 +29,6 @@ namespace ApiRestCuestionario.Controllers
         public string props_ui;
     }
 
-<<<<<<< HEAD
     public class ColumnInfo
     {
         public int id { get; set; }
@@ -37,8 +37,6 @@ namespace ApiRestCuestionario.Controllers
         public string columnType { get; set; }
         public JObject props_ui { get; set; }
     }
-=======
->>>>>>> 91e8b5ee73cd8580eb39e9efecd74bbdf9f261c7
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionsController : ControllerBase
@@ -199,7 +197,6 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-<<<<<<< HEAD
 
 
         [HttpGet("CheckColumnNames")]
@@ -258,7 +255,6 @@ namespace ApiRestCuestionario.Controllers
         }
 
        
-=======
         [HttpGet("types")]
         public async Task<ActionResult> GetQuestionTypes()
         {
@@ -277,7 +273,6 @@ namespace ApiRestCuestionario.Controllers
         //}
 
 
->>>>>>> 91e8b5ee73cd8580eb39e9efecd74bbdf9f261c7
 
     }
 }
