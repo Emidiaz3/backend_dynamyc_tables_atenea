@@ -70,9 +70,6 @@ namespace ApiRestCuestionario.Controllers
 
                     }
                 }
-                context.ChangeTracker.Clear();
-
-
 
                 context.Localidad.Update(localidadSave);
                 context.SaveChanges();
