@@ -1,11 +1,18 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
+using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -19,6 +26,15 @@ namespace ApiRestCuestionario.Controllers
         public object aparence { get; set; }
         public object questions { get; set; }
         
+    }
+
+    public class ColumnInfo
+    {
+        public int id { get; set; }
+        public string columnName { get; set; }
+        public string columnDBName { get; set; }
+        public string columnType { get; set; }
+        public JObject props_ui { get; set; }
     }
     [Route("api/[controller]")]
     [ApiController]
@@ -126,17 +142,133 @@ namespace ApiRestCuestionario.Controllers
             context.SaveChanges();
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = questionsSave });
         }
-
-        // PUT api/<QuestionsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost("test")]
+        public async Task<ActionResult> TestFormCreation([FromBody] JsonElement value)
         {
+            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
+            int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
+            var columns = context.column_types.Where(x => x.form_id == form_id).Select(x=>x.nombre_columna_db).ToList();
+            Dictionary<string, int> itemsCounter = new Dictionary<string, int>();
+
+            foreach (var x in columns) {
+
+                var items = x.Trim().Split("_");
+                var isNumeric = int.TryParse(items.Last(), out int n);
+
+                if (items.Length > 1 && isNumeric)
+                {
+                    var verificationString = string.Join("_", items.Take(items.Length - 1));
+                    if (itemsCounter.ContainsKey(verificationString) && n > itemsCounter[verificationString])
+                    {
+                        itemsCounter[verificationString] = n;
+
+                    } else
+                    {
+                        itemsCounter[x] = 1;
+                    }
+
+                } else
+                {
+                    itemsCounter[x] = 1;
+                }
+            }
+                
+       
+            var columnNames = string.Join(",", questionsSave.Select(x =>
+            {
+                string normalizedString = x.title.Normalize(NormalizationForm.FormD);
+                StringBuilder stringBuilder = new StringBuilder();
+                foreach (char c in normalizedString)
+                {
+                    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                        stringBuilder.Append(c);
+                }
+                ;
+                var item = stringBuilder.ToString().Trim().ToLower().Replace(" ", "_");
+                if (itemsCounter.ContainsKey(item))
+                {
+                    itemsCounter[item]++;
+                    return $"{item}_{itemsCounter[item]}";
+                }
+                else
+                {
+                    itemsCounter[item] = 1;
+                    return item;
+                }
+            }));
+            var columnTypes = string.Join(",", questionsSave.Select(x => "NVARCHAR(MAX)"));
+            var props_ui = string.Join(",", questionsSave.Select(x =>$"\"{JsonConvert.SerializeObject(x)}\"" ));
+           
+            var storedProcedureName = "AddColumnsAndInsertData";
+
+
+            
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
+
+            
+
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnTypes, props_ui, form_id }  });
+
         }
 
-        // DELETE api/<QuestionsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+
+
+        [HttpGet("CheckColumnNames")]
+        public async Task<ActionResult> CheckColumnNames([FromBody] JsonElement value)
         {
+            try
+            {
+
+                string columnNames = value.GetProperty("columnNames").ToString();
+                int idEncuesta = value.GetProperty("idEncuesta").GetInt32();
+
+                var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_CHECK_COLUMN_NAMES] @stringArray ={columnNames}, @idEncuesta ={idEncuesta}");
+
+                // implementar verificación de truncamiento solo se envia los objetos del JSON con id != null, es decir los ke se van a actualizar porke podrian tener datos.
+
+                return Ok(new { status = 200, message = "Verificación completada." });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
         }
+
+        [HttpPost("UpdateColumns")]
+        public async Task<ActionResult> UpdateColumns([FromBody] JsonElement value)
+        {
+            try
+            {
+                var questionsRoot = JsonConvert.DeserializeObject<List<ColumnInfo>>(value.GetProperty("questions").GetRawText());
+
+                // delete state = 0
+
+                foreach (var question in questionsRoot)
+                {
+                    string propsUiJsonE = JToken.FromObject(question.props_ui).ToString(Formatting.None);
+
+                    if (question.id == null)
+                    {
+                        // insert
+                    }else if(question.id != null)
+                    {
+                        var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_UPDATE_COLUMN] @idColumn={question.id}, @columnName={question.columnName}, @columnNameDB={question.columnDBName},@dataType={question.columnType},@propsUi={propsUiJsonE}");
+
+                    }
+                    // Si necesitas convertirlo en un string, puedes hacerlo aquí
+
+
+                }
+
+                return Ok(new { status = 200, message = "Verificación completada." });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
+        }
+
+       
+
     }
 }

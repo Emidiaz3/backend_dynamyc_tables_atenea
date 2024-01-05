@@ -56,7 +56,7 @@ namespace ApiRestCuestionario.Controllers
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
                 object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.id, (c, cm) => new { form = c, userForm = cm }).Where(x => x.userForm.users_id == user_id).ToList();
-          
+
                 return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = context.Form.ToList() });
             }
             catch (InvalidCastException e)
@@ -70,10 +70,10 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                string link= JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
-                object FormDataQuestions = context.Form.Join(context.Questions, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, questions = cm }).Where(x => x.form.link.Equals(link)).Select(c=>c.questions).OrderBy(c => c.position).ToList();
+                string link = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
+                object FormDataQuestions = context.Form.Join(context.Questions, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, questions = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.questions).OrderBy(c => c.position).ToList();
                 object form_aparence = context.Form.Join(context.Form_Aparence, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, formStyle = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.formStyle).ToList();
-                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new dataJoin { questions = FormDataQuestions ,aparence=form_aparence} });
+                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new dataJoin { questions = FormDataQuestions, aparence = form_aparence } });
             }
             catch (InvalidCastException e)
             {
@@ -87,7 +87,7 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Form.ToList()});
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Form.ToList() });
             }
             catch (InvalidCastException e)
             {
@@ -105,7 +105,7 @@ namespace ApiRestCuestionario.Controllers
                 string link = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
 
                 Form editForm = context.Form.Where(c => c.id == form_id).First();
-                if(editForm.link == null)
+                if (editForm.link == null)
                 {
                     editForm.link = link;
                     editForm.status = status;
@@ -133,7 +133,7 @@ namespace ApiRestCuestionario.Controllers
             {
                 //Primeramente se crea un nuevo formulario
                 Form form = JsonConvert.DeserializeObject<Form>(value.GetProperty("form").ToString());
-                int idUser= JsonConvert.DeserializeObject <int>(value.GetProperty("user").GetProperty("user_id").ToString());
+                int idUser = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 int proy_id = value.GetProperty("proyecto").GetProperty("id_proyecto").GetInt32();
 
                 // Crea el parámetro de salida
@@ -172,8 +172,8 @@ namespace ApiRestCuestionario.Controllers
                 //    context.Users_Form.Add(users_form);
                 //    context.SaveChanges();
                 //}
-               
-                return  StatusCode(200, new ItemResp { message = CONFIRM ,status=200, data = form });
+
+                return StatusCode(200, new ItemResp { message = CONFIRM, status = 200, data = form });
             }
             catch (InvalidCastException e)
             {

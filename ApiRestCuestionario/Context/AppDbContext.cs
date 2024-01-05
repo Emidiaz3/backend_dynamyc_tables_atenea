@@ -11,8 +11,6 @@ namespace ApiRestCuestionario.Context
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        
-    
         public DbSet<Form> Form { get; set; }
         public DbSet<Users_Form> Users_Form { get; set; }
         public DbSet<Questions> Questions { get; set; }
@@ -30,21 +28,16 @@ namespace ApiRestCuestionario.Context
         //public DbSet<entidad_dato_filtro_usu> entidad_dato_filtro_usu { get; set; }
         public DbSet<entidad_lst_empresa> entidad_lst_empresa { get; set; }
         public DbSet<entidad_lst_sucursal> entidad_lst_sucursal { get; set; }
-
         public DbSet<entidad_lst_pais> entidad_lst_pais { get; set; }
         public DbSet<entidad_lst_codigo> entidad_lst_codigo { get; set; }
         public DbSet<entidad_lst_tipodoc> entidad_lst_tipodoc { get; set; }
         public DbSet<entidad_lst_perfil> entidad_lst_perfil { get; set; }
         public DbSet<t_mae_usuario> t_mae_usuario { get; set; }
-
         public DbSet<T_REL_ROL_USUARIO> T_REL_ROL_USUARIO { get; set; }
-
         public DbSet<entidad_lst_tb_usuario> entidad_lst_tb_usuario { get; set; }
         //public DbSet<entidad_lst_edit_usuario> entidad_lst_edit_usuario { get; set; }
-
         public DbSet<entidad_lst_modulos_accesos> entidad_lst_modulos_accesos { get; set; }
         public DbSet<entidad_lst_usuario_roles> entidad_lst_usuario_roles { get; set; }
-
         public DbSet<entidad_lst_dep> entidad_lst_dep { get; set; }
         public DbSet<entidad_lst_prov> entidad_lst_prov { get; set; }
         public DbSet<entidad_lst_dist> entidad_lst_dist { get; set; }
@@ -54,16 +47,12 @@ namespace ApiRestCuestionario.Context
         public DbSet<Organizacion_localidad> Organizacion_Localidad { get; set; }
         public DbSet<AnswerAnioMes> AnswerAnioMes { get; set; }
         public DbSet<Usuario_Encuesta> Usuario_Encuesta { get; set; }
-
         public DbSet<TipoEncuesta> TipoEncuesta { get; set; }
         public DbSet<Data_Laboratorio> Data_Laboratorio { get; set; }
         public DbSet<ImportacionCJP> ImportacionCJP { get; set; }
         public DbSet<ReporteFinal> ReporteFinalL { get; set; }
         public DbSet<ReporteFinalDetail> ReporteFinal { get; set; }
-
         public DbSet<entity_get_proys> GetDBProys { get; set; }
-
-
+        public DbSet<ColumnType> column_types { get; set; }
     }
-
 }

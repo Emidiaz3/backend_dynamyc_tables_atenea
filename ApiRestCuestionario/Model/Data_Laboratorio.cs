@@ -12,7 +12,6 @@ namespace ApiRestCuestionario.Model
 	public class Data_Laboratorio
 	{
 		public int id { get; set; }
-
 		public string periodo { get; set; }
 		public string sede { get; set; }
 		public double cod_periodo { get; set; }
