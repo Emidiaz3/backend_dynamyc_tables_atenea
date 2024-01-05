@@ -607,7 +607,7 @@ namespace ApiRestCuestionario.Controllers
                     });
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
