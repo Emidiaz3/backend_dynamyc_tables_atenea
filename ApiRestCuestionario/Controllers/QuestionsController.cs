@@ -2,10 +2,12 @@
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using System.Globalization;
 using System.Linq;
@@ -17,13 +19,6 @@ using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
-    public class dataJoin
-    {
-        public dataJoin(){}
-        public object aparence { get; set; }
-        public object questions { get; set; }
-        
-    }
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionsController : ControllerBase
@@ -34,76 +29,22 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // GET: api/<QuestionsController>
+
         [HttpGet]
-        public IEnumerable<Questions> Get()
-        {
-            return context.Questions.ToList();
-        }
-        
-
-
-        // GET api/<QuestionsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-        [HttpPost]
-        [Route("GetQuestions")]
-        public ActionResult GetQuestions([FromBody] JsonElement value)
+        public ActionResult GetQuestions([FromQuery][Required] int formId)
         {
             try
             {
-                int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
-                object questionsList = context.Questions.Where(c => c.form_id == form_id).OrderBy(c=>c.position).ToList();
-                object form_aparence = context.Form_Aparence.Where(c => c.form_id == form_id).ToList();
+                object questions = context.column_types.Where(c => c.form_id == formId && c.props_ui !=null).Select(c=> c.props_ui);
+                object aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
                 
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoin {aparence= form_aparence,questions= questionsList } });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence,questions } });
             }
             catch (InvalidCastException e)
             {
                 return BadRequest(e.ToString());
             }
         }
-        
-        [HttpPost]
-        [Route("DeleteQuestions")]
-        public ActionResult DeleteQuestions([FromBody] JsonElement value)
-        {
-            try
-            {
-                
-                List<Questions> questions_ListId = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").GetProperty("questionsList").ToString());
-
-                if (questions_ListId.Count() > 0)
-                {
-                    
-                  
-                    foreach (Questions quest in questions_ListId)
-                    {
-                        List<Answers> answer = context.Answers.Where(c => c.questions_id == quest.id).ToList();
-                        if (questions_ListId.Count() > 0)
-                        {
-                            context.Answers.RemoveRange(answer);
-
-                        }
-                    }
-                    context.Questions.RemoveRange(questions_ListId);
-
-                }
-                context.SaveChanges();
-                
-            
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ""});
-            }
-            catch (InvalidCastException e)
-            {
-                return BadRequest(e.ToString());
-            }
-        }
-        
-        // POST api/<QuestionsController>
         [HttpPost]
         public ActionResult Post([FromBody] JsonElement value)
         {
@@ -118,10 +59,10 @@ namespace ApiRestCuestionario.Controllers
             List<Questions> questionsSaveNotRepeat = questionsSave.Where(x => x.id == null).ToList();
             context.Questions.AddRange(questionsSaveNotRepeat);
             //Se Crea una lista con los elementos a hacer update
-            List<Questions> questionsUpdate= questionsSave.Where(x=>x.id != null).ToList();
+            List<Questions> questionsUpdate = questionsSave.Where(x => x.id != null).ToList();
             context.Questions.UpdateRange(questionsUpdate);
             context.Form_Aparence.Add(aparenceSave);
-            if(aparenceSave.id != 0)
+            if (aparenceSave.id != 0)
             {
                 context.Form_Aparence.Update(aparenceSave);
             }
@@ -130,10 +71,41 @@ namespace ApiRestCuestionario.Controllers
             context.SaveChanges();
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = questionsSave });
         }
+
+        [HttpDelete]
+        public ActionResult DeleteQuestions([FromBody] JsonElement value)
+        {
+            try
+            {
+                List<Questions> questions_ListId = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").GetProperty("questionsList").ToString());
+
+                if (questions_ListId.Count() > 0)
+                {
+                    foreach (Questions quest in questions_ListId)
+                    {
+                        List<Answers> answer = context.Answers.Where(c => c.questions_id == quest.id).ToList();
+                        if (questions_ListId.Count() > 0)
+                        {
+                            context.Answers.RemoveRange(answer);
+                        }
+                    }
+                    context.Questions.RemoveRange(questions_ListId);
+                }
+                context.SaveChanges();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ""});
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+        
+        
         [HttpPost("test")]
         public async Task<ActionResult> TestFormCreation([FromBody] JsonElement value)
         {
-            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(value.GetProperty("questions").ToString());
+            var questionBody = value.GetProperty("questions").ToString();
+            var questionsSave = JsonConvert.DeserializeObject<List<Questions>>(questionBody);
             int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
             var columns = context.column_types.Where(x => x.form_id == form_id).Select(x=>x.nombre_columna_db).ToList();
             Dictionary<string, int> itemsCounter = new Dictionary<string, int>();
@@ -160,9 +132,9 @@ namespace ApiRestCuestionario.Controllers
                     itemsCounter[x] = 1;
                 }
             }
-                
+            var columnNames = string.Join(",", questionsSave.Select(x => x.title));
        
-            var columnNames = string.Join(",", questionsSave.Select(x =>
+            var columnNamesDB = string.Join(",", questionsSave.Select(x =>
             {
                 string normalizedString = x.title.Normalize(NormalizationForm.FormD);
                 StringBuilder stringBuilder = new StringBuilder();
@@ -189,13 +161,31 @@ namespace ApiRestCuestionario.Controllers
            
             var storedProcedureName = "AddColumnsAndInsertData";
             
-            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={form_id};");
+            var result = await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC {storedProcedureName} @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {questionBody}, @formId={form_id};");
 
 
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnTypes, props_ui, form_id }  });
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { columns, columnNames, columnNamesDB, columnTypes, props_ui, form_id, questionBody }  });
 
         }
 
-        
+        [HttpGet("types")]
+        public async Task<ActionResult> GetQuestionTypes()
+        {
+            var data = await context.question_types.ToListAsync();
+          
+            return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data=data });
+        }
+         
+        //[HttpPost("types")]
+        //public async Task<ActionResult> SaveQuestionTypes([FromBody] JsonElement value)
+        //{
+        //    var questions = JsonConvert.DeserializeObject<List<QuestionType>>(value.GetProperty("types").ToString());
+        //    context.question_types.AddRange(questions);
+        //    var response = await context.SaveChangesAsync();
+        //    return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data = new { response } });
+        //}
+
+
+
     }
 }

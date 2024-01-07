@@ -82,10 +82,6 @@ namespace ApiRestCuestionario.Controllers
 
                     }
                 }
-                context.ChangeTracker.Clear();
-
-
-
                 List<Organizacion_localidad> organizacion_localidadupdate = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
                 List < Organizacion_localidad > organizacion_localidadSave = new List<Organizacion_localidad>();
                 foreach (Organizacion_localidad c in organizacion_localidadupdate)
