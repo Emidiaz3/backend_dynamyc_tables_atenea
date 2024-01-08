@@ -140,6 +140,34 @@ namespace ApiRestCuestionario.Controllers
                     await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
                 }
             }
+            if (toUpdate.Count() != 0)
+            {
+                List<string> toUpdateColumns = new List<string>();
+                foreach (var x in toUpdate)
+                {
+                    var normalized = Utils.NormalizeString(x.column_db_name);
+                    var parsedColumn = "";
+                    if (!toUpdateColumns.Contains(normalized))
+                    {
+                        toUpdateColumns.Append(normalized);
+                        parsedColumn = normalized;
+                    }
+                    else if (itemsCounter.ContainsKey(normalized))
+                    {
+                        itemsCounter[normalized]++;
+                        parsedColumn = $"{normalized}_{itemsCounter[normalized]}";
+                    }
+                    else
+                    {
+                        itemsCounter[normalized] = 1;
+                        parsedColumn = normalized;
+                    }
+
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
+
+                }
+
+            }
             if (toInsert.Count() != 0)
             {
                 var columnNames = string.Join(",", toInsert.Select(x => x.column_name));
@@ -162,34 +190,12 @@ namespace ApiRestCuestionario.Controllers
                 await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC AddColumnsAndInsertData @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId};");
             }
 
-            if (toUpdate.Count() != 0)
-            {
-                foreach (var x in toUpdate)
-                {
-                    var normalized = Utils.NormalizeString(x.column_db_name);
-                    var parsedColumn = "";
-                    if (itemsCounter.ContainsKey(normalized))
-                    {
-                        itemsCounter[normalized]++;
-                        parsedColumn =  $"{normalized}_{itemsCounter[normalized]}";
-                    }
-                    else
-                    {
-                        itemsCounter[normalized] = 1;
-                        parsedColumn = normalized;
-                    }
-
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
-
-                }
-
-            }
+           
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO }  });
 
         }
 
-
-
+       
         [HttpPost("UpdateColumns")]
         public async Task<ActionResult> UpdateColumns([FromBody] JsonElement value)
         {
