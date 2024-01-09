@@ -1,8 +1,10 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,6 +25,15 @@ namespace ApiRestCuestionario.Controllers
         public string column_name;
         public string column_db_name;
         public string props_ui;
+    }
+
+    public class ColumnInfo
+    {
+        public int? id { get; set; }
+        public string columnName { get; set; }
+        public string columnDBName { get; set; }
+        public string columnType { get; set; }
+        public JObject props_ui { get; set; }
     }
 
     [Route("api/[controller]")]
@@ -198,6 +209,67 @@ namespace ApiRestCuestionario.Controllers
         //    var response = await context.SaveChangesAsync();
         //    return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data = new { response } });
         //}
+
+        [HttpGet("CheckColumnNames")]
+        public async Task<ActionResult> CheckColumnNames([FromBody] JsonElement value)
+        {
+            try
+            {
+
+                string columnNames = value.GetProperty("columnNames").ToString();
+                int idEncuesta = value.GetProperty("idEncuesta").GetInt32();
+
+                var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_CHECK_COLUMN_NAMES] @stringArray ={columnNames}, @idEncuesta ={idEncuesta}");
+
+                // implementar verificación de truncamiento solo se envia los objetos del JSON con id != null, es decir los ke se van a actualizar porke podrian tener datos.
+
+                return Ok(new { status = 200, message = "Verificación completada." });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
+
+        }
+
+        [HttpPost("UpdateColumns")]
+        public async Task<ActionResult> UpdateColumns([FromBody] JsonElement value)
+        {
+            try
+            {
+                var questionsRoot = JsonConvert.DeserializeObject<List<ColumnInfo>>(value.GetProperty("questions").GetRawText());
+                var questionsDelete = JsonConvert.DeserializeObject<List<ColumnInfo>>(value.GetProperty("questionsDelete").GetRawText());
+
+
+                // Cambiar estado a 0, preguntas/columnas que se quitaron
+                foreach (var questionD in questionsDelete)
+                {
+                    var res1 = await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
+                }
+
+                foreach (var question in questionsRoot)
+                {
+                    string propsUiJsonE = JToken.FromObject(question.props_ui).ToString(Formatting.None);
+
+                    //if (question.id == null)
+                    //{
+                    //    // insertar nuevas preguntas/columnas
+
+                    //}
+                    if (question.id != null)
+                    {
+                        // modificar preguntas/columnas existentes
+                        var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_UPDATE_COLUMN] @idColumn={question.id}, @columnName={question.columnName}, @columnNameDB={question.columnDBName},@dataType={question.columnType},@propsUi={propsUiJsonE}");
+                    }
+                }
+
+                return Ok(new { status = 200, message = "Verificación completada." });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
+        }
 
 
 
