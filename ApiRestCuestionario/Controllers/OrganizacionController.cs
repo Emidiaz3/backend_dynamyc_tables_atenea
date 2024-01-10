@@ -22,9 +22,7 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // POST api/<PersonaController>
-        [Route("SaveOrganizacion")]
-        [HttpPost]
+        [HttpPost("SaveOrganizacion")]
         public ActionResult SavePerson([FromBody] JsonElement value)
         {
             try
@@ -32,10 +30,7 @@ namespace ApiRestCuestionario.Controllers
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
                 List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
-
                 organizacionSave.fecharegistro = DateTime.Now;
-
-
                 Organizacion organizacionValidate = null;
                 organizacionValidate= context.Organizacion.ToList().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
 
@@ -61,17 +56,13 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [Route("EditOrganizacion")]
-        [HttpPost]
+        [HttpPost("EditOrganizacion")]
         public ActionResult EditPerson([FromBody] JsonElement value)
         {
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
-
-
-
                 Organizacion organizacionValidate = null;
                 organizacionValidate = context.Organizacion.ToList().AsReadOnly().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
                 if(organizacionValidate != null)
@@ -79,7 +70,6 @@ namespace ApiRestCuestionario.Controllers
                     if (organizacionSave.idorganizacion != organizacionValidate.idorganizacion)
                     {
                         return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-
                     }
                 }
                 List<Organizacion_localidad> organizacion_localidadupdate = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
@@ -123,8 +113,7 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [HttpPost]
-        [Route("GetOrganizacionlocalidadById")]
+        [HttpPost("GetOrganizacionlocalidadById")]
         public ActionResult GetOrganizaciónById([FromBody] JsonElement value)
         {
             try
@@ -142,8 +131,7 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [HttpPost]
-        [Route("DeleteOrganizacionlocalidad")]
+        [HttpPost("DeleteOrganizacionlocalidad")]
         public ActionResult DeleteOrganizacionlocalidad([FromBody] JsonElement value)
         {
             try

@@ -9,11 +9,11 @@ namespace ApiRestCuestionario.Response
     {
         public ItemResponse()
         {
-
         }
+
         public int status { get; set; }
         public string message { get; set; }
-        //public object data { get; set; }
 
+        public object data { get; set; }
     }
 }
