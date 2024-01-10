@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -81,7 +82,8 @@ namespace ApiRestCuestionario.Controllers
 
     public class ColumnInfo
     {
-        public int id { get; set; }
+        public int? id { get; set; }
+
         public string columnName { get; set; }
         public string columnDBName { get; set; }
         public string columnType { get; set; }
@@ -195,40 +197,6 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-       
-        [HttpPost("UpdateColumns")]
-        public async Task<ActionResult> UpdateColumns([FromBody] JsonElement value)
-        {
-            try
-            {
-                var questionsRoot = JsonConvert.DeserializeObject<List<ColumnInfo>>(value.GetProperty("questions").GetRawText());
-
-                // delete state = 0
-
-                foreach (var question in questionsRoot)
-                {
-                    string propsUiJsonE = JToken.FromObject(question.props_ui).ToString(Formatting.None);
-
-                    if (question.id == null)
-                    {
-                        // insert
-                    }                    // Si necesitas convertirlo en un string, puedes hacerlo aquí
-                    else
-                    {
-                        if (question.id != null)
-                        {
-                            var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_UPDATE_COLUMN] @idColumn={question.id}, @columnName={question.columnName}, @columnNameDB={question.columnDBName},@dataType={question.columnType},@propsUi={propsUiJsonE}");
-
-                        }
-                    }
-                }
-                return Ok(new { status = 200, message = "Verificación completada." });
-            }
-            catch (SqlException ex)
-            {
-                return StatusCode(500, new { status = 500, message = ex.Message });
-            }
-        }
 
        
         [HttpGet("types")]
@@ -239,9 +207,40 @@ namespace ApiRestCuestionario.Controllers
             return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data=data });
         }
 
+        //[HttpPost("types")]
+        //public async Task<ActionResult> SaveQuestionTypes([FromBody] JsonElement value)
+        //{
+        //    var questions = JsonConvert.DeserializeObject<List<QuestionType>>(value.GetProperty("types").ToString());
+        //    context.question_types.AddRange(questions);
+        //    var response = await context.SaveChangesAsync();
+        //    return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data = new { response } });
+        //}
 
         [HttpGet("CheckColumnNames")]
         public async Task<ActionResult> CheckColumnNames([FromBody] JsonElement value)
+        {
+            try
+            {
+
+                string columnNames = value.GetProperty("columnNames").ToString();
+                int idEncuesta = value.GetProperty("idEncuesta").GetInt32();
+
+                var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_CHECK_COLUMN_NAMES] @stringArray ={columnNames}, @idEncuesta ={idEncuesta}");
+
+                // implementar verificación de truncamiento solo se envia los objetos del JSON con id != null, es decir los ke se van a actualizar porke podrian tener datos.
+
+                return Ok(new { status = 200, message = "Verificación completada." });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
+
+        }
+
+
+        [HttpGet("CheckColumnNames")]
+        public async Task<ActionResult> CheckColumnNames2([FromBody] JsonElement value)
         {
             try
             {

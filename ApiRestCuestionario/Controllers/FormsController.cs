@@ -5,15 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -62,9 +58,17 @@ namespace ApiRestCuestionario.Controllers
         [Route("GetFormByLink")]
         public ActionResult GetFormByLink([FromQuery][Required] string link)
         {
-            var questions = context.column_types.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link}").ToList();
-            var aparence = context.Form_Aparence.FromSqlInterpolated($"select fa.* from form_aparence fa join form f on (fa.form_id = f.id) where f.link  = {link}").First();
-            return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new  { questions, aparence } });
+
+            try
+            {
+                var questions = context.column_types.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link}").ToList();
+                var aparence = context.Form_Aparence.FromSqlInterpolated($"select fa.* from form_aparence fa join form f on (fa.form_id = f.id) where f.link  = {link}").First();
+                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new { questions, aparence } });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
         [HttpPost]
         [Route("GetFormByIdForm")]
