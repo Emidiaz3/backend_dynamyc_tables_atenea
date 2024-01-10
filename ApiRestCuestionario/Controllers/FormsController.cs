@@ -3,17 +3,13 @@ using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -42,13 +38,6 @@ namespace ApiRestCuestionario.Controllers
         {
             return context.Form.ToList();
         }
-
-        // GET api/<FormsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
         [HttpPost]
         [Route("GetFormByIdUser")]
         public ActionResult GetFormByIdUser([FromBody] JsonElement value)
@@ -65,17 +54,16 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost]
+        [HttpGet]
         [Route("GetFormByLink")]
-        public ActionResult GetFormByLink([FromBody] JsonElement value)
+        public ActionResult GetFormByLink([FromQuery][Required] string link)
         {
+
             try
             {
-                string link = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
-                object FormDataQuestions = context.Form.Join(context.Questions, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, questions = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.questions).OrderBy(c => c.position).ToList();
-                object form_aparence = context.Form.Join(context.Form_Aparence, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, formStyle = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.formStyle).ToList();
-
-                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new  { questions = FormDataQuestions, aparence = form_aparence } });
+                var questions = context.column_types.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link} and ct.state = 1").ToList();
+                var aparence = context.Form_Aparence.FromSqlInterpolated($"select fa.* from form_aparence fa join form f on (fa.form_id = f.id) where f.link  = {link}").First();
+                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new { questions, aparence } });
             }
             catch (InvalidCastException e)
             {
@@ -96,21 +84,18 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost]
+        [HttpPatch]
         [Route("EditFormLink")]
-        public ActionResult EditFormLink([FromBody] JsonElement value)
+        public ActionResult EditFormLink([FromQuery][Required] int formId)
         {
             try
             {
-                int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
-                string status = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("status").ToString());
-                string link = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
-
-                Form editForm = context.Form.Where(c => c.id == form_id).First();
+                Form editForm = context.Form.Where(c => c.id == formId).First();
                 if (editForm.link == null)
                 {
-                    editForm.link = link;
-                    editForm.status = status;
+                    Guid uuidV4 = Guid.NewGuid();
+                    editForm.link = uuidV4.ToString();
+                    editForm.status = "Publicado";
                     context.Form.Update(editForm);
                     context.SaveChanges();
                     return StatusCode(200, new ItemResp { status = 200, message = CONFIRMLINKSAVE, data = editForm });
@@ -118,7 +103,6 @@ namespace ApiRestCuestionario.Controllers
                 else
                 {
                     return StatusCode(200, new ItemResp { status = 200, message = UPDATELINKCANCEL, data = editForm });
-
                 }
 
             }
@@ -181,18 +165,6 @@ namespace ApiRestCuestionario.Controllers
             {
                 return BadRequest(e.ToString());
             }
-        }
-
-        // PUT api/<FormsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<FormsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
