@@ -3,6 +3,7 @@ using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -73,6 +74,7 @@ namespace ApiRestCuestionario.Controllers
                 string link = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("link").ToString());
                 object FormDataQuestions = context.Form.Join(context.Questions, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, questions = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.questions).OrderBy(c => c.position).ToList();
                 object form_aparence = context.Form.Join(context.Form_Aparence, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, formStyle = cm }).Where(x => x.form.link.Equals(link)).Select(c => c.formStyle).ToList();
+
                 return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new  { questions = FormDataQuestions, aparence = form_aparence } });
             }
             catch (InvalidCastException e)
