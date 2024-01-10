@@ -8,6 +8,7 @@
         public string datatype { get; set; }
         public string props_ui { get; set; }
         public int form_id { get; set; }
+        public int state { get; set; }
 
     }
 }

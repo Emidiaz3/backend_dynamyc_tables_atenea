@@ -19,7 +19,7 @@ namespace ApiRestCuestionario.Model
         public int? UsuarioCreacion { get; set; }
         public DateTime? FechaAccion { get; set; }
         public int? UsuarioAccion { get; set; }
-        public string? NombreDB { get; set; }
+        public string NombreDB { get; set; }
     }
 
     public class entidad_guardar_proyecto
