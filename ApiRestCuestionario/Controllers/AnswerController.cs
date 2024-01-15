@@ -1,9 +1,12 @@
 ﻿using ApiRestCuestionario.Context;
+using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -11,8 +14,17 @@ using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace ApiRestCuestionario.Model
+namespace ApiRestCuestionario.Controllers
 {
+    public class SaveAnswerDTO
+    {
+        [Required]
+        public int formId { get; set; }
+        [Required]
+        public List<Answers> dataAnswer { get; set; }
+        [Required]
+        public List<AnswerAnioMes> listDataAnioMes { get; set; }
+    }
     [Route("api/[controller]")]
     [ApiController]
     public class AnswerController : ControllerBase
@@ -42,9 +54,9 @@ namespace ApiRestCuestionario.Model
         {
             try
             {
-                int form_id = Int32.Parse(JsonConvert.DeserializeObject<string>(form.formId));
-                int question_id = Int32.Parse(JsonConvert.DeserializeObject<string>(form.questionsId));
-                int user_id = Int32.Parse(JsonConvert.DeserializeObject<string>(form.userId));
+                int form_id = int.Parse(JsonConvert.DeserializeObject<string>(form.formId));
+                int question_id = int.Parse(JsonConvert.DeserializeObject<string>(form.questionsId));
+                int user_id = int.Parse(JsonConvert.DeserializeObject<string>(form.userId));
                 string hashUnic = JsonConvert.DeserializeObject<string>(form.hashUnic);
                 string Flg_proceso = JsonConvert.DeserializeObject<string>(form.Flg_proceso);
                 DateTime fechasave = DateTime.Now;
@@ -55,18 +67,18 @@ namespace ApiRestCuestionario.Model
                     //Si no existe que cree la carpeta DocumentsAnswers
                     //Direccion total seria : CuestionarioRepo\Encuestas_Back2\Encuestas_Back\ApiRestCuestionario\bin\Debug\netcoreapp3.1\DocumentsAnswers
                     //El numero significa el id del formularios
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");
-                    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory+ "DocumentsAnswers\\"+ form_id.ToString()+"\\", document.FileName);
+                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");
+                    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString() + "\\", document.FileName);
                     joinToPathDocument.Add(filePath);
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\"+ form_id.ToString());
+                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString());
                     using (Stream fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await document.CopyToAsync(fileStream);
                     }
                 }
-                context.Answers.Add(new Answers { answer = String.Join("|||", joinToPathDocument) ,form_id=form_id,questions_id=question_id,users_id=user_id,hashUnic=hashUnic,Flg_proceso=Flg_proceso,answer_date= fechasave });
+                context.Answers.Add(new Answers { answer = string.Join("|||", joinToPathDocument), form_id = form_id, questions_id = question_id, users_id = user_id, hashUnic = hashUnic, Flg_proceso = Flg_proceso, answer_date = fechasave });
                 context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM});
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
             {
@@ -79,7 +91,7 @@ namespace ApiRestCuestionario.Model
         {
             try
             {
-                int form_id = Int32.Parse(JsonConvert.DeserializeObject<string>(form.formId));
+                int form_id = int.Parse(JsonConvert.DeserializeObject<string>(form.formId));
                 string filePath = "";
                 //Se junta las direcciones de guardado en un string
                 List<string> joinToPathDocument = new List<string>();
@@ -88,10 +100,10 @@ namespace ApiRestCuestionario.Model
                     //Si no existe que cree la carpeta DocumentsAnswers
                     //Direccion total seria : CuestionarioRepo\Encuestas_Back2\Encuestas_Back\ApiRestCuestionario\bin\Debug\netcoreapp3.1\DocumentsAnswers
                     //El numero significa el id del formularios
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm");
+                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm");
                     filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm\\" + form_id.ToString() + "\\", document.FileName);
                     joinToPathDocument.Add(filePath);
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm\\" + form_id.ToString());
+                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm\\" + form_id.ToString());
                     using (Stream fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await document.CopyToAsync(fileStream);
@@ -101,7 +113,7 @@ namespace ApiRestCuestionario.Model
                 formEdit.archive = filePath;
                 context.Form.Update(formEdit);
                 context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = filePath }) ;
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = filePath });
             }
             catch (InvalidCastException e)
             {
@@ -114,7 +126,7 @@ namespace ApiRestCuestionario.Model
         {
             try
             {
-                string filePath = JsonConvert.DeserializeObject<String>(form.GetProperty("path").ToString());
+                string filePath = JsonConvert.DeserializeObject<string>(form.GetProperty("path").ToString());
                 byte[] archivoBytes = System.IO.File.ReadAllBytes(filePath);
                 string base64 = Convert.ToBase64String(archivoBytes);
                 //Se junta las direcciones de guardado en un string
@@ -129,25 +141,27 @@ namespace ApiRestCuestionario.Model
 
         [HttpPost]
         [Route("SaveAnswer")]
-        public  ActionResult SaveAnswer([FromBody] JsonElement form)
+        public async Task<ActionResult> SaveAnswer([FromBody] SaveAnswerDTO answer)
         {
             try
             {
-                List<Answers> answersSave = JsonConvert.DeserializeObject<List<Answers>>(form.GetProperty("dataAnswer").ToString());
-                List<AnswerAnioMes> answersAnioSaveSave = JsonConvert.DeserializeObject<List<AnswerAnioMes>>(form.GetProperty("listDataAnioMes").ToString());
+                Guid uuidV4 = Guid.NewGuid();
 
                 DateTime fechasave = DateTime.Now;
-                foreach (Answers ans in answersSave)
+                foreach (Answers ans in answer.dataAnswer)
                 {
+                    ans.hashUnic = uuidV4.ToString();
                     ans.answer_date = fechasave;
                 }
-                foreach (AnswerAnioMes ansa in answersAnioSaveSave)
+                foreach (AnswerAnioMes ansa in answer.listDataAnioMes)
                 {
+                    ansa.hashUnic = uuidV4.ToString();
                     ansa.answer_date = fechasave;
                 }
-                context.Answers.AddRange(answersSave);
-                context.AnswerAnioMes.AddRange(answersAnioSaveSave);
+                context.Answers.AddRange(answer.dataAnswer);
+                context.AnswerAnioMes.AddRange(answer.listDataAnioMes);
                 context.SaveChanges();
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.formId} , @json = {JsonConvert.SerializeObject(answer.dataAnswer)}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
@@ -167,10 +181,10 @@ namespace ApiRestCuestionario.Model
                 List<Answers> saveAnswersToBd = new List<Answers>();
                 List<AnswerAnioMes> answersAnioSaveSave = JsonConvert.DeserializeObject<List<AnswerAnioMes>>(form.GetProperty("listDataAnioMes").ToString());
 
-                
+
 
                 foreach (var ans in answersSave)
-                  {
+                {
                     DateTime fechasave = DateTime.Now;
                     foreach (var c in ans)
                     {
@@ -179,7 +193,7 @@ namespace ApiRestCuestionario.Model
                     context.Answers.AddRange(ans);
                 }
 
-                    foreach (AnswerAnioMes ansa in answersAnioSaveSave)
+                foreach (AnswerAnioMes ansa in answersAnioSaveSave)
                 {
                     ansa.answer_date = fechasaveGeneral;
                 }
@@ -202,7 +216,7 @@ namespace ApiRestCuestionario.Model
 
                 string idform = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("form_id").ToString());
 
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM ,data=context.AnswerAnioMes.ToList().Where(c=>c.hashUnic== idform) });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.AnswerAnioMes.ToList().Where(c => c.hashUnic == idform) });
             }
             catch (InvalidCastException e)
             {
@@ -222,7 +236,7 @@ namespace ApiRestCuestionario.Model
                 }
                 context.Answers.UpdateRange(answersDelete);
                 context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data =  null});
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
             }
             catch (InvalidCastException e)
             {
