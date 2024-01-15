@@ -1,8 +1,6 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +14,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-
-using Microsoft.IdentityModel.Protocols;
-using System.IO;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Net;
-//using static ApiRestCuestionario.Model.SendMail;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

@@ -14,7 +14,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -105,10 +104,10 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                object questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null && c.state == 1);
-                object aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
-                
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence,questions } });
+                var questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null && c.state == 1);
+                var aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
+                var form = context.Form.Where(c=>c.id == formId).FirstOrDefault();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence,questions,form } });
             }
             catch (InvalidCastException e)
             {
