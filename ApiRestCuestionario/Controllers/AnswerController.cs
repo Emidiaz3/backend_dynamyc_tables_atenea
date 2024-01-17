@@ -55,12 +55,7 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int form_id = int.Parse(JsonConvert.DeserializeObject<string>(form.formId));
-                int question_id = int.Parse(JsonConvert.DeserializeObject<string>(form.questionsId));
-                int user_id = int.Parse(JsonConvert.DeserializeObject<string>(form.userId));
-                string hashUnic = JsonConvert.DeserializeObject<string>(form.hashUnic);
-                string Flg_proceso = JsonConvert.DeserializeObject<string>(form.Flg_proceso);
-                DateTime fechasave = DateTime.Now;
-                //Se junta las direcciones de guardado en un string
+                int questions_id = int.Parse(JsonConvert.DeserializeObject<string>(form.questionsId));
                 List<string> joinToPathDocument = new List<string>();
                 foreach (IFormFile document in form.file)
                 {
@@ -76,9 +71,8 @@ namespace ApiRestCuestionario.Controllers
                         await document.CopyToAsync(fileStream);
                     }
                 }
-                context.Answers.Add(new Answers { answer = string.Join("|||", joinToPathDocument), form_id = form_id, questions_id = question_id, users_id = user_id, hashUnic = hashUnic, Flg_proceso = Flg_proceso, answer_date = fechasave });
-                context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
+              
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer = string.Join("|||", joinToPathDocument), questions_id } });
             }
             catch (InvalidCastException e)
             {
