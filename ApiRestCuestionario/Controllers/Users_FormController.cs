@@ -1,9 +1,15 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -31,26 +37,13 @@ namespace ApiRestCuestionario.Controllers
     {
         private readonly AppDbContext context;
         string CONFIRM = "Se creo con exito";
-
-        public Users_FormController(AppDbContext context)
+        String connectionString;
+        public Users_FormController(AppDbContext context, IConfiguration configuration)
         {
             this.context = context;
+            this.connectionString = configuration.GetConnectionString("Database");
         }
-        // GET: api/<Users_FormController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<Users_FormController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<Users_FormController>
+       
         [HttpPost]
         public ActionResult Post([FromBody] JsonElement value)
         {
@@ -168,16 +161,30 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        // PUT api/<Users_FormController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+
+        [HttpGet("GetAnswers")]
+        public async Task<ActionResult> GetAnswers([FromQuery][Required] int formId)
         {
+            Console.WriteLine(connectionString);
+           try
+            {
+
+                using (var connection = new  SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var data = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
+                    connection.Close();
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = data });
+
+                }
+             }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+
+            }
         }
 
-        // DELETE api/<Users_FormController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+       
     }
 }
