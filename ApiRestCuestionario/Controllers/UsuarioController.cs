@@ -140,6 +140,7 @@ namespace ApiRestCuestionario.Controllers
 
                 //var decrypted_text = Encryptor.Decrypt("PRL6/Sbwq8g=");
                 ent.PassUsuario = encrypted_text;
+                Console.Write(ent);
 
                 await context.Database
                .ExecuteSqlInterpolatedAsync($@"Exec SP_GUARDAR_USUARIO

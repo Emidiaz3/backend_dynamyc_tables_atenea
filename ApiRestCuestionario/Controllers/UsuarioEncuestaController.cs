@@ -49,7 +49,7 @@ namespace ApiRestCuestionario.Controllers
             {
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
                 
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Usuario_Encuesta.ToList().Where(c => c.idUsuario == idUsuario)});
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Usuario_Encuesta.ToList().Where(c => c.users_id == idUsuario)});
             }
             catch (InvalidCastException e)
             {
@@ -84,7 +84,7 @@ namespace ApiRestCuestionario.Controllers
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
 
                 //List<Usuario_Encuesta> list = context.Usuario_Encuesta.Where(c => c.idUsuario == idUsuario).Select(m => m.idTipoEncuesta).Distinct(); ;
-                var listIdTipoEncuesta = context.Usuario_Encuesta.Where(c => c.idUsuario == idUsuario).Select(m => m.idTipoEncuesta).Distinct();
+                var listIdTipoEncuesta = context.Usuario_Encuesta.Where(c => c.users_id == idUsuario).Select(m => m.idTipoEncuesta).Distinct();
 
                 if (listIdTipoEncuesta.Count() ==0)
                 {
@@ -115,7 +115,7 @@ namespace ApiRestCuestionario.Controllers
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
                 int idTipoEncuesta = JsonConvert.DeserializeObject<int>(form.GetProperty("idTipoEncuesta").ToString());
 
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Usuario_Encuesta.ToList().Where(c => c.idUsuario == idUsuario).Where(c=>c.idTipoEncuesta== idTipoEncuesta) });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Usuario_Encuesta.ToList().Where(c => c.users_id == idUsuario).Where(c=>c.idTipoEncuesta== idTipoEncuesta) });
             }
             catch (InvalidCastException e)
             {
