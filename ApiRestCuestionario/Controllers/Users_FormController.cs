@@ -168,13 +168,12 @@ namespace ApiRestCuestionario.Controllers
             Console.WriteLine(connectionString);
            try
             {
-
                 using (var connection = new  SqlConnection(connectionString))
                 {
                     connection.Open();
                     var data = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
                     connection.Close();
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = data });
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new {  data } });
 
                 }
              }
