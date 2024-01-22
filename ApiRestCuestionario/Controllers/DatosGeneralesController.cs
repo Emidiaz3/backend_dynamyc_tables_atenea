@@ -4,29 +4,23 @@ using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class DatosGeneralesController : ControllerBase
     {
-
         private readonly AppDbContext context;
-        //private readonly IConfiguration config;
-        public DatosGeneralesController(AppDbContext context) //, IConfiguration _config
+        public DatosGeneralesController(AppDbContext context)
         {
             this.context = context;
-            //this.config = _config;
         }
 
-        [HttpGet]
-        [Route("GetListPais")]
+        [HttpGet("GetListPais")]
         public async Task<ActionResult<dynamic>> GetListPais(string filtro)
         {
             var response = new ItemResponse();
@@ -61,8 +55,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetListTipoDocumento")]
+        [HttpGet("GetListTipoDocumento")]
         public async Task<ActionResult<dynamic>> GetListTipoDocumento(string filtro)
         {
             var response = new ItemResponse();
@@ -97,8 +90,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetListDepartamento")]
+        [HttpGet("GetListDepartamento")]
         public async Task<ActionResult<dynamic>> GetListDepartamento(int IdPais)
         {
             var response = new ItemResponse();
@@ -140,8 +132,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetListProvincia")]
+        [HttpGet("GetListProvincia")]
         public async Task<ActionResult<dynamic>> GetListProvincia(int IdDep)
         {
             var response = new ItemResponse();
@@ -152,7 +143,7 @@ namespace ApiRestCuestionario.Controllers
 
                 if (IdDep > 0)
                 {
-                    filtro = " and IdDep=" + IdDep;
+                    filtro = $" and IdDep={IdDep}";
                 }
 
                 List<entidad_lst_prov> datos = new List<entidad_lst_prov>();
@@ -183,8 +174,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetListDistrito")]
+        [HttpGet("GetListDistrito")]
         public async Task<ActionResult<dynamic>> GetListDistrito(int IdProv)
         {
             var response = new ItemResponse();
@@ -224,40 +214,6 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
-        }
-
-        //**********************************************************************
-
-        // GET: api/<DatosGeneralesController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<DatosGeneralesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<DatosGeneralesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<DatosGeneralesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<DatosGeneralesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

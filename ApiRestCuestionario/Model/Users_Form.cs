@@ -232,10 +232,10 @@ namespace ApiRestCuestionario.Model
         public int? UsuarioCreacion { get; set; }
         public DateTime FechaAccion { get; set; }
         public int UsuarioAccion { get; set; }
-        public string? CodigoCambioPassword { get; set; }
+        public string CodigoCambioPassword { get; set; }
         public bool? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string? FotoPerfil { get; set; }
+        public string FotoPerfil { get; set; }
 
 
 

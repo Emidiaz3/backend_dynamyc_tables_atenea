@@ -5,20 +5,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class RolController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -27,10 +21,7 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
         }
 
-
-
-        [HttpGet]
-        [Route("GetListRol")]//si envia el id 0 trae toda la data de la tabla rol, si es mayor a 1 trae los datos del rol de ese usuario
+        [HttpGet("GetListRol")]
         public async Task<ActionResult<dynamic>> GetListRol(int IdUsuarioAccion)//entidad_rol_usuario
         {
             var response = new ItemResponse();
@@ -44,23 +35,12 @@ namespace ApiRestCuestionario.Controllers
 
                 await foreach (var rol_usuario in rol_usuario_data)
                 {
-                    //return rol_usuario;
                     if (Convert.ToInt32(rol_usuario.IdUsuarioAccion) == IdUsuarioAccion)
                     {
                         datos.Add(rol_usuario);
                     }
                 }
                 return Ok(datos);
-                /*if (datos.Count() > 0)
-                {
-                    return Ok(datos);
-                }
-                else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
             }
             catch (SqlException ex)
             {
@@ -74,11 +54,9 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
-            //return NotFound();
         }
 
-        [HttpPost]
-        [Route("PostGuardarRol")]
+        [HttpPost("PostGuardarRol")]
         public async Task<ActionResult<ItemResponse>> PostGuardarRol(entidad_guardar_rol ent)
         {
             var response = new ItemResponse();
@@ -112,12 +90,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetListRolPrivilegio")]
+        [HttpGet("GetListRolPrivilegio")]
         public async Task<ActionResult<dynamic>> GetListRolPrivilegio(int IdRol)
         {
             var response = new ItemResponse();
@@ -131,19 +107,9 @@ namespace ApiRestCuestionario.Controllers
 
                 await foreach (var dato in rol_usuario_data)
                 {
-                    //return rol_usuario;
                     datos.Add(dato);
                 }
-                //if (datos.Count() > 0)
-                //{
                 return Ok(datos);
-                //}
-                /*else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
             }
             catch (SqlException ex)
             {
@@ -157,11 +123,9 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
-            //return NotFound();
         }
 
-        [HttpPost]
-        [Route("PostGuardarRol_Privilegio")]
+        [HttpPost("PostGuardarRol_Privilegio")]
         public async Task<ActionResult<ItemResponse>> PostGuardarRol_Privilegio(entidad_guardar_rol_privilegio ent)
         {
             var response = new ItemResponse();
@@ -193,12 +157,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response); 
         }
 
-        [HttpPost]
-        [Route("PostEliminarRol_Privilegio")]
+        [HttpPost("PostEliminarRol_Privilegio")]
         public async Task<ActionResult<ItemResponse>> PostEliminarRol_Privilegio(entidad_guardar_rol_privilegio ent)
         {
             var response = new ItemResponse();
@@ -230,12 +192,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response); 
         }
 
-        [HttpGet]
-        [Route("GetListRolAcceso")]
+        [HttpGet("GetListRolAcceso")]
         public async Task<ActionResult<dynamic>> GetListRolAcceso(int IdRol)
         {
             var response = new ItemResponse();
@@ -249,17 +209,9 @@ namespace ApiRestCuestionario.Controllers
 
                 await foreach (var dato in rol_usuario_data)
                 {
-                    //return rol_usuario;
                     datos.Add(dato);
                 }
                 return Ok(datos);
-
-                /*else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
             }
             catch (SqlException ex)
             {
@@ -271,12 +223,11 @@ namespace ApiRestCuestionario.Controllers
 
                 response.status = 0;
                 response.message = errorMessages.ToString();
-                return Ok(response); ;
+                return Ok(response);
             }
-            //return NotFound();
         }
-        [HttpPost]
-        [Route("PostGuardarRol_Acceso")]
+
+        [HttpPost("PostGuardarRol_Acceso")]
         public async Task<ActionResult<ItemResponse>> PostGuardarRol_Acceso(entidad_guardar_rol_acceso ent)
         {
             var response = new ItemResponse();
@@ -292,7 +243,6 @@ namespace ApiRestCuestionario.Controllers
                     @IdAcceso={ent.IdAcceso},
                     @IdUsuarioCreacion={ent.IdUsuarioCreacion},                    
                     @resp={parametroResp} OUTPUT");
-                //@IndSubMenu={ent.IndSubMenu},
 
                 if (parametroResp.Value != DBNull.Value)
                 {
@@ -310,11 +260,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response);
         }
-        [HttpPost]
-        [Route("PostEliminarRol_Acceso")]
+
+        [HttpPost("PostEliminarRol_Acceso")]
         public async Task<ActionResult<ItemResponse>> PostEliminarRol_Acceso(entidad_eliminar_rol_acceso ent)
         {
             var response = new ItemResponse();
@@ -329,9 +278,6 @@ namespace ApiRestCuestionario.Controllers
                     @IdRol={ent.IdRol},
                     @IdAcceso={ent.IdAcceso},
                     @resp={parametroResp} OUTPUT");
-
-                //@IndSubMenu ={ ent.IndSubMenu},
-
                 if (parametroResp.Value != DBNull.Value)
                 {
                     response.status = (int)parametroResp.Value;
@@ -348,14 +294,11 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response);
         }
-        //---------rol usuario-----se le asigna cuando se crea o edita el usuario-----------------------
 
 
-        [HttpGet]
-        [Route("GetListUsuarioRoles")]
+        [HttpGet("GetListUsuarioRoles")]
         public async Task<ActionResult<dynamic>> GetListUsuarioRoles(int IdUsuario)
         {
             var response = new ItemResponse();
@@ -369,17 +312,9 @@ namespace ApiRestCuestionario.Controllers
 
                 await foreach (var dato in rol_usuario_data)
                 {
-                    //return rol_usuario;
                     datos.Add(dato);
                 }
                 return Ok(datos);
-
-                /*else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
             }
             catch (SqlException ex)
             {
@@ -393,11 +328,9 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
-            //return NotFound();
         }
 
-        [HttpPost]
-        [Route("PostGuardarUsuario_Rol")]
+        [HttpPost("PostGuardarUsuario_Rol")]
         public async Task<ActionResult<ItemResponse>> PostGuardarUsuario_Rol(entidad_guardar_usuario_rol ent)
         {
             var response = new ItemResponse();
@@ -413,7 +346,6 @@ namespace ApiRestCuestionario.Controllers
                     @IdRol={ent.IdRol},
                     @UsuarioAccion={ent.UsuarioAccion},                    
                     @resp={parametroResp} OUTPUT");
-                //@IndSubMenu={ent.IndSubMenu},
 
                 if (parametroResp.Value != DBNull.Value)
                 {
@@ -431,12 +363,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response); 
         }
 
-        [HttpPost]
-        [Route("PostEliminarUsuario_Rol")]
+        [HttpPost("PostEliminarUsuario_Rol")]
         public async Task<ActionResult<ItemResponse>> PostEliminarUsuario_Rol(entidad_guardar_usuario_rol ent)
         {
             var response = new ItemResponse();
@@ -452,7 +382,6 @@ namespace ApiRestCuestionario.Controllers
                     @IdRol={ent.IdRol},
                     @UsuarioAccion={ent.UsuarioAccion},                    
                     @resp={parametroResp} OUTPUT");
-                //@IndSubMenu={ent.IndSubMenu},
 
                 if (parametroResp.Value != DBNull.Value)
                 {
@@ -470,41 +399,9 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response); 
         }
 
-        //***********************************************************************************
-        // GET: api/<RolController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<RolController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<RolController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<RolController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<RolController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+       
     }
 }

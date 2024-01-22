@@ -3,18 +3,11 @@ using ApiRestCuestionario.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 public class dataJoinForm
 {
     public dataJoinForm() { }
@@ -31,13 +24,13 @@ public class dataJoinAnswer
 }
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class Users_FormController : ControllerBase
     {
         private readonly AppDbContext context;
-        string CONFIRM = "Se creo con exito";
-        String connectionString;
+        readonly string CONFIRM = "Se creo con exito";
+        readonly string connectionString;
         public Users_FormController(AppDbContext context, IConfiguration configuration)
         {
             this.context = context;
@@ -50,7 +43,6 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
-                //object formList = context.Users_Form.Where(c => c.users_id == user_id).ToList();
                 object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, userForm = cm }).Where(x=>x.userForm.users_id== user_id).ToList().Where(x=> x.userForm.state.Equals("1"));
                 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm} });
@@ -62,14 +54,12 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-        [HttpPost]
-        [Route("GetAnswerCountNum")]
+        [HttpPost("GetAnswerCountNum")]
         public ActionResult GetAnswerCountNum([FromBody] JsonElement value)
         {
             
             try
             {
-                //Obtiene el numero de encuestas respondidas 
                 int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
                 object form_aparence = context.Answers.Where(c => c.form_id == form_id).ToList();
                 return StatusCode(200, new ItemResp
@@ -84,14 +74,13 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost]
-        [Route("EditUsersFormStatus")]
+
+        [HttpPost("EditUsersFormStatus")]
         public ActionResult EditUsersFormStatus([FromBody] JsonElement value)
         {
 
             try
             {
-                //Obtiene el numero de encuestas respondidas 
                 Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString());
                 context.Users_Form.Update(user_form);
                 context.SaveChanges();
@@ -107,8 +96,7 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost]
-        [Route("GetResultAnswer")]
+        [HttpPost("GetResultAnswer")]
         public ActionResult GetResultAnswer([FromBody] JsonElement value)
         {
             try
@@ -133,8 +121,8 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [HttpPost]
-        [Route("GetResultAnswerEncuestado")]
+
+        [HttpPost("GetResultAnswerEncuestado")]
         public ActionResult GetResultAnswerEncuestado([FromBody] JsonElement value)
         {
             try
@@ -163,7 +151,7 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetAnswers")]
-        public async Task<ActionResult> GetAnswers([FromQuery][Required] int formId)
+        public Task<ActionResult> GetAnswers([FromQuery][Required] int formId)
         {
             Console.WriteLine(connectionString);
            try
@@ -173,13 +161,13 @@ namespace ApiRestCuestionario.Controllers
                     connection.Open();
                     var data = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
                     connection.Close();
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new {  data } });
+                    return Task.FromResult<ActionResult>(StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new {  data } }));
 
                 }
              }
             catch (Exception e)
             {
-                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+                return Task.FromResult<ActionResult>(StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null }));
 
             }
         }

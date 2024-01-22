@@ -5,20 +5,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
+ 
+
     public class SucursalController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -27,8 +24,7 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
         }
 
-        [HttpGet]
-        [Route("GetListSucursal")]
+        [HttpGet("GetListSucursal")]
         public async Task<ActionResult<dynamic>> GetListSucursal(string filtro)
         {
             var response = new ItemResponse();
@@ -64,12 +60,9 @@ namespace ApiRestCuestionario.Controllers
         }
 
 
-        [HttpPost]
-        [Route("PostGuardarSucursal")]
+        [HttpPost("PostGuardarSucursal")]
         public async Task<ActionResult<ItemResponse>> PostGuardarSucursal(entidad_guardar_sucursal ent)
         {
-            //var val_resp = "";
-            //int respuesta = 0;
             var response = new ItemResponse();
             response.status = 0;
             try
@@ -89,22 +82,11 @@ namespace ApiRestCuestionario.Controllers
                         @FlgEstado={ent.FlgEstado},                                                
                         @resp={parametroResp} OUTPUT");//parametroResp
 
-                //respuesta = (int)parametroResp.Value;
                 if (parametroResp.Value != DBNull.Value)
                 {
-                    //respuesta = (int)parametroResp.Value;
                     response.status = (int)parametroResp.Value;
                 }
 
-                /*if (respuesta > 0)
-                {
-                    val_resp = "Guardado";
-                }
-                else
-                {
-                    val_resp = "No Guardo";
-                }*/
-                //return Ok(respuesta);
             }
             catch (SqlException ex)
             {
@@ -115,44 +97,10 @@ namespace ApiRestCuestionario.Controllers
                 }
                 response.status = 0;
                 response.message = errorMessages.ToString();
-                //val_resp = errorMessages.ToString();
-                //throw;
+                
             }
 
-            return Ok(response);//val_resp;
-        }
-
-
-        // GET: api/<SucursalController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<SucursalController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<SucursalController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<SucursalController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<SucursalController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return Ok(response);
         }
     }
 }

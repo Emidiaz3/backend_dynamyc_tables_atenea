@@ -1,18 +1,12 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -36,27 +30,27 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // POST api/<PersonaController>
-        [Route("SaveLocalidad")]
-        [HttpPost]
+
+        [HttpGet("GetLocalidad")]
+        public async Task<ActionResult> GetLocalidadesByProyecto(int IdProyecto)
+        {
+            try
+            {
+                var ListLocalidad = await context.Localidad.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_LOCALIDADES_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListLocalidad });
+            }
+            catch (InvalidCastException e)
+            {
+                return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
+            }
+        }
+
+        [HttpPost("SaveLocalidad")]
         public async Task<ActionResult> SaveLocalidad([FromBody] JsonElement value)
         {
             try
             {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 Localidad localidadSave = JsonConvert.DeserializeObject<Localidad>(value.ToString());
-
-                //Localidad localidadValidate = null;
-                //localidadValidate = context.Localidad.ToList().Where(c => c.ID_LOCALIDAD == localidadSave.ID_LOCALIDAD).FirstOrDefault();
-
-                //if (localidadValidate != null)
-                //{
-                //    return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-                //}
-
-
-                //context.Localidad.Add(localidadSave);
-                //context.SaveChanges();
 
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
@@ -78,8 +72,6 @@ namespace ApiRestCuestionario.Controllers
                     @IdUsuario={localidadSave.IdUsuario}
                 ;");
 
-
-
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = idParameter });
             }
             catch (InvalidCastException e)
@@ -92,53 +84,8 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        //[Route("EditLocalidad")]
-        //[HttpPost]
-        //public ActionResult EditPerson([FromBody] JsonElement value)
-        //{
-        //    try
-        //    {
-        //        int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-        //        Localidad localidadSave = JsonConvert.DeserializeObject<Localidad>(value.GetProperty("localidad").ToString());
+      
 
-        //        Localidad localidadValidate = null;
-        //        localidadValidate = context.Localidad.ToList().AsReadOnly().Where(c => c.ID_LOCALIDAD == localidadSave.ID_LOCALIDAD).FirstOrDefault();
-        //        if (localidadValidate != null)
-        //        {
-        //            if (localidadSave.idlocalidad != localidadValidate.idlocalidad)
-        //            {
-        //                return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-
-        //            }
-        //        }
-
-        //        context.Localidad.Update(localidadSave);
-        //        context.SaveChanges();
-        //        return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = localidadSave });
-        //    }
-        //    catch (InvalidCastException e)
-        //    {
-        //        return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
-        //    }
-
-        //}
-
-        [HttpGet]
-        [Route("GetLocalidad")]
-        public async Task<ActionResult>GetLocalidadesByProyecto(int IdProyecto)
-        {
-            try
-            {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                //object ListLocalidad = context.Localidad.ToList();
-                var ListLocalidad = await context.Localidad.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_LOCALIDADES_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListLocalidad });
-            }
-            catch (InvalidCastException e)
-            {
-                return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
-            }
-
-        }
+     
     }
 }

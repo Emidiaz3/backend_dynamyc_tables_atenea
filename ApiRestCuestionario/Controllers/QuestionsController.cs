@@ -1,68 +1,17 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
-using ApiRestCuestionario.Response;
+using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
-    public class Utils
-    {
-        public static string NormalizeString(string str)
-        {
-            Console.WriteLine(str);
-            string normalizedString = str.Normalize(NormalizationForm.FormD);
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in normalizedString)
-            {
-                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                    stringBuilder.Append(c);
-            }
 
-            return stringBuilder.ToString().Trim().ToLower().Replace(" ", "_");
-        }
-        public static Dictionary<string, int> CheckColumnItems(List<string> columns)
-        {
-            Dictionary<string, int> itemsCounter = new Dictionary<string, int>();
-
-            foreach (var x in columns)
-            {
-                var items = x.Trim().Split("_");
-                var isNumeric = int.TryParse(items.Last(), out int n);
-
-                if (items.Length > 1 && isNumeric)
-                {
-                    var verificationString = string.Join("_", items.Take(items.Length - 1));
-                    if (itemsCounter.ContainsKey(verificationString) && n > itemsCounter[verificationString])
-                    {
-                        itemsCounter[verificationString] = n;
-                    }
-                    else
-                    {
-                        itemsCounter[x] = 1;
-                    }
-                }
-                else
-                {
-                    itemsCounter[x] = 1;
-                }
-            }
-            return itemsCounter;
-        }
-
-
-    }
     public class SaveQuestionDTO
     {
         public int formId { get; set; }
@@ -82,14 +31,13 @@ namespace ApiRestCuestionario.Controllers
     public class ColumnInfo
     {
         public int? id { get; set; }
-
         public string columnName { get; set; }
         public string columnDBName { get; set; }
         public string columnType { get; set; }
         public JObject props_ui { get; set; }
     }
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class QuestionsController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -106,15 +54,15 @@ namespace ApiRestCuestionario.Controllers
             {
                 var questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null && c.state == 1);
                 var aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
-                var form = context.Form.Where(c=>c.id == formId).FirstOrDefault();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new  {aparence,questions,form } });
+                var form = context.Form.Where(c => c.id == formId).FirstOrDefault();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { aparence, questions, form } });
             }
             catch (InvalidCastException e)
             {
                 return BadRequest(e.ToString());
             }
         }
-        
+
         [HttpPost]
         public async Task<ActionResult> SaveQuestions([FromBody] SaveQuestionDTO questionDTO)
         {
@@ -122,31 +70,30 @@ namespace ApiRestCuestionario.Controllers
             var questions = questionDTO.questions;
             int formId = questionDTO.formId;
             var columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
-            var itemsCounter = Utils.CheckColumnItems(columns);
+            var itemsCounter = StringParser.CheckColumnItems(columns);
             context.Form_Aparence.Add(aparenceSave);
             if (aparenceSave.id != 0)
             {
                 context.Form_Aparence.Update(aparenceSave);
             }
             context.SaveChanges();
-            // Empieza Eliminado
-            var toDelete = questions.Where(x => x.deleted==true && x.id != null);
+            var toDelete = questions.Where(x => x.deleted == true && x.id != null);
             var toInsert = questions.Where(x => x.id == null);
             var toUpdate = questions.Where(x => x.deleted != true && x.id != null);
 
-            if(toDelete.Count() != 0)
+            if (toDelete.Count() != 0)
             {
                 foreach (var questionD in toDelete)
                 {
                     await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
                 }
             }
-            if (toUpdate.Count() != 0)
+            if (toUpdate.Any())
             {
                 List<string> toUpdateColumns = new List<string>();
                 foreach (var x in toUpdate)
                 {
-                    var normalized = Utils.NormalizeString(x.column_db_name);
+                    var normalized = StringParser.NormalizeString(x.column_db_name);
                     var parsedColumn = "";
                     if (!toUpdateColumns.Contains(normalized))
                     {
@@ -169,12 +116,12 @@ namespace ApiRestCuestionario.Controllers
                 }
 
             }
-            if (toInsert.Count() != 0)
+            if (toInsert.Any())
             {
                 var columnNames = string.Join(",", toInsert.Select(x => x.column_name));
                 var columnNamesDB = string.Join(",", toInsert.Select(x =>
                 {
-                    var item = Utils.NormalizeString(x.column_db_name);
+                    var item = StringParser.NormalizeString(x.column_db_name);
                     if (itemsCounter.ContainsKey(item))
                     {
                         itemsCounter[item]++;
@@ -190,69 +137,19 @@ namespace ApiRestCuestionario.Controllers
                 var props_ui = JsonConvert.SerializeObject(toInsert.Select(x => x.props_ui));
                 await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC AddColumnsAndInsertData @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId};");
             }
-
-           
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO }  });
+            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
         }
 
 
-       
+
         [HttpGet("types")]
         public async Task<ActionResult> GetQuestionTypes()
         {
             var data = await context.question_types.ToListAsync();
-          
-            return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data=data });
-        }
-
-        //[HttpPost("types")]
-        //public async Task<ActionResult> SaveQuestionTypes([FromBody] JsonElement value)
-        //{
-        //    var questions = JsonConvert.DeserializeObject<List<QuestionType>>(value.GetProperty("types").ToString());
-        //    context.question_types.AddRange(questions);
-        //    var response = await context.SaveChangesAsync();
-        //    return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data = new { response } });
-        //}
-
-        [HttpGet("CheckColumnNames")]
-        public async Task<ActionResult> CheckColumnNames([FromBody] JsonElement value)
-        {
-            try
-            {
-
-                string columnNames = value.GetProperty("columnNames").ToString();
-                int idEncuesta = value.GetProperty("idEncuesta").GetInt32();
-
-                var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_CHECK_COLUMN_NAMES] @stringArray ={columnNames}, @idEncuesta ={idEncuesta}");
-
-                // implementar verificación de truncamiento solo se envia los objetos del JSON con id != null, es decir los ke se van a actualizar porke podrian tener datos.
-
-                return Ok(new { status = 200, message = "Verificación completada." });
-            }
-            catch (SqlException ex)
-            {
-                return StatusCode(500, new { status = 500, message = ex.Message });
-            }
-
+            return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos con éxito", data = data });
         }
 
 
-        [HttpGet("CheckColumnNames")]
-        public async Task<ActionResult> CheckColumnNames2([FromBody] JsonElement value)
-        {
-            try
-            {
-                string columnNames = value.GetProperty("columnNames").ToString();
-                int idEncuesta = value.GetProperty("idEncuesta").GetInt32();
-                var result = await context.Database.ExecuteSqlInterpolatedAsync($"Exec [dbo].[SP_CHECK_COLUMN_NAMES] @stringArray ={columnNames}, @idEncuesta ={idEncuesta}");
-                // implementar verificación de truncamiento solo se envia los objetos del JSON con id != null, es decir los ke se van a actualizar porke podrian tener datos.
-                return Ok(new { status = 200, message = "Verificación completada." });
-            }
-            catch (SqlException ex)
-            {
-                return StatusCode(500, new { status = 500, message = ex.Message });
-            }
-        }
     }
 }
