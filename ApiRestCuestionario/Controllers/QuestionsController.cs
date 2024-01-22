@@ -75,6 +75,7 @@ namespace ApiRestCuestionario.Controllers
         public string column_type { get; set; }
         public string column_name { get; set; }
         public string column_db_name { get; set; }
+        public int question_type_id { get; set; }
         public string props_ui { get; set; }
         public bool? deleted { get; set; }
     }
@@ -172,6 +173,7 @@ namespace ApiRestCuestionario.Controllers
             if (toInsert.Count() != 0)
             {
                 var columnNames = string.Join(",", toInsert.Select(x => x.column_name));
+                var questionId = string.Join(",", toInsert.Select(x => x.question_type_id));
                 var columnNamesDB = string.Join(",", toInsert.Select(x =>
                 {
                     var item = Utils.NormalizeString(x.column_db_name);
@@ -188,7 +190,7 @@ namespace ApiRestCuestionario.Controllers
                 }));
                 var columnTypes = string.Join(",", toInsert.Select(x => x.column_type));
                 var props_ui = JsonConvert.SerializeObject(toInsert.Select(x => x.props_ui));
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC AddColumnsAndInsertData @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId};");
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC AddColumnsAndInsertData @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId}, @questionTypesId = {questionId};");
             }
 
            

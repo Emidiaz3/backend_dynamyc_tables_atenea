@@ -171,9 +171,9 @@ namespace ApiRestCuestionario.Controllers
                 using (var connection = new  SqlConnection(connectionString))
                 {
                     connection.Open();
-                    var data = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
+                    var rows = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
                     connection.Close();
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new {  data } });
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows, columns = "" } });
 
                 }
              }
