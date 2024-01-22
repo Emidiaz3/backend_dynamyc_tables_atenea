@@ -3,9 +3,12 @@ using ApiRestCuestionario.Model;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,32 +26,50 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
         }
         [HttpPost("SaveOrganizacion")]
-        public ActionResult SavePerson([FromBody] JsonElement value)
+        public async Task<ActionResult> SavePerson([FromBody] JsonElement value)
         {
             try
             {
-                int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
-                List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
-                organizacionSave.fecharegistro = DateTime.Now;
-                Organizacion organizacionValidate = null;
-                organizacionValidate= context.Organizacion.ToList().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
+                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
+                Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.ToString());
+                //List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
+                //organizacionSave.fecharegistro = DateTime.Now;
+                //Organizacion organizacionValidate = null;
+                //organizacionValidate= context.Organizacion.ToList().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
 
-                if (organizacionValidate != null)
-                {
-                    return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-                }
+                //if (organizacionValidate != null)
+                //{
+                //    return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
+                //}
 
-                context.Organizacion.Add(organizacionSave);
-                context.SaveChanges();
-                
-                foreach (Organizacion_localidad c in organizacion_localidadSave)
+                //context.Organizacion.Add(organizacionSave);
+                //context.SaveChanges();
+
+                //foreach (Organizacion_localidad c in organizacion_localidadSave)
+                //{
+                //    c.idOrganizacion = organizacionSave.idorganizacion;
+                //}
+                //context.Organizacion_Localidad.AddRange(organizacion_localidadSave);
+                //context.SaveChanges();
+                var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
-                    c.idOrganizacion = organizacionSave.idorganizacion;
-                }
-                context.Organizacion_Localidad.AddRange(organizacion_localidadSave);
-                context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = organizacionSave });
+                    Direction = ParameterDirection.InputOutput,
+                    Value = organizacionSave.Id ?? (object)DBNull.Value
+                };
+
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_ORGANIZACION] 
+                    @Id={idParameter} OUTPUT, 
+                    @Id_Organizacion={organizacionSave.Id_Organizacion},
+                    @NomOrganizacion={organizacionSave.NomOrganizacion},
+                    @Proyecto={organizacionSave.Proyecto},
+                    @Localidad={organizacionSave.Localidad},
+                    @Nivel_Riesgo_General={organizacionSave.Nivel_Riesgo_General},
+                    @Latitud={organizacionSave.Latitud},
+                    @Longitud={organizacionSave.Longitud},
+                    @Estado={organizacionSave.Estado},
+                    @IdUsuario={organizacionSave.IdUsuario}
+                ;");
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = idParameter });
             }
             catch (InvalidCastException e)
             {
@@ -56,55 +77,56 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [HttpPost("EditOrganizacion")]
-        public ActionResult EditPerson([FromBody] JsonElement value)
-        {
-            try
-            {
-                int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
-                Organizacion organizacionValidate = null;
-                organizacionValidate = context.Organizacion.ToList().AsReadOnly().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
-                if(organizacionValidate != null)
-                {
-                    if (organizacionSave.idorganizacion != organizacionValidate.idorganizacion)
-                    {
-                        return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-                    }
-                }
-                List<Organizacion_localidad> organizacion_localidadupdate = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
-                List < Organizacion_localidad > organizacion_localidadSave = new List<Organizacion_localidad>();
-                foreach (Organizacion_localidad c in organizacion_localidadupdate)
-                {
-                    if(c.idOrganizacionLocalidad == 0)
-                    {
-                        context.Organizacion_Localidad.Add(c);
-                    }
-                    else
-                    {
-                        context.Organizacion_Localidad.Update(c);
-                    }
-                }
+        //[HttpPost("EditOrganizacion")]
+        //public ActionResult EditPerson([FromBody] JsonElement value)
+        //{
+        //    try
+        //    {
+        //        int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
+        //        Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
+        //        Organizacion organizacionValidate = null;
+        //        organizacionValidate = context.Organizacion.ToList().AsReadOnly().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
+        //        if(organizacionValidate != null)
+        //        {
+        //            if (organizacionSave.idorganizacion != organizacionValidate.idorganizacion)
+        //            {
+        //                return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
+        //            }
+        //        }
+        //        List<Organizacion_localidad> organizacion_localidadupdate = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
+        //        List < Organizacion_localidad > organizacion_localidadSave = new List<Organizacion_localidad>();
+        //        foreach (Organizacion_localidad c in organizacion_localidadupdate)
+        //        {
+        //            if(c.idOrganizacionLocalidad == 0)
+        //            {
+        //                context.Organizacion_Localidad.Add(c);
+        //            }
+        //            else
+        //            {
+        //                context.Organizacion_Localidad.Update(c);
+        //            }
+        //        }
                 
-                context.Organizacion.Update(organizacionSave);
-                context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = organizacionSave });
-            }
-            catch (InvalidCastException e)
-            {
-                return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
-            }
+        //        context.Organizacion.Update(organizacionSave);
+        //        context.SaveChanges();
+        //        return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = organizacionSave });
+        //    }
+        //    catch (InvalidCastException e)
+        //    {
+        //        return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
+        //    }
 
-        }
+        //}
 
-        [HttpPost]
+        [HttpGet]
         [Route("GetOrganizacion")]
-        public ActionResult GetPerson([FromBody] JsonElement value)
+        public async Task<ActionResult> GetPerson(int IdProyecto)
         {
             try
             {
-                int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                object ListOrganizacion = context.Organizacion.ToList();
+                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
+                //object ListOrganizacion = context.Organizacion.ToList();
+                var ListOrganizacion = await context.Organizacion.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_ORGANIZACION_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListOrganizacion });
             }
             catch (InvalidCastException e)

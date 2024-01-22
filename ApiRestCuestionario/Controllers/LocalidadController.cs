@@ -86,6 +86,10 @@ namespace ApiRestCuestionario.Controllers
             {
                 return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
             }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { status = 500, message = ex.Message });
+            }
 
         }
         //[Route("EditLocalidad")]
