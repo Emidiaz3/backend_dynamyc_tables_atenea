@@ -8,31 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
 {
-
-
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class ProyectoController : ControllerBase
     {
         private readonly AppDbContext context;
-        //private readonly IConfiguration config;
-        public ProyectoController(AppDbContext context) //, IConfiguration _config
+        public ProyectoController(AppDbContext context)
         {
             this.context = context;
-            //this.config = _config;
         }
 
-        [HttpGet]
-        [Route("GetListProyectos")]
+        [HttpGet("GetListProyectos")]
         public async Task<ActionResult<dynamic>> GetListProyectos(int IdUsuarioAccion)
         {
             var response = new ItemResponse();
@@ -52,16 +45,7 @@ namespace ApiRestCuestionario.Controllers
                     datos.Add(proyecto);
                 }
                 return Ok(datos);
-                /*if (datos.Count() > 0)
-                {
-                    return Ok(datos);
-                }
-                else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
+
             }
             catch (SqlException ex)
             {
@@ -77,8 +61,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("PostGuardarProyecto")]
+        [HttpPost("PostGuardarProyecto")]
         public async Task<ActionResult<ItemResponse>> PostGuardarProyecto(entidad_guardar_proyecto ent)
         {
             var response = new ItemResponse();
@@ -88,15 +71,7 @@ namespace ApiRestCuestionario.Controllers
                 var parametroResp = new SqlParameter("@resp", SqlDbType.Int);
                 parametroResp.Direction = ParameterDirection.Output;
 
-                await context.Database
-                     .ExecuteSqlInterpolatedAsync($@"Exec SP_GUARDAR_PROYECTO 
-                    @IdProyecto={ent.IdProyecto},
-                    @NombreProyecto={ent.NombreProyecto},
-                    @NombreDB={ent.NombreDB},
-                    @IdEmpresa={ent.IdEmpresa},
-                    @EstadoProyecto={ent.EstadoProyecto},
-                    @UsuarioAccion={ent.UsuarioAccion},
-                    @resp={parametroResp} OUTPUT");
+                await context.Database.ExecuteSqlInterpolatedAsync($@"Exec SP_GUARDAR_PROYECTO @IdProyecto={ent.IdProyecto}, @NombreProyecto={ent.NombreProyecto}, @NombreDB={ent.NombreDB}, @IdEmpresa={ent.IdEmpresa}, @EstadoProyecto={ent.EstadoProyecto}, @UsuarioAccion={ent.UsuarioAccion}, @resp={parametroResp} OUTPUT");
 
                 if (parametroResp.Value != DBNull.Value)
                 {
@@ -114,12 +89,10 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response);
         }
 
-        [HttpPost]
-        [Route("PostEliminarProyecto")]
+        [HttpPost("PostEliminarProyecto")]
         public async Task<ActionResult<ItemResponse>> PostEliminarProyecto(entity_delete_proy ent)
         {
             var response = new ItemResponse();
@@ -151,33 +124,19 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
             }
 
-            return Ok(response); //val_resp;
-            //return Ok(respuesta);
+            return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetListDBProyectos")]
+        [HttpGet("GetListDBProyectos")]
         public async Task<ActionResult<dynamic>> GetListDBProyectos()
         {
             var response = new ItemResponse();
 
             try
             {
-                var proyecto_data = await context.GetDBProys
-                .FromSqlInterpolated($"Exec SP_LISTAR_PROYECTOS")
-                .ToListAsync();
+                var proyecto_data = await context.GetDBProys.FromSqlInterpolated($"Exec SP_LISTAR_PROYECTOS").ToListAsync();
 
                 return Ok(proyecto_data);
-                /*if (datos.Count() > 0)
-                {
-                    return Ok(datos);
-                }
-                else
-                {
-                    response.status = 0;
-                    response.message = "Sin Registros";
-                    return Ok(response);
-                }*/
             }
             catch (SqlException ex)
             {
@@ -191,39 +150,6 @@ namespace ApiRestCuestionario.Controllers
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
-        }
-
-        //***********************************************
-        // GET: api/<ProyectoController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<ProyectoController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<ProyectoController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<ProyectoController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ProyectoController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

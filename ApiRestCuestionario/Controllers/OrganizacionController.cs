@@ -21,8 +21,8 @@ namespace ApiRestCuestionario.Controllers
         public List<Organizacion> organizations { get; set; }
     }
 
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class OrganizacionController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -31,13 +31,14 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
+
         [HttpPost("SaveOrganizacion")]
         public async Task<ActionResult> SavePerson([FromBody] JsonElement value)
         {
             try
             {
                 Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.ToString());
- 
+
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.InputOutput,
@@ -164,16 +165,11 @@ namespace ApiRestCuestionario.Controllers
         //        return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
         //    }
 
-        //}
-
-        [HttpGet]
-        [Route("GetOrganizacion")]
+        [HttpGet("GetOrganizacion")]
         public async Task<ActionResult> GetPerson(int IdProyecto)
         {
             try
             {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                //object ListOrganizacion = context.Organizacion.ToList();
                 var ListOrganizacion = await context.Organizacion.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_ORGANIZACION_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListOrganizacion });
             }
@@ -217,6 +213,7 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
+
 
         [HttpPost("GetOrganizacionlocalidadById")]
         public ActionResult GetOrganizaciónById([FromBody] JsonElement value)

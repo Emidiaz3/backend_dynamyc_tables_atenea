@@ -48,8 +48,6 @@ namespace ApiRestCuestionario.Context
         public DbSet<AnswerAnioMes> AnswerAnioMes { get; set; }
         public DbSet<Usuario_Encuesta> Usuario_Encuesta { get; set; }
         public DbSet<TipoEncuesta> TipoEncuesta { get; set; }
-        public DbSet<Data_Laboratorio> Data_Laboratorio { get; set; }
-        public DbSet<ImportacionCJP> ImportacionCJP { get; set; }
         public DbSet<ReporteFinal> ReporteFinalL { get; set; }
         public DbSet<ReporteFinalDetail> ReporteFinal { get; set; }
         public DbSet<entity_get_proys> GetDBProys { get; set; }

@@ -6,24 +6,21 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class FormsController : ControllerBase
     {
         string OBTAIN = "Se cargo con éxito los datos";
         string CONFIRM = "Se creo con exito";
-        string UPDATE = "Se Edito con exito";
         string UPDATELINKCANCEL = "Ya se ha publicado este formulario";
         string CONFIRMLINKSAVE = "Se publico este formulario correctamente";
 
@@ -32,14 +29,8 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // GET: api/<FormsController>
-        [HttpGet]
-        public IEnumerable<Form> Get()
-        {
-            return context.Form.ToList();
-        }
-        [HttpPost]
-        [Route("GetFormByIdUser")]
+      
+        [HttpPost("GetFormByIdUser")]
         public ActionResult GetFormByIdUser([FromBody] JsonElement value)
         {
             try
@@ -54,8 +45,7 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpGet]
-        [Route("GetFormByLink")]
+        [HttpGet("GetFormByLink")]
         public ActionResult GetFormByLink([FromQuery][Required] string link)
         {
 
@@ -70,8 +60,7 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost]
-        [Route("GetFormByIdForm")]
+        [HttpPost("GetFormByIdForm")]
         public ActionResult GetFormByIdForm([FromBody] JsonElement value)
         {
             try
@@ -84,8 +73,7 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPatch]
-        [Route("EditFormLink")]
+        [HttpPatch("EditFormLink")]
         public ActionResult EditFormLink([FromQuery][Required] int formId)
         {
             try
@@ -111,23 +99,20 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        // POST api/<FormsController>
         [HttpPost]
         public async Task<ActionResult<ItemResponse>> Post([FromBody] JsonElement value)
         {
             try
             {
-                //Primeramente se crea un nuevo formulario
                 Form form = JsonConvert.DeserializeObject<Form>(value.GetProperty("form").ToString());
                 int idUser = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 int proy_id = value.GetProperty("proyecto").GetProperty("id_proyecto").GetInt32();
 
-                // Crea el parámetro de salida
                 var outputIdParam = new SqlParameter
                 {
                     ParameterName = "@OutputId",
                     SqlDbType = SqlDbType.Int,
-                    Direction = ParameterDirection.Output // Especifica que es un parámetro de salida
+                    Direction = ParameterDirection.Output 
                 };
 
                 await context.Database
@@ -143,22 +128,6 @@ namespace ApiRestCuestionario.Controllers
 
                 var outputId = (int)outputIdParam.Value;
                 form.id = outputId;
-                //if (form.id != 0) {
-                //    context.Form.Update(form);
-                //    context.SaveChanges();
-                //}
-                //else
-                //{
-                //    context.Form.Add(form);
-                //    context.SaveChanges();
-                //    //Luego se reserva el último id
-                //    int lastFormId = form.id;
-                //    Users_Form users_form = new Users_Form(idUser, lastFormId,"1");
-                //    //Se guarda Users_Form
-                //    context.Users_Form.Add(users_form);
-                //    context.SaveChanges();
-                //}
-
                 return StatusCode(200, new ItemResp { message = CONFIRM, status = 200, data = form });
             }
             catch (InvalidCastException e)

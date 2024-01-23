@@ -3,6 +3,8 @@
     public class QuestionType
     {
         public int id { get; set; }
+        public string name { get; set; }
+        public string title { get; set; }
         public string name_type { get; set; }
         public string type_group { get; set; }
         public string column_output_type { get; set; }

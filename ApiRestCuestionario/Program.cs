@@ -1,7 +1,9 @@
+using ApiRestCuestionario;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace ApiRestCuestionario
+
+namespace WebApplication3
 {
     public class Program
     {
@@ -10,7 +12,7 @@ namespace ApiRestCuestionario
             CreateHostBuilder(args).Build().Run();
         }
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

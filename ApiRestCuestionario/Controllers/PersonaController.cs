@@ -98,6 +98,7 @@ namespace ApiRestCuestionario.Controllers
                 return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
             }
             catch (SqlException ex)
+
             {
                 return StatusCode(500, new { status = 500, message = ex.Message });
             }
@@ -125,11 +126,10 @@ namespace ApiRestCuestionario.Controllers
         [HttpGet]
         [Route("GetPerson")]
         public async Task<ActionResult> GetPerson(int IdProyecto)
+
         {
             try
             {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                //object ListPerson=context.T_MAE_PERSONA.ToList();
                 var ListPersona = await context.Persona.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_PERSONA_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListPersona });
@@ -141,11 +141,10 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-        [HttpPost]
-        [Route("GetPersonByTipoEncuesta")]
+
+        [HttpPost("GetPersonByTipoEncuesta")]
         public ActionResult GetPersonByTipoEncuesta([FromBody] JsonElement value)
         {
-
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
@@ -159,10 +158,8 @@ namespace ApiRestCuestionario.Controllers
                     if (JsonConvert.DeserializeObject<string[]>(c.TipoEncuesta).Intersect(tipoEncuesta).Any())
                     {
                         newListPerson.Add(c);
-
                     }
                 }
-
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = newListPerson });
             }
             catch (InvalidCastException e)
@@ -171,16 +168,6 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        // PUT api/<PersonaController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<PersonaController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+   
     }
 }
