@@ -47,8 +47,14 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
-                object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, userForm = cm }).Where(x => x.userForm.users_id == user_id).ToList().Where(x => x.userForm.state.Equals("1"));
 
+                var userForm = context.Form
+                    .Join(context.Users_Form,
+                        form => form.id,
+                        usersForm => usersForm.form_id,
+                        (form, usersForm) => new { Form = form, UsersForm = usersForm })
+                    .Where(x => x.UsersForm.users_id == user_id && x.UsersForm.state == "1" && x.Form.IdProyecto != null)
+                    .ToList();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
             }
             catch (InvalidCastException e)
