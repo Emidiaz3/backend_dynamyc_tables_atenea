@@ -26,28 +26,23 @@ namespace ApiRestCuestionario.Controllers
         public IFormFile file { get; set; }
     }
 
-
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ReporteFinalController : ControllerBase
     {
         private readonly AppDbContext context;
         string CONFIRM = "Se creo con exito";
-        //private readonly IConfiguration config;
-        public ReporteFinalController(AppDbContext context)// IConfiguration _config
+        public ReporteFinalController(AppDbContext context)
         {
             this.context = context;
-            //this.config = _config;
         }
-        [HttpGet]
-        [Route("GetReporteFinal")]
+
+        [HttpGet("GetReporteFinal")]
         public ActionResult GetReporteFinal()
         {
             var response = new ItemResponse();
-
             try
             {
-
                 var ReporteFinaldata = context.ReporteFinalL.FromSqlInterpolated($"Exec SP_REPORTE_FINAL ").AsAsyncEnumerable();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ReporteFinaldata });
             }
@@ -58,14 +53,12 @@ namespace ApiRestCuestionario.Controllers
                 {
                     errorMessages.Append((errorMessages.Length != 0 ? "\n" : "") + ex.Errors[i].Message);
                 }
-
                 response.status = 0;
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
             }
         }
-        [HttpPost]
-        [Route("GetReportByAnioMes")]
+        [HttpPost("GetReportByAnioMes")]
         public ActionResult GetReportByAnioMes([FromBody] JsonElement value)
         {
             var response = new ItemResponse();
@@ -90,8 +83,7 @@ namespace ApiRestCuestionario.Controllers
                 return Ok(response); ;
             }
         }
-        [HttpPost]
-        [Route("DeleteReportByAnioMes")]
+        [HttpPost("DeleteReportByAnioMes")]
         public ActionResult DeleteReportByAnioMes([FromBody] JsonElement value)
         {
             var response = new ItemResponse();
@@ -121,7 +113,6 @@ namespace ApiRestCuestionario.Controllers
 
 
         [HttpPost("SaveClientDocument")]
-
         public async Task<ActionResult> SaveClientDocument([FromForm, BindRequired] SaveDocumentDTO documentDTO)
         {
             try
@@ -147,7 +138,6 @@ namespace ApiRestCuestionario.Controllers
                 using (Stream fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await documentDTO.file.CopyToAsync(fileStream);
-
                 }
                 context.documents.Add(new Documents { name = fileName, file_path = filePath, form_id = documentDTO.form_id, user_id = documentDTO.user_id });
                 await context.SaveChangesAsync();
@@ -156,7 +146,6 @@ namespace ApiRestCuestionario.Controllers
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex);
                 return StatusCode(400, new ItemResp { status = 500, message = CONFIRM, data = "Fallo Al guardar" });
             }
@@ -167,9 +156,7 @@ namespace ApiRestCuestionario.Controllers
         {
             var query = from document in context.documents join user in context.t_mae_usuario on document.user_id equals user.IdUsuario where document.user_id == userId && document.form_id == formId  select new { user, document };
             var items = await query.ToListAsync();
-
             return StatusCode(200, new ItemResp { status = 400, message = CONFIRM, data = items });
-
         }
     }
 }

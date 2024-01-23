@@ -18,8 +18,8 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        [HttpPost]
-        [Route("GetOrganizacionLocalidad")]
+
+        [HttpPost("GetOrganizacionLocalidad")]
         public ActionResult GetOrganizacionLocalidad([FromBody] JsonElement value)
         {
             try

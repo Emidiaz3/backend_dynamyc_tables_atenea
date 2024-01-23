@@ -21,23 +21,8 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // GET: api/<PersonaController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<PersonaController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<PersonaController>
-        [Route("SavePerson")]
-        [HttpPost]
+     
+        [HttpPost("SavePerson")]
         public ActionResult SavePerson([FromBody] JsonElement value)
         {
             try
@@ -55,8 +40,8 @@ namespace ApiRestCuestionario.Controllers
             }
             
         }
-        [Route("EditPerson")]
-        [HttpPost]
+
+        [HttpPost("EditPerson")]
         public ActionResult EditPerson([FromBody] JsonElement value)
         {
             try
@@ -74,8 +59,7 @@ namespace ApiRestCuestionario.Controllers
 
         }
         
-        [HttpPost]
-        [Route("GetPerson")]
+        [HttpPost("GetPerson")]
         public ActionResult GetPerson([FromBody] JsonElement value)
         {
             try
@@ -90,11 +74,10 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [HttpPost]
-        [Route("GetPersonByTipoEncuesta")]
+
+        [HttpPost("GetPersonByTipoEncuesta")]
         public ActionResult GetPersonByTipoEncuesta([FromBody] JsonElement value)
         {
-
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
@@ -108,10 +91,8 @@ namespace ApiRestCuestionario.Controllers
                     if (JsonConvert.DeserializeObject<string[]>(c.TipoEncuesta).Intersect(tipoEncuesta).Any())
                     {
                         newListPerson.Add(c);
-
                     }
                 }
-
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = newListPerson });
             }
             catch (InvalidCastException e)
@@ -120,16 +101,6 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        // PUT api/<PersonaController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<PersonaController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+   
     }
 }

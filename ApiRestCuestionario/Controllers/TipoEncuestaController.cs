@@ -1,18 +1,15 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class TipoEncuestaController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -21,8 +18,8 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        [Route("SaveTipoEncuesta")]
-        [HttpPost]
+
+        [HttpPost("SaveTipoEncuesta")]
         public ActionResult SaveTipoEncuesta([FromBody] JsonElement value)
         {
             try
@@ -40,8 +37,8 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        [Route("EditTipoEncuesta")]
-        [HttpPost]
+
+        [HttpPost("EditTipoEncuesta")]
         public ActionResult EditTipoEncuesta([FromBody] JsonElement value)
         {
             try
@@ -58,8 +55,7 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-        [HttpPost]
-        [Route("GetTipoEncuesta")]
+        [HttpPost("GetTipoEncuesta")]
         public ActionResult GetTipoEncuesta([FromBody] JsonElement value)
         {
             try
@@ -75,8 +71,7 @@ namespace ApiRestCuestionario.Controllers
 
         }
 
-        [HttpPost]
-        [Route("GetTipoEncuestaByState")]
+        [HttpPost("GetTipoEncuestaByState")]
         public ActionResult GetTipoEncuestaByState([FromBody] JsonElement value)
         {
             try

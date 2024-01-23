@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class OrganizacionController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -25,32 +25,14 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
+
         [HttpPost("SaveOrganizacion")]
         public async Task<ActionResult> SavePerson([FromBody] JsonElement value)
         {
             try
             {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.ToString());
-                //List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
-                //organizacionSave.fecharegistro = DateTime.Now;
-                //Organizacion organizacionValidate = null;
-                //organizacionValidate= context.Organizacion.ToList().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
-
-                //if (organizacionValidate != null)
-                //{
-                //    return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-                //}
-
-                //context.Organizacion.Add(organizacionSave);
-                //context.SaveChanges();
-
-                //foreach (Organizacion_localidad c in organizacion_localidadSave)
-                //{
-                //    c.idOrganizacion = organizacionSave.idorganizacion;
-                //}
-                //context.Organizacion_Localidad.AddRange(organizacion_localidadSave);
-                //context.SaveChanges();
+           
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.InputOutput,
@@ -77,55 +59,12 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-        //[HttpPost("EditOrganizacion")]
-        //public ActionResult EditPerson([FromBody] JsonElement value)
-        //{
-        //    try
-        //    {
-        //        int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-        //        Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.GetProperty("organizacion").ToString());
-        //        Organizacion organizacionValidate = null;
-        //        organizacionValidate = context.Organizacion.ToList().AsReadOnly().Where(c => c.ID_ORGANIZACION == organizacionSave.ID_ORGANIZACION).FirstOrDefault();
-        //        if(organizacionValidate != null)
-        //        {
-        //            if (organizacionSave.idorganizacion != organizacionValidate.idorganizacion)
-        //            {
-        //                return StatusCode(200, new ItemResp { status = 400, message = "El código ingresado ya se encuentra en uso", data = null });
-        //            }
-        //        }
-        //        List<Organizacion_localidad> organizacion_localidadupdate = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
-        //        List < Organizacion_localidad > organizacion_localidadSave = new List<Organizacion_localidad>();
-        //        foreach (Organizacion_localidad c in organizacion_localidadupdate)
-        //        {
-        //            if(c.idOrganizacionLocalidad == 0)
-        //            {
-        //                context.Organizacion_Localidad.Add(c);
-        //            }
-        //            else
-        //            {
-        //                context.Organizacion_Localidad.Update(c);
-        //            }
-        //        }
-                
-        //        context.Organizacion.Update(organizacionSave);
-        //        context.SaveChanges();
-        //        return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = organizacionSave });
-        //    }
-        //    catch (InvalidCastException e)
-        //    {
-        //        return StatusCode(404, new ItemResp { status = 200, message = CONFIRM, data = e.ToString() });
-        //    }
 
-        //}
-
-        [HttpGet]
-        [Route("GetOrganizacion")]
+        [HttpGet("GetOrganizacion")]
         public async Task<ActionResult> GetPerson(int IdProyecto)
         {
             try
             {
-                //int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                //object ListOrganizacion = context.Organizacion.ToList();
                 var ListOrganizacion = await context.Organizacion.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_ORGANIZACION_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListOrganizacion });
             }
@@ -135,6 +74,7 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
+
         [HttpPost("GetOrganizacionlocalidadById")]
         public ActionResult GetOrganizaciónById([FromBody] JsonElement value)
         {
