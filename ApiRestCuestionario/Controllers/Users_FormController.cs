@@ -50,17 +50,50 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
-                //object formList = context.Users_Form.Where(c => c.users_id == user_id).ToList();
-                object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, userForm = cm }).Where(x=>x.userForm.users_id== user_id).ToList().Where(x=> x.userForm.state.Equals("1"));
-                
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm} });
+
+                // Usando la consulta LINQ con Entity Framework
+                var userForm = context.Form
+                    .Join(context.Users_Form,
+                        form => form.id,
+                        usersForm => usersForm.form_id,
+                        (form, usersForm) => new { Form = form, UsersForm = usersForm })
+                    .Where(x => x.UsersForm.users_id == user_id && x.UsersForm.state == "1" && x.Form.IdProyecto != null)
+                    .ToList();
+
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
             }
             catch (InvalidCastException e)
             {
                 return BadRequest(e.ToString());
             }
-
         }
+
+        [HttpPost] // Asegúrate de especificar el verbo HTTP adecuado
+        [Route("GetUserFormsByProject/{projectId}")]
+        public ActionResult PostByProject([FromBody] JsonElement value, int projectId)
+        {
+            try
+            {
+                int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
+
+                var userForm = context.Form
+                    .Join(context.Users_Form,
+                        form => form.id,
+                        usersForm => usersForm.form_id,
+                        (form, usersForm) => new { Form = form, UsersForm = usersForm })
+                    .Where(x => x.UsersForm.users_id == user_id
+                                && x.UsersForm.state == "1"
+                                && x.Form.IdProyecto == projectId) // Filtra por el projectId
+                    .ToList();
+
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
 
         [HttpPost]
         [Route("GetAnswerCountNum")]
