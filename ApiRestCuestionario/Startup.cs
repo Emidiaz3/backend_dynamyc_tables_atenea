@@ -8,9 +8,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using System;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace ApiRestCuestionario
 {
+    public class StaticFolder
+    {
+        public string Path { get; }
+        public StaticFolder(string path)
+        {
+            Path = path;
+        }
+    }
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -18,9 +29,11 @@ namespace ApiRestCuestionario
             Configuration = configuration;
         }
         public IConfiguration Configuration { get; }
+        public StaticFolder staticFolder = new StaticFolder(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MyStaticFiles"));
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(staticFolder);
             services.AddControllers();
 
             services.AddSwaggerGen(options => {
@@ -80,7 +93,7 @@ namespace ApiRestCuestionario
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-
+            Console.WriteLine(env.ContentRootPath);
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
@@ -102,6 +115,18 @@ namespace ApiRestCuestionario
 
             app.UseCors();
 
+            if (!Directory.Exists(staticFolder.Path))
+            {
+                Directory.CreateDirectory(staticFolder.Path);
+            }
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(staticFolder.Path),
+                RequestPath = "/StaticFiles"
+            }
+                
+                );
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

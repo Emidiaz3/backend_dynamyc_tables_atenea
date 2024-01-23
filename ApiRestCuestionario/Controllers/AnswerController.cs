@@ -20,34 +20,46 @@ namespace ApiRestCuestionario.Controllers
     {
         private readonly AppDbContext context;
         string CONFIRM = "Se creo con exito";
-        public AnswerController(AppDbContext context)
+        private readonly StaticFolder staticFolder;
+        public AnswerController(AppDbContext context, StaticFolder staticFolder)
         {
             this.context = context;
+            this.staticFolder = staticFolder;
         }
-   
+
         [HttpPost("SaveDocuments")]
         public async Task<ActionResult> SaveDocuments([FromForm] SaveFormDocumentDto formDocument)
         {
             try
             {
+
                 if (formDocument.file.Any())
                 {
                     int form_id = formDocument.formId;
                     int questions_id = formDocument.questionsId;
-                    List<string> joinToPathDocument = new List<string>();
+                    List<string> documentsPath = new List<string>();
+                    var formDocumentsPath = Path.Combine(staticFolder.Path, "Answers");
+                    var userPath = Path.Combine(formDocumentsPath, form_id.ToString());
+                    if (!Directory.Exists(userPath))
+                    {
+                        Directory.CreateDirectory(userPath);
+                    }
+
                     foreach (var document in formDocument.file)
                     {
-                        Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");
-                        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString() + "\\", document.FileName);
-                        joinToPathDocument.Add(filePath);
-                        Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString());
-                        using Stream fileStream = new FileStream(filePath, FileMode.Create);
+                        string filePath = Path.Combine(userPath, document.FileName);
+                        Stream fileStream = new FileStream(filePath, FileMode.Create);
                         await document.CopyToAsync(fileStream);
+                        documentsPath.Add($"{form_id}/{document.FileName}");
                     }
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer = string.Join("|||", joinToPathDocument), questions_id } });
+                    var answer = string.Join("|||", documentsPath);
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer, questions_id } });
                 }
+                else
+                {
+                    return StatusCode(400, new ItemResp { status = 404, message = "No hay archivos para guardar", data = null });
 
-                return StatusCode(400, new ItemResp { status = 404, message = "No hay archivos para guardar", data = null });
+                }
 
             }
             catch (InvalidCastException e)
