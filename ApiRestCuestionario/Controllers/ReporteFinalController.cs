@@ -3,8 +3,6 @@ using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -13,7 +11,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -22,8 +19,11 @@ namespace ApiRestCuestionario.Controllers
 {
     public class SaveDocumentDTO
     {
-        public int formId { get; set; }
-        public int userId { get; set; }
+        [Required]
+        public int? formId { get; set; }
+        [Required]
+        public int? userId { get; set; }
+        [Required]
         public List<IFormFile> Files { get; set; }
     }
 
@@ -120,9 +120,10 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                if (documentDTO.Files.Any())
+                if (documentDTO.Files.Any() && documentDTO.userId != null && documentDTO.formId != null)
                 {
-                    int userId = documentDTO.userId;
+                    int userId = (int) documentDTO.userId;
+                    int formId = (int) documentDTO.formId;
                     string reportsDirectory = Path.Combine(staticFolder.Path, "Reports");
                     string clientDirectory = Path.Combine(reportsDirectory, userId.ToString());
                     List<Documents> DocumentRange = new List<Documents>();
@@ -140,18 +141,19 @@ namespace ApiRestCuestionario.Controllers
                         string filePath = Path.Combine(clientDirectory, fileName);
                         Stream fileStream = new FileStream(filePath, FileMode.Create);
                         await file.CopyToAsync(fileStream);
-                        DocumentRange.Add(new Documents { name = fileName, file_path = $"{userId}/{fileName}", form_id = documentDTO.formId, user_id = documentDTO.userId });
+                        DocumentRange.Add(new Documents { name = fileName, file_path = $"{userId}/{fileName}", form_id = formId, user_id = userId });
                     }
                     context.documents.AddRange(DocumentRange);
                     await context.SaveChangesAsync();
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = "Document Guardado Correctamente" });
                 }
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = "Document Guardado Correctamente" });
+                return BadRequest();
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return StatusCode(400, new ItemResp { status = 500, message = CONFIRM, data = "Fallo Al guardar" });
+                return StatusCode(400, new ItemResp { status = 400, message = CONFIRM, data = "Fallo Al guardar" });
             }
         }
 
