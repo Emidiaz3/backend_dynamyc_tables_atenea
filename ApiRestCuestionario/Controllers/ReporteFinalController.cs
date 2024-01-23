@@ -3,7 +3,6 @@ using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -12,7 +11,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,9 +19,12 @@ namespace ApiRestCuestionario.Controllers
 {
     public class SaveDocumentDTO
     {
-        public int form_id { get; set; }
-        public int user_id { get; set; }
-        public IFormFile file { get; set; }
+        [Required]
+        public int? formId { get; set; }
+        [Required]
+        public int? userId { get; set; }
+        [Required]
+        public List<IFormFile> Files { get; set; }
     }
 
     [ApiController]
@@ -32,9 +33,11 @@ namespace ApiRestCuestionario.Controllers
     {
         private readonly AppDbContext context;
         string CONFIRM = "Se creo con exito";
-        public ReporteFinalController(AppDbContext context)
+        private readonly StaticFolder staticFolder;
+        public ReporteFinalController(AppDbContext context, StaticFolder staticFolder)
         {
             this.context = context;
+            this.staticFolder = staticFolder;
         }
 
         [HttpGet("GetReporteFinal")]
@@ -113,41 +116,44 @@ namespace ApiRestCuestionario.Controllers
 
 
         [HttpPost("SaveClientDocument")]
-        public async Task<ActionResult> SaveClientDocument([FromForm, BindRequired] SaveDocumentDTO documentDTO)
+        public async Task<ActionResult> SaveClientDocument([FromForm] SaveDocumentDTO documentDTO)
         {
             try
             {
-                if (ModelState.IsValid)
+                if (documentDTO.Files.Any() && documentDTO.userId != null && documentDTO.formId != null)
                 {
-                    Console.WriteLine("gei");
+                    int userId = (int) documentDTO.userId;
+                    int formId = (int) documentDTO.formId;
+                    string reportsDirectory = Path.Combine(staticFolder.Path, "Reports");
+                    string clientDirectory = Path.Combine(reportsDirectory, userId.ToString());
+                    List<Documents> DocumentRange = new List<Documents>();
+                    if (!Directory.Exists(reportsDirectory))
+                    {
+                        Directory.CreateDirectory(reportsDirectory);
+                    }
+                    if (!Directory.Exists(clientDirectory))
+                    {
+                        Directory.CreateDirectory(clientDirectory);
+                    }
+                    foreach (IFormFile file in documentDTO.Files)
+                    {
+                        string fileName = file.FileName;
+                        string filePath = Path.Combine(clientDirectory, fileName);
+                        Stream fileStream = new FileStream(filePath, FileMode.Create);
+                        await file.CopyToAsync(fileStream);
+                        DocumentRange.Add(new Documents { name = fileName, file_path = $"{userId}/{fileName}", form_id = formId, user_id = userId });
+                    }
+                    context.documents.AddRange(DocumentRange);
+                    await context.SaveChangesAsync();
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = "Document Guardado Correctamente" });
                 }
-                Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-                string fileName = documentDTO.file.FileName;
-                string reportsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reports");
-                string clientDirectory = Path.Combine(reportsDirectory, documentDTO.user_id.ToString());
-                string filePath = Path.Combine(clientDirectory, fileName);
-                if (!Directory.Exists(reportsDirectory))
-                {
-                    Directory.CreateDirectory(reportsDirectory);
-                }
-
-                if (!Directory.Exists(clientDirectory))
-                {
-                    Directory.CreateDirectory(clientDirectory);
-                }
-                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await documentDTO.file.CopyToAsync(fileStream);
-                }
-                context.documents.Add(new Documents { name = fileName, file_path = filePath, form_id = documentDTO.form_id, user_id = documentDTO.user_id });
-                await context.SaveChangesAsync();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = "Document Guardado Correctamente" });
+                return BadRequest();
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return StatusCode(400, new ItemResp { status = 500, message = CONFIRM, data = "Fallo Al guardar" });
+                return StatusCode(400, new ItemResp { status = 400, message = CONFIRM, data = "Fallo Al guardar" });
             }
         }
 
