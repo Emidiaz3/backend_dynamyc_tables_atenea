@@ -1,4 +1,5 @@
 ﻿using ApiRestCuestionario.Context;
+using ApiRestCuestionario.Dto;
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using ApiRestCuestionario.Utils;
@@ -179,23 +180,21 @@ namespace ApiRestCuestionario.Controllers
             }
         }
         [HttpPost("updatePerfilImage")]
-        public async Task<ActionResult> updatePerfilImage([FromForm] FormFilecs form)
+        public async Task<ActionResult> updatePerfilImage([FromForm] SaveFormDocumentDto form)
         {
             try
             {
                 int idUser = int.Parse(JsonConvert.DeserializeObject<string>(form.userId));
                 string filePath = "";
-                List<string> joinToPathDocument = new List<string>();
+                List<string> joinToPathDocument = [];
                 foreach (IFormFile document in form.file)
                 {
                     System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage");
                     filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage\\" + idUser.ToString() + "\\", document.FileName);
                     joinToPathDocument.Add(filePath);
                     System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage\\" + idUser.ToString());
-                    using (Stream fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await document.CopyToAsync(fileStream);
-                    }
+                    using Stream fileStream = new FileStream(filePath, FileMode.Create);
+                    await document.CopyToAsync(fileStream);
                 }
                 var user = new t_mae_usuario { IdUsuario = idUser, FotoPerfil = filePath };
                 context.t_mae_usuario.Attach(user).Property(x => x.FotoPerfil).IsModified = true;

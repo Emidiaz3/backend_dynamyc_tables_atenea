@@ -36,16 +36,16 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
             this.connectionString = configuration.GetConnectionString("Database");
         }
-       
+
         [HttpPost]
         public ActionResult Post([FromBody] JsonElement value)
         {
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
-                object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, userForm = cm }).Where(x=>x.userForm.users_id== user_id).ToList().Where(x=> x.userForm.state.Equals("1"));
-                
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm} });
+                object userForm = context.Form.Join(context.Users_Form, c => c.id, cm => cm.form_id, (c, cm) => new { form = c, userForm = cm }).Where(x => x.userForm.users_id == user_id).ToList().Where(x => x.userForm.state.Equals("1"));
+
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
             }
             catch (InvalidCastException e)
             {
@@ -57,7 +57,7 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("GetAnswerCountNum")]
         public ActionResult GetAnswerCountNum([FromBody] JsonElement value)
         {
-            
+
             try
             {
                 int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
@@ -78,7 +78,6 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("EditUsersFormStatus")]
         public ActionResult EditUsersFormStatus([FromBody] JsonElement value)
         {
-
             try
             {
                 Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString());
@@ -104,7 +103,7 @@ namespace ApiRestCuestionario.Controllers
                 int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
                 object questionResult = context.Questions.Where(c => c.form_id == form_id).ToList().OrderBy(c => c.position);
                 object answerList = null;
-               
+
                 answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date);
 
 
@@ -133,7 +132,7 @@ namespace ApiRestCuestionario.Controllers
                 object questionResult = context.Questions.Where(c => c.form_id == form_id).ToList().OrderBy(c => c.position);
                 object answerList = null;
 
-                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date).Where(c=>c.users_id == user_id);
+                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date).Where(c => c.users_id == user_id);
 
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinAnswer { dataAnswer = answerList, dataQuestion = questionResult } });
@@ -151,31 +150,23 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetAnswers")]
-        public Task<ActionResult> GetAnswers([FromQuery][Required] int formId)
+        public ActionResult GetAnswers([FromQuery][Required] int formId)
         {
-            Console.WriteLine(connectionString);
-           try
+            try
             {
-                using (var connection = new  SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    var rows = connection.Query("sp_dynamic_report", new {formId}, commandType: CommandType.StoredProcedure);
-                    connection.Close();
-<<<<<<< HEAD
-                    return Task.FromResult<ActionResult>(StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new {  data } }));
-=======
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows, columns = "" } });
->>>>>>> 930c20152b8218c44d075e754a530ae0764cc9ad
-
-                }
-             }
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var rows = connection.Query("sp_dynamic_report", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? [] , columns = columns ?? [] } });
+            }
             catch (Exception e)
             {
-                return Task.FromResult<ActionResult>(StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null }));
-
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
             }
         }
 
-       
+
     }
 }

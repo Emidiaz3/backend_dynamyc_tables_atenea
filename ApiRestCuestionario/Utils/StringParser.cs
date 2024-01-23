@@ -7,7 +7,6 @@ namespace ApiRestCuestionario.Utils
     {
         public static string NormalizeString(string str)
         {
-            Console.WriteLine(str);
             string normalizedString = str.Normalize(NormalizationForm.FormD);
             StringBuilder stringBuilder = new StringBuilder();
             foreach (char c in normalizedString)

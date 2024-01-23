@@ -20,24 +20,29 @@ namespace ApiRestCuestionario.Controllers
         }
    
         [HttpPost("SaveDocuments")]
-        public async Task<ActionResult> SaveDocuments([FromForm] FormFilecs form)
+        public async Task<ActionResult> SaveDocuments([FromForm] SaveFormDocumentDto formDocument)
         {
             try
             {
-                int form_id = int.Parse(JsonConvert.DeserializeObject<string>(form.formId));
-                int questions_id = int.Parse(JsonConvert.DeserializeObject<string>(form.questionsId));
-                List<string> joinToPathDocument = new List<string>();
-                foreach (IFormFile document in form.file)
+                if (formDocument.file.Any())
                 {
-                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");
-                    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString() + "\\", document.FileName);
-                    joinToPathDocument.Add(filePath);
-                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString());
-                    using Stream fileStream = new FileStream(filePath, FileMode.Create);
-                    await document.CopyToAsync(fileStream);
+                    int form_id = formDocument.formId;
+                    int questions_id = formDocument.questionsId;
+                    List<string> joinToPathDocument = [];
+                    foreach (var document in formDocument.file)
+                    {
+                        Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");
+                        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString() + "\\", document.FileName);
+                        joinToPathDocument.Add(filePath);
+                        Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers\\" + form_id.ToString());
+                        using Stream fileStream = new FileStream(filePath, FileMode.Create);
+                        await document.CopyToAsync(fileStream);
+                    }
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer = string.Join("|||", joinToPathDocument), questions_id } });
                 }
-              
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer = string.Join("|||", joinToPathDocument), questions_id } });
+
+                return StatusCode(400, new ItemResp { status = 404, message = "No hay archivos para guardar", data = null });
+
             }
             catch (InvalidCastException e)
             {
@@ -46,14 +51,14 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("SaveArchiveForm")]
-        public async Task<ActionResult> SaveArchiveForm([FromForm] FormFilecs form)
+        public async Task<ActionResult> SaveArchiveForm([FromForm] SaveFormDocumentDto formDocument)
         {
             try
             {
-                int form_id = int.Parse(JsonConvert.DeserializeObject<string>(form.formId));
+                int form_id = formDocument.formId;
                 string filePath = "";
                 List<string> joinToPathDocument = new List<string>();
-                foreach (IFormFile document in form.file)
+                foreach (IFormFile document in formDocument.file)
                 {
                     Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm");
                     filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsArchiveForm\\" + form_id.ToString() + "\\", document.FileName);
@@ -95,22 +100,8 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Guid uuidV4 = Guid.NewGuid();
-                DateTime fechasave = DateTime.Now;
-                foreach (Answers ans in answer.dataAnswer)
-                {
-                    ans.hashUnic = uuidV4.ToString();
-                    ans.answer_date = fechasave;
-                }
-                foreach (AnswerAnioMes ansa in answer.listDataAnioMes)
-                {
-                    ansa.hashUnic = uuidV4.ToString();
-                    ansa.answer_date = fechasave;
-                }
-                context.Answers.AddRange(answer.dataAnswer);
-                context.AnswerAnioMes.AddRange(answer.listDataAnioMes);
-                context.SaveChanges();
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.formId} , @json = {JsonConvert.SerializeObject(answer.dataAnswer)}");
+                var serializedAnswers = JsonConvert.SerializeObject(answer.dataAnswer);
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.formId} , @json = {serializedAnswers}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
