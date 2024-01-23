@@ -1,15 +1,16 @@
 ﻿using System.Net.Mail;
 using System.Net.Mime;
 using System.Net;
-
+using Microsoft.Extensions.Configuration;
+using System;
 namespace ApiRestCuestionario.Utils
 {
     public class Mailer
     {
-        IConfiguration _configuration;
+        readonly IConfiguration _configuration;
         Mailer(IConfiguration configuration)
         {
-            this._configuration = configuration;
+            _configuration = configuration;
         }
 
         public enum MailCompose
@@ -20,7 +21,7 @@ namespace ApiRestCuestionario.Utils
             RiesgosExternos = 3
         }
 
-        public void SendMailAll(string address, string subject, string body, string AddressCopy, string[] fileEntries = null, Boolean isAdjuntImage = true)
+        public void SendMailAll(string address, string subject, string body, string AddressCopy, string[] fileEntries = null, bool isAdjuntImage = true)
         {
             var message = new MailMessage();
 

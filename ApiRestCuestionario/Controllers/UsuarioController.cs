@@ -4,13 +4,18 @@ using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 
 namespace ApiRestCuestionario.Controllers
@@ -186,7 +191,7 @@ namespace ApiRestCuestionario.Controllers
             {
                 int idUser = int.Parse(JsonConvert.DeserializeObject<string>(form.userId));
                 string filePath = "";
-                List<string> joinToPathDocument = [];
+                List<string> joinToPathDocument = new List<string>();
                 foreach (IFormFile document in form.file)
                 {
                     System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage");

@@ -11,6 +11,10 @@ using System.Security.Claims;
 using System.Text;
 
 using ApiRestCuestionario.Utils;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
 
 namespace ApiRestCuestionario.Controllers

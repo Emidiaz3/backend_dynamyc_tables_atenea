@@ -1,4 +1,7 @@
 ﻿
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+
 namespace ApiRestCuestionario.Dto
 {
     public class SaveFormDocumentDto

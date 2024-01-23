@@ -1,10 +1,16 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Dto;
 using ApiRestCuestionario.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -28,7 +34,7 @@ namespace ApiRestCuestionario.Controllers
                 {
                     int form_id = formDocument.formId;
                     int questions_id = formDocument.questionsId;
-                    List<string> joinToPathDocument = [];
+                    List<string> joinToPathDocument = new List<string>();
                     foreach (var document in formDocument.file)
                     {
                         Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsAnswers");

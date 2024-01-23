@@ -5,8 +5,10 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Data;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {

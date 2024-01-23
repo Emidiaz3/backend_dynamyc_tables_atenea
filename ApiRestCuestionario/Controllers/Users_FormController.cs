@@ -3,9 +3,13 @@ using ApiRestCuestionario.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Linq;
 using System.Text.Json;
 
 public class dataJoinForm
@@ -159,7 +163,7 @@ namespace ApiRestCuestionario.Controllers
                 var rows = connection.Query("sp_dynamic_report", new { formId }, commandType: CommandType.StoredProcedure).ToList();
                 var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
                 connection.Close();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? [] , columns = columns ?? [] } });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
             }
             catch (Exception e)
             {

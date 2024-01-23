@@ -2,12 +2,14 @@
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -70,7 +72,7 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
             int formId = questionDTO.formId;
-            var columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
+            List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
             var itemsCounter = StringParser.CheckColumnItems(columns);
             context.Form_Aparence.Add(aparenceSave);
             if (aparenceSave.id != 0)

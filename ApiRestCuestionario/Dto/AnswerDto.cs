@@ -1,4 +1,5 @@
 ﻿using ApiRestCuestionario.Model;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Dto
