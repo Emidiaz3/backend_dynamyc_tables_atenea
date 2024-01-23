@@ -28,7 +28,7 @@ namespace ApiRestCuestionario.Model
         public string NomOrganizacion { get; set; }
         public int? Proyecto { get; set; }
         public int? Localidad { get; set; }
-        public int? Nivel_Riesgo_General { get; set; }
+        public string? Nivel_Riesgo_General { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public bool Estado { get; set; }
