@@ -158,9 +158,9 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetReportDocuments")]
-        public async Task<ActionResult> getReportDocuments([FromQuery][Required] int formId, [FromQuery] int userId)
+        public async Task<ActionResult> getReportDocuments([FromQuery][Required] int formId)
         {
-            var query = from document in context.documents join user in context.t_mae_usuario on document.user_id equals user.IdUsuario where document.user_id == userId && document.form_id == formId  select new { user, document };
+            var query = from document in context.documents join user in context.t_mae_usuario on document.user_id equals user.IdUsuario where document.form_id == formId  select new { user, document };
             var items = await query.ToListAsync();
             return StatusCode(200, new ItemResp { status = 400, message = CONFIRM, data = items });
         }
