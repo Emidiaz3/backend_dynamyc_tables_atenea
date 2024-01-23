@@ -57,6 +57,9 @@ namespace ApiRestCuestionario.Context
         public DbSet<QuestionType> question_types { get; set; }
 
         public DbSet<Documents> documents {  get; set; }
+        public DbSet<Persona> Persona { get; set; }
+        public DbSet<Persona_Organizacion> Persona_Organizacion { get; set; }
+
 
     }
 }
