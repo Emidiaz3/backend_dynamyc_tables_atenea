@@ -129,31 +129,12 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("SaveMasiveAnswer")]
-        public ActionResult SaveMasiveAnswer([FromBody] JsonElement form)
+        public async Task<ActionResult> SaveMasiveAnswer([FromBody] SaveAnswerDTO answer)
         {
             try
             {
-                DateTime fechasaveGeneral = DateTime.Now;
-                List<List<Answers>> answersSave = JsonConvert.DeserializeObject<List<List<Answers>>>(form.GetProperty("dataAnswer").ToString());
-                List<Answers> saveAnswersToBd = new List<Answers>();
-                List<AnswerAnioMes> answersAnioSaveSave = JsonConvert.DeserializeObject<List<AnswerAnioMes>>(form.GetProperty("listDataAnioMes").ToString());
-
-                foreach (var ans in answersSave)
-                {
-                    DateTime fechasave = DateTime.Now;
-                    foreach (var c in ans)
-                    {
-                        c.answer_date = fechasave;
-                    }
-                    context.Answers.AddRange(ans);
-                }
-
-                foreach (AnswerAnioMes ansa in answersAnioSaveSave)
-                {
-                    ansa.answer_date = fechasaveGeneral;
-                }
-                context.AnswerAnioMes.AddRange(answersAnioSaveSave);
-                context.SaveChanges();
+                var serializedAnswers = JsonConvert.SerializeObject(answer.dataAnswer);
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.formId} , @json = {serializedAnswers}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
