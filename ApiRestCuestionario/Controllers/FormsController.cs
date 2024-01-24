@@ -53,7 +53,8 @@ namespace ApiRestCuestionario.Controllers
             {
                 var questions = context.column_types.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link} and ct.state = 1").ToList();
                 var aparence = context.Form_Aparence.FromSqlInterpolated($"select fa.* from form_aparence fa join form f on (fa.form_id = f.id) where f.link  = {link}").First();
-                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new { questions, aparence } });
+                var form = context.Form.FromSqlInterpolated($"SELECT f.* from form f where f.link ={link}").First();
+                return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new { questions, aparence, form } });
             }
             catch (InvalidCastException e)
             {

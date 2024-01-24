@@ -4,6 +4,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Dto
 {
+    public class SaveMasiveAnswerDto
+    {
+        [Required]
+        public int FormId { get; set; }
+
+        [Required]
+        public string Data { get; set; }
+
+    }
     public  class SaveAnswerDTO
     {
         [Required]
