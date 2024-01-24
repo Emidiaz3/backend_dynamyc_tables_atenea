@@ -129,12 +129,11 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("SaveMasiveAnswer")]
-        public async Task<ActionResult> SaveMasiveAnswer([FromBody] SaveAnswerDTO answer)
+        public async Task<ActionResult> SaveMasiveAnswer([FromBody] SaveMasiveAnswerDto answer)
         {
             try
             {
-                var serializedAnswers = JsonConvert.SerializeObject(answer.dataAnswer);
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.formId} , @json = {serializedAnswers}");
+               var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.FormId} , @json = {answer.Data}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
