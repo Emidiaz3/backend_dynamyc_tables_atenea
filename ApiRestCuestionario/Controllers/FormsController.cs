@@ -91,7 +91,7 @@ namespace ApiRestCuestionario.Controllers
                 }
                 else
                 {
-                    return StatusCode(200, new ItemResp { status = 200, message = UPDATELINKCANCEL, data = editForm });
+                    return StatusCode(200, new ItemResp { status = 200, message = UPDATELINKCANCEL, data = null });
                 }
 
             }
