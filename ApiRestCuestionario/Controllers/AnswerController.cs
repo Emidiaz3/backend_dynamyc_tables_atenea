@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -14,6 +15,15 @@ using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
+
+    public class DeleteAnswerDto
+    {
+        [Required] 
+        public int FormId { get; set; }
+        [Required]
+        public List<int> IdList { get; set; }
+    }
+
     [ApiController]
     [Route("api/[controller]")]
     public class AnswerController : ControllerBase
@@ -118,8 +128,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                var serializedAnswers = JsonConvert.SerializeObject(answer.dataAnswer);
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.formId} , @json = {serializedAnswers}");
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.FormId} , @json = {answer.Data}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
@@ -176,6 +185,21 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
+        [HttpDelete("DeleteMasiveAnswer")]
+        public async Task<ActionResult> DeleteMasiveAnswer([FromBody] DeleteAnswerDto answerDto)
+        {
+            try
+            {
+                var itemsToDelete = string.Join(",", answerDto.IdList);
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_ELIMINAR_RESPUESTAS @formId = {answerDto.FormId} , @items = {itemsToDelete}");
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
         [HttpPost("GetAnswerAnioMesByIdFormReal")]
         public ActionResult GetAnswerAnioMesByIdForm([FromBody] JsonElement value)
         {
@@ -191,4 +215,5 @@ namespace ApiRestCuestionario.Controllers
         }
 
     }
+    
 }

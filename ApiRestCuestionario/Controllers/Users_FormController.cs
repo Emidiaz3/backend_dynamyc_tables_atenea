@@ -3,6 +3,7 @@ using ApiRestCuestionario.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -181,6 +182,25 @@ namespace ApiRestCuestionario.Controllers
                 return StatusCode(200, new ItemResp { status = 200, message = e.ToString(), data = new dataJoinAnswer { dataAnswer = null, dataQuestion = questionResult2 } });
 
             }
+
+        }
+
+        [HttpGet("GetAnswer")]
+        public ActionResult GetAnswer([FromQuery][Required] int formId, [FromQuery][Required] int answerId)
+        {
+          try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var rows = connection.Query("SP_OBTENER_RESPUESTA", new { formId, answerId }, commandType: CommandType.StoredProcedure).ToList().FirstOrDefault();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = rows });
+            } catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+
+            }
+
 
         }
 

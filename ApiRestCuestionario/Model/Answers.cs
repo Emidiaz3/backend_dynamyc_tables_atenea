@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Model
 {
@@ -14,8 +10,6 @@ namespace ApiRestCuestionario.Model
         public int id { get; set; }
         public string answer { get; set; }
         public DateTime? answer_date { get; set; } 
-
-
         public int users_id { get; set; }
         public int questions_id { get; set; }
         public int form_id { get; set; }

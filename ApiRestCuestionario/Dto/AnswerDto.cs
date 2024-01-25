@@ -16,10 +16,10 @@ namespace ApiRestCuestionario.Dto
     public  class SaveAnswerDTO
     {
         [Required]
-        public int formId { get; set; }
+        public int FormId { get; set; }
 
         [Required]
-        public List<Answers> dataAnswer { get; set; }
+        public string Data { get; set; }
 
         [Required]
         public List<AnswerAnioMes> listDataAnioMes { get; set; }
