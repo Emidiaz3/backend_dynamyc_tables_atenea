@@ -5,7 +5,7 @@
     <Controller_SelectedScaffolderCategoryPath>root/Common/Api</Controller_SelectedScaffolderCategoryPath>
     <ShowAllFiles>true</ShowAllFiles>
     <ActiveDebugProfile>ApiRestCuestionario</ActiveDebugProfile>
-    <NameOfLastUsedPublishProfile>C:\Users\jloyola\Desktop\Encuestas_Back\ApiRestCuestionario\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\Administrador\Documents\github_dinamyc_tables_backend\CuestionarioBack\ApiRestCuestionario\Properties\PublishProfiles\FolderProfile1.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
