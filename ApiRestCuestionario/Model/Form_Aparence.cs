@@ -12,6 +12,8 @@ namespace ApiRestCuestionario.Model
         public bool title_status { get; set; }
         public bool description_status { get; set; }
         public bool footer_status { get; set; }
+        public string footer_text { get; set; }
+        public string footer_url { get; set; }
         public string title { get; set; }
         public string title_opcion { get; set; }
         public string title_style { get; set; }
