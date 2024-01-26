@@ -117,7 +117,17 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString());
-                context.Users_Form.Update(user_form);
+
+                Users_Form userForm = context.Users_Form.FirstOrDefault(uf => uf.users_id == user_form.users_id && uf.form_id == user_form.form_id);
+
+                if (userForm == null)
+                {
+                    return NotFound();
+                }
+
+                userForm.state = "0";
+
+                context.Users_Form.Update(userForm);
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp
                 {
