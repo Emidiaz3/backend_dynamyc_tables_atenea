@@ -5,7 +5,7 @@
     <Controller_SelectedScaffolderCategoryPath>root/Common/Api</Controller_SelectedScaffolderCategoryPath>
     <ShowAllFiles>true</ShowAllFiles>
     <ActiveDebugProfile>ApiRestCuestionario</ActiveDebugProfile>
-    <NameOfLastUsedPublishProfile>C:\Users\jloyola\Desktop\Encuestas_Back\ApiRestCuestionario\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\jegar\OneDrive\Desktop\Jezer\CSharpProjects\cuestionario_backend\ApiRestCuestionario\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
