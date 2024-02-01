@@ -57,14 +57,14 @@ namespace ApiRestCuestionario.Controllers
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.InputOutput,
-                    Value = localidadSave.Id ?? (object)DBNull.Value
+                    Value = localidadSave.IdLocalidad ?? (object)DBNull.Value
                 };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_LOCALIDAD] 
-                    @Id={idParameter} OUTPUT, 
-                    @Id_Localidad={localidadSave.Id_Localidad},
+                    @IdLocalidad={idParameter} OUTPUT, 
+                    @CodigoLocalidad={localidadSave.CodigoLocalidad},
                     @NomLocalidad={localidadSave.NomLocalidad},
-                    @Proyecto={localidadSave.Proyecto},
+                    @IdProyecto={localidadSave.IdProyecto},
                     @Departamento={null},
                     @Provincia={null},
                     @Distrito={null},
