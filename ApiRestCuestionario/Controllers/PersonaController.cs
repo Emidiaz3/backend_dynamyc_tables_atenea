@@ -62,16 +62,16 @@ namespace ApiRestCuestionario.Controllers
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.InputOutput,
-                    Value = persona.Id ?? (object)DBNull.Value
+                    Value = persona.IdPersona ?? (object)DBNull.Value
                 };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_PERSONA] 
-                    @Id={idParameter} OUTPUT, 
-                    @Id_Persona={persona.Id_Persona},
+                    @IdPersona={idParameter} OUTPUT, 
+                    @CodigoPersona={persona.CodigoPersona},
                     @NomPersona={persona.NomPersona},
-                    @Proyecto={persona.Proyecto},
-                    @Localidad={persona.Localidad},
-                    @Nivel_Riesgo_General={persona.Nivel_Riesgo_General},
+                    @IdProyecto={persona.IdProyecto},
+                    @IdLocalidad={persona.IdLocalidad},
+                    @NivelRiesgoGeneral={persona.NivelRiesgoGeneral},
                     @Latitud={persona.Latitud},
                     @Longitud={persona.Longitud},
                     @TipoDocumento={persona.TipoDocumento},
@@ -80,7 +80,7 @@ namespace ApiRestCuestionario.Controllers
                     @IdUsuario={persona.IdUsuario}
                 ;");
 
-                if (persona.Id != null)
+                if (persona.IdPersona != null)
                 {
                     List<Persona_Organizacion> removeList = JsonConvert.DeserializeObject<List<Persona_Organizacion>>(value.GetProperty("deletePersonaOrganizacionList").ToString());
                     foreach (Persona_Organizacion persona_Organizacion in removeList)
@@ -88,7 +88,7 @@ namespace ApiRestCuestionario.Controllers
                         await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_DELETE_SPECIFIC_PERSONA_ORGANIZACION] 
                         @IdPersona={idParameter},
                         @IdOrganizacion={persona_Organizacion.IdOrganizacion},
-                        @Proyecto={persona.Proyecto};");
+                        @Proyecto={persona.IdProyecto};");
                     }
                 }
 
@@ -99,7 +99,7 @@ namespace ApiRestCuestionario.Controllers
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_PERSONA_ORGANIZACION] 
                     @IdPersona={idParameter},
                     @IdOrganizacion={persona_Organizacion.IdOrganizacion},
-                    @Proyecto={persona.Proyecto};");
+                    @Proyecto={persona.IdProyecto};");
                 }
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
@@ -123,11 +123,11 @@ namespace ApiRestCuestionario.Controllers
             {
                 List<MultipleInsertPersona> list = JsonConvert.DeserializeObject<List<MultipleInsertPersona>>(value.ToString());
 
-                var gruposPorProyecto = list.GroupBy(x => x.person.Proyecto)
+                var gruposPorProyecto = list.GroupBy(x => x.person.IdProyecto)
                                              .Select(group => new
                                              {
                                                  Proyecto = group.Key,
-                                                 Codigos = String.Join(",", group.Select(g => g.person.Id_Persona))
+                                                 Codigos = String.Join(",", group.Select(g => g.person.CodigoPersona))
                                              });
 
 
@@ -145,16 +145,16 @@ namespace ApiRestCuestionario.Controllers
                     var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.InputOutput,
-                        Value = insertPersona.person.Id ?? (object)DBNull.Value
+                        Value = insertPersona.person.IdPersona ?? (object)DBNull.Value
                     };
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_PERSONA] 
-                        @Id={idParameter} OUTPUT, 
-                        @Id_Persona={insertPersona.person.Id_Persona},
+                        @IdPersona={idParameter} OUTPUT, 
+                        @CodigoPersona={insertPersona.person.CodigoPersona},
                         @NomPersona={insertPersona.person.NomPersona},
-                        @Proyecto={insertPersona.person.Proyecto},
-                        @Localidad={insertPersona.person.Localidad},
-                        @Nivel_Riesgo_General={insertPersona.person.Nivel_Riesgo_General},
+                        @IdProyecto={insertPersona.person.IdProyecto},
+                        @IdLocalidad={insertPersona.person.IdLocalidad},
+                        @NivelRiesgoGeneral={insertPersona.person.NivelRiesgoGeneral},
                         @Latitud={insertPersona.person.Latitud},
                         @Longitud={insertPersona.person.Longitud},
                         @TipoDocumento={insertPersona.person.TipoDocumento},
@@ -168,7 +168,7 @@ namespace ApiRestCuestionario.Controllers
                         await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_PERSONA_ORGANIZACION] 
                             @IdPersona={idParameter},
                             @IdOrganizacion={insert.IdOrganizacion},
-                            @Proyecto={insertPersona.person.Proyecto};");
+                            @Proyecto={insertPersona.person.IdProyecto};");
                     }
                 }
 

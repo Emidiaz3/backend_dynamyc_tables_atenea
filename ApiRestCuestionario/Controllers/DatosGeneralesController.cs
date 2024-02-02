@@ -4,9 +4,12 @@ using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -215,6 +218,48 @@ namespace ApiRestCuestionario.Controllers
                 response.status = 0;
                 response.message = errorMessages.ToString();
                 return Ok(response); ;
+            }
+        }
+
+        [HttpGet("GetDepartamentos")]
+        public async Task<ActionResult> GetDepartamentos()
+        {
+            try
+            {
+                var list = await context.entidad_lst_dep.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_DEPARTAMENTOS]").ToListAsync();
+                return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos correctamente ...!", data = list });
+            }
+            catch (InvalidCastException e)
+            {
+                return StatusCode(404, new ItemResp { status = 200, message = "Error ...!", data = e.ToString() });
+            }
+        }
+
+        [HttpGet("GetProvinciasByDepartamento")]
+        public async Task<ActionResult> GetProvinciasByDepartamento(int idDep)
+        {
+            try
+            {
+                var list = await context.entidad_lst_prov.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_PROVINCIAS_BY_DEP] @IdDep={idDep}").ToListAsync();
+                return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos correctamente ...!", data = list });
+            }
+            catch (InvalidCastException e)
+            {
+                return StatusCode(404, new ItemResp { status = 200, message = "Error ...!", data = e.ToString() });
+            }
+        }
+
+        [HttpGet("GetDistritosByProvincia")]
+        public async Task<ActionResult> GetDistritosByProvincia(int idProv)
+        {
+            try
+            {
+                var list = await context.entidad_lst_dist.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_DISTRITOS_BY_PROV] @IdProv={idProv}").ToListAsync();
+                return StatusCode(200, new ItemResp { status = 200, message = "Datos obtenidos correctamente ...!", data = list });
+            }
+            catch (InvalidCastException e)
+            {
+                return StatusCode(404, new ItemResp { status = 200, message = "Error ...!", data = e.ToString() });
             }
         }
     }

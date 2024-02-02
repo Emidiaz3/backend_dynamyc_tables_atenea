@@ -9,18 +9,18 @@ namespace ApiRestCuestionario.Model
     public class Localidad
     {
         [Key]
-        public int? Id { get; set; }
-        public string Id_Localidad { get; set; }
+        public int? IdLocalidad { get; set; }
+        public string CodigoLocalidad { get; set; }
         public string NomLocalidad { get; set; }
-        public int? Proyecto { get; set; }
-        public int? Departamento { get; set; }
-        public int? Provincia { get; set; }
-        public int? Distrito { get; set; }
+        public int? IdProyecto { get; set; }
+        public string? Departamento { get; set; }
+        public string? Provincia { get; set; }
+        public string? Distrito { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public bool Estado { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public int? IdUsuario { get; set; }
-        public int? Id_Ref { get; set; }
+        public int? IdRef { get; set; }
     }
 }

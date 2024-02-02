@@ -42,16 +42,16 @@ namespace ApiRestCuestionario.Controllers
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.InputOutput,
-                    Value = organizacionSave.Id ?? (object)DBNull.Value
+                    Value = organizacionSave.IdOrganizacion ?? (object)DBNull.Value
                 };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_ORGANIZACION] 
-                    @Id={idParameter} OUTPUT, 
-                    @Id_Organizacion={organizacionSave.Id_Organizacion},
+                    @IdOrganizacion={idParameter} OUTPUT, 
+                    @CodigoOrganizacion={organizacionSave.CodigoOrganizacion},
                     @NomOrganizacion={organizacionSave.NomOrganizacion},
-                    @Proyecto={organizacionSave.Proyecto},
-                    @Localidad={organizacionSave.Localidad},
-                    @Nivel_Riesgo_General={organizacionSave.Nivel_Riesgo_General},
+                    @IdProyecto={organizacionSave.IdProyecto},
+                    @IdLocalidad={organizacionSave.IdLocalidad},
+                    @NivelRiesgoGeneral={organizacionSave.NivelRiesgoGeneral},
                     @Latitud={organizacionSave.Latitud},
                     @Longitud={organizacionSave.Longitud},
                     @Estado={organizacionSave.Estado},
@@ -77,11 +77,11 @@ namespace ApiRestCuestionario.Controllers
             {
                 List<Organizacion> organizaciones = JsonConvert.DeserializeObject<List<Organizacion>>(value.ToString());
 
-                var gruposPorProyecto = organizaciones.GroupBy(o => o.Proyecto)
+                var gruposPorProyecto = organizaciones.GroupBy(o => o.IdProyecto)
                                              .Select(group => new
                                              {
                                                  Proyecto = group.Key,
-                                                 Codigos = String.Join(",", group.Select(g => g.Id_Organizacion))
+                                                 Codigos = String.Join(",", group.Select(g => g.CodigoOrganizacion))
                                              });
 
                 foreach (var grupo in gruposPorProyecto)
@@ -97,16 +97,16 @@ namespace ApiRestCuestionario.Controllers
                     var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.InputOutput,
-                        Value = organizacion.Id ?? (object)DBNull.Value
+                        Value = organizacion.IdOrganizacion ?? (object)DBNull.Value
                     };
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_GUARDAR_ORGANIZACION] 
-                    @Id={idParameter} OUTPUT, 
-                    @Id_Organizacion={organizacion.Id_Organizacion},
+                    @IdOrganizacion={idParameter} OUTPUT, 
+                    @CodigoOrganizacion={organizacion.CodigoOrganizacion},
                     @NomOrganizacion={organizacion.NomOrganizacion},
-                    @Proyecto={organizacion.Proyecto},
-                    @Localidad={organizacion.Localidad},
-                    @Nivel_Riesgo_General={organizacion.Nivel_Riesgo_General},
+                    @IdProyecto={organizacion.IdProyecto},
+                    @IdLocalidad={organizacion.IdLocalidad},
+                    @NivelRiesgoGeneral={organizacion.NivelRiesgoGeneral},
                     @Latitud={organizacion.Latitud},
                     @Longitud={organizacion.Longitud},
                     @Estado={organizacion.Estado},

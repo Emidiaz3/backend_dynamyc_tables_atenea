@@ -128,8 +128,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Console.WriteLine(answer.Data);
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA @formId = {answer.FormId} , @json = {answer.Data}");
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTA_FORMULARIO @form_id = {answer.FormId} , @json = {answer.Data}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
