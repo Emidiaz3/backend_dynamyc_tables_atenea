@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Model
 {
@@ -16,7 +13,7 @@ namespace ApiRestCuestionario.Model
         public string NomOrganizacion { get; set; }
         public int? IdProyecto { get; set; }
         public int? IdLocalidad { get; set; }
-        public string? NivelRiesgoGeneral { get; set; }
+        public string NivelRiesgoGeneral { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public bool Estado { get; set; }
