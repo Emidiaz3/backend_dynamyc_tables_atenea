@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace ApiRestCuestionario
 {
@@ -27,21 +28,25 @@ namespace ApiRestCuestionario
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            string pathCombination = string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) ? Environment.CurrentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            staticFolder = new StaticFolder(Path.Combine(pathCombination, "MyStaticFiles"));
+
         }
         public IConfiguration Configuration { get; }
-        public StaticFolder staticFolder = new StaticFolder(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MyStaticFiles"));
-
+        public StaticFolder staticFolder;
         public void ConfigureServices(IServiceCollection services)
         {
+            Console.WriteLine(staticFolder.Path);
             services.AddSingleton(staticFolder);
             services.AddControllers();
 
-            services.AddSwaggerGen(options => {
+            services.AddSwaggerGen(options =>
+            {
                 //options.DocumentFilter<PathPrefixInsertDocumentFilter>();
             });
 
             var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"));
-            
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -93,7 +98,6 @@ namespace ApiRestCuestionario
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            Console.WriteLine(env.ContentRootPath);
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
@@ -122,11 +126,10 @@ namespace ApiRestCuestionario
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(staticFolder.Path),
-                RequestPath = "/StaticFiles"
-            }
-                
-                );
-            
+                RequestPath = new PathString("/StaticFiles")
+            });
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

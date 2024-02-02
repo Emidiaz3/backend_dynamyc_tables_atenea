@@ -29,6 +29,8 @@ namespace ApiRestCuestionario.Controllers
         public int question_type_id { get; set; }
         public string props_ui { get; set; }
         public bool? deleted { get; set; }
+
+        public bool hidden { get; set; }
     }
 
     public class ColumnInfo
@@ -55,7 +57,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                var questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null && c.state == 1);
+                var questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null);
                 var aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
                 var form = context.Form.Where(c => c.id == formId).FirstOrDefault();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { aparence, questions, form } });
@@ -113,6 +115,7 @@ namespace ApiRestCuestionario.Controllers
                         itemsCounter[normalized] = 1;
                         parsedColumn = normalized;
                     }
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_STATE_PROPS @Id={x.id}, @NuevoEstado={(x.hidden ? 0 : 1)};");
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
 
@@ -144,8 +147,24 @@ namespace ApiRestCuestionario.Controllers
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
         }
+        [HttpPost("UpdateQuestionState")]
+        public async Task<ActionResult> UpdateQuestionState(int questionId, int newState)
+        {
+            try
+            {
+                // Llama al procedimiento almacenado spActualizarEstado
+                await context.Database.ExecuteSqlInterpolatedAsync($"EXEC spActualizarEstado @Id={questionId}, @NuevoEstado={newState}");
 
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { QuestionId = questionId, NewState = newState } });
+            }
+            catch (Exception ex)
+            {
+                // Maneja la excepción
+                return BadRequest(ex.Message);
+            }
+        }
 
+    
 
         [HttpGet("types")]
         public async Task<ActionResult> GetQuestionTypes()
