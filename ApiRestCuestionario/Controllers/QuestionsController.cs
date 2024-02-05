@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -17,27 +13,27 @@ namespace ApiRestCuestionario.Controllers
     public class SaveQuestionDTO
     {
         public int formId { get; set; }
-        public Form_Aparence aparence { get; set; }
-        public List<Quest> questions { get; set; }
+        public Form_Aparence? aparence { get; set; }
+        public required List<Quest> questions { get; set; }
     }
     public class Quest
     {
         public int? id { get; set; }
-        public string column_type { get; set; }
-        public string column_name { get; set; }
-        public string column_db_name { get; set; }
+        public string? column_type { get; set; }
+        public string? column_name { get; set; }
+        public string? column_db_name { get; set; }
         public int question_type_id { get; set; }
-        public string props_ui { get; set; }
+        public string? props_ui { get; set; }
         public bool? deleted { get; set; }
     }
 
     public class ColumnInfo
     {
         public int? id { get; set; }
-        public string columnName { get; set; }
-        public string columnDBName { get; set; }
-        public string columnType { get; set; }
-        public JObject props_ui { get; set; }
+        public string? columnName { get; set; }
+        public string? columnDBName { get; set; }
+        public string? columnType { get; set; }
+        public JObject? props_ui { get; set; }
     }
     [ApiController]
     [Route("api/[controller]")]
@@ -93,7 +89,7 @@ namespace ApiRestCuestionario.Controllers
             }
             if (toUpdate.Any())
             {
-                List<string> toUpdateColumns = new List<string>();
+                List<string> toUpdateColumns = [];
                 foreach (var x in toUpdate)
                 {
                     var normalized = StringParser.NormalizeString(x.column_db_name);

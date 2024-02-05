@@ -14,7 +14,7 @@ namespace ApiRestCuestionario.Model
     {
         [Key]
         public int IdPais { get; set; }
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
         public int IdIdioma { get; set; }
     }
     public class entidad_lst_tipodoc
@@ -22,8 +22,8 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdTipoDocIdentidad { get; set; }
         public int IdPais { get; set; }
-        public string Pais { get; set; }
-        public string DesTipoDocIdentidad { get; set; }
+        public string? Pais { get; set; }
+        public string? DesTipoDocIdentidad { get; set; }
         public int FlgEstado { get; set; }
     }
     public class entidad_lst_dep
@@ -31,8 +31,8 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdDep { get; set; }
         public int IdPais { get; set; }
-        public string CodDep { get; set; }
-        public string DescDep { get; set; }
+        public string? CodDep { get; set; }
+        public string? DescDep { get; set; }
     }
 
     public class entidad_lst_prov
@@ -40,8 +40,8 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdProv { get; set; }
         public int IdDep { get; set; }
-        public string CodProv { get; set; }
-        public string DescProv { get; set; }
+        public string? CodProv { get; set; }
+        public string? DescProv { get; set; }
     }
 
     public class entidad_lst_dist
@@ -49,7 +49,7 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdDist { get; set; }
         public int IdProv { get; set; }
-        public string CodDist { get; set; }
-        public string DescDist { get; set; }
+        public string? CodDist { get; set; }
+        public string? DescDist { get; set; }
     }
 }

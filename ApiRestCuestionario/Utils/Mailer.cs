@@ -37,8 +37,10 @@ namespace ApiRestCuestionario.Utils
             if (isAdjuntImage)
             {
 
-                LinkedResource lr = new LinkedResource(fileName, MediaTypeNames.Image.Jpeg);
-                lr.ContentId = "Logo";
+                LinkedResource lr = new(fileName, MediaTypeNames.Image.Jpeg)
+                {
+                    ContentId = "Logo"
+                };
                 av.LinkedResources.Add(lr);
             }
 
@@ -49,29 +51,34 @@ namespace ApiRestCuestionario.Utils
             {
                 foreach (string file in fileEntries)
                 {
-                    Attachment data = new Attachment(file, MediaTypeNames.Application.Octet);
-                    ContentDisposition disposition = data.ContentDisposition;
-                    disposition.CreationDate = System.IO.File.GetCreationTime(file);
-                    disposition.ModificationDate = System.IO.File.GetLastWriteTime(file);
-                    disposition.ReadDate = System.IO.File.GetLastAccessTime(file);
+                    Attachment data = new(file, MediaTypeNames.Application.Octet);
+                    if(data.ContentDisposition != null)
+                    {
+                        ContentDisposition disposition = data.ContentDisposition;
+                        disposition.CreationDate = System.IO.File.GetCreationTime(file);
+                        disposition.ModificationDate = System.IO.File.GetLastWriteTime(file);
+                        disposition.ReadDate = System.IO.File.GetLastAccessTime(file);
+                    }
+          
                     message.Attachments.Add(data);
                 }
             }
 
             try
             {
-                string host = _configuration.GetValue<string>("Smtp:host");
+                string? host = _configuration.GetValue<string>("Smtp:host");
                 int port = _configuration.GetValue<int>("Smtp:port", 25);
-                string fromAddress = _configuration.GetValue<string>("Smtp:from");
-                string userName = _configuration.GetValue<string>("Smtp:userName");
-                string password = _configuration.GetValue<string>("Smtp:password");
+                string? fromAddress = _configuration.GetValue<string>("Smtp:from");
+                string? userName = _configuration.GetValue<string>("Smtp:userName");
+                string? password = _configuration.GetValue<string>("Smtp:password");
 
 
-                message.From = new MailAddress(fromAddress);
-                using (var smtp = new SmtpClient(host, port))
+                if (fromAddress!= null)
                 {
+                    message.From = new MailAddress(fromAddress);
+                    using var smtp = new SmtpClient(host, port);
                     smtp.EnableSsl = true;
-                    NetworkCredential NetworkCred = new NetworkCredential(userName, password);
+                    NetworkCredential NetworkCred = new(userName, password);
                     smtp.UseDefaultCredentials = true;
                     smtp.Credentials = NetworkCred;
                     smtp.Send(message);

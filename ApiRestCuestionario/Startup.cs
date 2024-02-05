@@ -12,6 +12,7 @@ using System;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using ApiRestCuestionario.Utils;
 
 namespace ApiRestCuestionario
 {
@@ -38,6 +39,7 @@ namespace ApiRestCuestionario
         {
             Console.WriteLine(staticFolder.Path);
             services.AddSingleton(staticFolder);
+            services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
 
             services.AddSwaggerGen(options =>
@@ -98,6 +100,9 @@ namespace ApiRestCuestionario
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
