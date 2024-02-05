@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Model
 {
@@ -13,9 +10,9 @@ namespace ApiRestCuestionario.Model
         public string CodigoLocalidad { get; set; }
         public string NomLocalidad { get; set; }
         public int? IdProyecto { get; set; }
-        public string? Departamento { get; set; }
-        public string? Provincia { get; set; }
-        public string? Distrito { get; set; }
+        public string Departamento { get; set; }
+        public string Provincia { get; set; }
+        public string Distrito { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public bool Estado { get; set; }

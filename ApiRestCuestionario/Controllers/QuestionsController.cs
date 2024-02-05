@@ -117,13 +117,14 @@ namespace ApiRestCuestionario.Controllers
                     }
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_STATE_PROPS @Id={x.id}, @NuevoEstado={(x.hidden ? 0 : 1)};");
 
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_ACTUALIZAR_COLUMNA @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
 
                 }
 
             }
             if (toInsert.Any())
             {
+                Console.WriteLine(toInsert);
                 var columnNames = string.Join(",", toInsert.Select(x => x.column_name));
                 var questionId = string.Join(",", toInsert.Select(x => x.question_type_id));
                 var columnNamesDB = string.Join(",", toInsert.Select(x =>
@@ -142,7 +143,7 @@ namespace ApiRestCuestionario.Controllers
                 }));
                 var columnTypes = string.Join(",", toInsert.Select(x => x.column_type));
                 var props_ui = JsonConvert.SerializeObject(toInsert.Select(x => x.props_ui));
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC AddColumnsAndInsertData @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId}, @questionTypesId = {questionId};");
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERTAR_COLUMNAS @columnNames={columnNames}, @columnNamesDB={columnNamesDB}, @columnTypes={columnTypes}, @props_ui = {props_ui}, @formId={formId}, @questionTypesId = {questionId};");
             }
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
