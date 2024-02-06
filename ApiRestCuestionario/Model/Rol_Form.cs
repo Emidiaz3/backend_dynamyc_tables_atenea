@@ -46,34 +46,33 @@ namespace ApiRestCuestionario.Model
 
     public class entidad_lst_modulos_accesos
     {
-
-        public int IdRol { get; set; }
-        public int IdModulo { get; set; }
-        public string NombreModulo { get; set; }
-        public string Icon_Modulo { get; set; }
         [Key]
         public int IdAcceso { get; set; }
-        public string NombreAcceso { get; set; }
-        public string Descripcion { get; set; }
-        public string Link { get; set; }
-        public string Icon_Acceso { get; set; }
+        public int IdRol { get; set; }
+        public int IdModulo { get; set; }
+        public string? NombreModulo { get; set; }
+        public string? Icon_Modulo { get; set; }
+        public string? NombreAcceso { get; set; }
+        public string? Descripcion { get; set; }
+        public string? Link { get; set; }
+        public string? Icon_Acceso { get; set; }
     }
 
     public class entidad_lst_rol_modulo
     {
         public int IdModulo { get; set; }
-        public string title { get; set; }
-        public string icon { get; set; }
-        public List<entidad_lst_modulo_acceso> children { get; set; }
+        public string? title { get; set; }
+        public string? icon { get; set; }
+        public List<entidad_lst_modulo_acceso>? children { get; set; }
     }
     public class entidad_lst_modulo_acceso
     {
         public int IdAcceso { get; set; }
-        public string title { get; set; }
-        public string Descripcion { get; set; }
-        public string type { get; set; }
-        public string icon { get; set; }
-        public string link { get; set; }
+        public string? title { get; set; }
+        public string? Descripcion { get; set; }
+        public string? type { get; set; }
+        public string? icon { get; set; }
+        public string? link { get; set; }
     }
 
 
@@ -83,16 +82,9 @@ namespace ApiRestCuestionario.Model
         public int IdRol { get; set; }
         [Key]
         public int IdAcceso { get; set; }
-        public string NombreAcceso { get; set; }
-        public string Descripcion { get; set; }
-        /*public int? idModule { get; set; }
-        public int? NumNivel { get; set; }
-        public int? IndSubMenu { get; set; }
-        public string Control { get; set; }
-        public string View { get; set; }
-        public int? Orden { get; set; }
-        public string Icon { get; set; }
-        public int? EstadoAcceso { get; set; }*/
+        public string? NombreAcceso { get; set; }
+        public string? Descripcion { get; set; }
+
     }
 
     public class entidad_guardar_rol_acceso
@@ -114,7 +106,7 @@ namespace ApiRestCuestionario.Model
         public int IdUsuario { get; set; }
         [Key]
         public int IdRol { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public int? UsuarioAccion { get; set; }
     }
 

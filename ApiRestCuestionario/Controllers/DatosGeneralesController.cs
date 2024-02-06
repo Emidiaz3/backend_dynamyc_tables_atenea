@@ -4,7 +4,6 @@ using ApiRestCuestionario.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,26 +24,22 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
         }
 
-        [HttpGet("GetListPais")]
-        public async Task<ActionResult<dynamic>> GetListPais(string filtro)
+        [HttpGet("Countries")]
+        public async Task<ActionResult<dynamic>> GetCountries()
         {
             var response = new ItemResponse();
 
             try
             {
-                List<entidad_lst_pais> datos = new List<entidad_lst_pais>();
-                var data_pais = context.entidad_lst_pais
-                .FromSqlInterpolated($"Exec SP_PAIS_SEL_01 @FILTRO={filtro}")
-                .AsAsyncEnumerable();
+                List<entidad_lst_pais> countries = await context.entidad_lst_pais
+                .FromSqlInterpolated($"Exec SP_PAIS_SEL_01")
+                .ToListAsync();
 
                 response.status = 1;
+                response.data = countries;
+               
 
-                await foreach (var dato in data_pais)
-                {
-                    datos.Add(dato);
-                }
-
-                return Ok(datos);
+                return Ok(response);
             }
             catch (SqlException ex)
             {
@@ -60,26 +55,21 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpGet("GetListTipoDocumento")]
-        public async Task<ActionResult<dynamic>> GetListTipoDocumento(string filtro)
+        [HttpGet("documentTypes")]
+        public async Task<ActionResult<dynamic>> GetDocumenTypes()
         {
             var response = new ItemResponse();
 
             try
             {
-                List<entidad_lst_tipodoc> datos = new List<entidad_lst_tipodoc>();
-                var data_pais = context.entidad_lst_tipodoc
-                .FromSqlInterpolated($"Exec SP_TIPODOCUMENTO_SEL_01 @FILTRO={filtro}")
-                .AsAsyncEnumerable();
+                List<entidad_lst_tipodoc> documentTypes = await context.entidad_lst_tipodoc
+                .FromSqlInterpolated($"Exec SP_TIPODOCUMENTO_SEL_01")
+                .ToListAsync();
 
                 response.status = 1;
-
-                await foreach (var dato in data_pais)
-                {
-                    datos.Add(dato);
-                }
-
-                return Ok(datos);
+                response.data = documentTypes;
+             
+                return Ok(response);
             }
             catch (SqlException ex)
             {

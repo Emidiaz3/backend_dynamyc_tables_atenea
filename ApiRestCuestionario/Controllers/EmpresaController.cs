@@ -26,25 +26,20 @@ namespace ApiRestCuestionario.Controllers
             this.context = context;
         }
 
-        [HttpGet("GetListEmpresa")]
-        public async Task<ActionResult<dynamic>> GetListEmpresa(int IdUsuarioAccion)
+        [HttpGet("companies")]
+        public async Task<ActionResult<dynamic>> GetListEmpresa(int userId)
         {
             var response = new ItemResponse();
             try
             {
-                string filtro = $"and IdUsuarioModificacion={IdUsuarioAccion}";
-                List<entidad_lst_empresa> datos = new List<entidad_lst_empresa>();
-                var empresa_data = context.entidad_lst_empresa
-                .FromSqlInterpolated($"Exec SP_EMPRESA_SEL_01 @FILTRO={filtro}")
-                .AsAsyncEnumerable();
+                List<entidad_lst_empresa> empresa_data = await context.entidad_lst_empresa
+                .FromSqlInterpolated($"Exec SP_EMPRESA_SEL_01 @userId={userId}")
+                .ToListAsync();
 
                 response.status = 1;
-
-                await foreach (var dato in empresa_data)
-                {
-                    datos.Add(dato);
-                }
-                return Ok(datos);
+                response.data = empresa_data;
+            
+                return Ok(response);
             }
             catch (SqlException ex)
             {

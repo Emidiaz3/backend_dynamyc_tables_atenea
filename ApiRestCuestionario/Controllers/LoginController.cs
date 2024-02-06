@@ -9,12 +9,12 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
 using ApiRestCuestionario.Utils;
-using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using System;
+
 
 
 namespace ApiRestCuestionario.Controllers
@@ -25,10 +25,14 @@ namespace ApiRestCuestionario.Controllers
     {
         private readonly AppDbContext context;
         private readonly IConfiguration config;
-        public LoginController(AppDbContext context, IConfiguration _config)
+        private readonly IGmailSender emailSender;
+
+
+        public LoginController(AppDbContext context, IConfiguration config, IGmailSender gmailSender)
         {
             this.context = context;
-            this.config = _config;
+            this.config = config;
+            this.emailSender = gmailSender;
         }
 
         [HttpPost("PostValidarUsu")]
@@ -44,8 +48,10 @@ namespace ApiRestCuestionario.Controllers
                 var decrypted_text = Encryptor.Decrypt("Y8zud9wauW0=");
                 ent.PassUsuario = encrypted_text;
 
-                var parametroResp = new SqlParameter("@resp", SqlDbType.Int);
-                parametroResp.Direction = ParameterDirection.Output;
+                var parametroResp = new SqlParameter("@resp", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"Exec SP_VALIDAR_USUARIO @NombreUsuario={ent.NombreUsuario}, @PassUsuario={ent.PassUsuario}, @resp={parametroResp} OUTPUT");
 
@@ -197,15 +203,18 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("PostRecoverPassword")]
         public async Task<ActionResult<ItemResponse>> PostRecoverPassword(string email)
         {
-            var response = new ItemResponse();
-            response.status = 0;
+            var response = new ItemResponse
+            {
+                status = 0
+            };
             try
             {
-                string ramdon = Randomizer.generateString(8);
-                int IdUsuario = 0;
+                string randomGeneratedString = Randomizer.generateString(8);
 
-                var parametroResp = new SqlParameter("@IdUsuario", SqlDbType.Int);
-                parametroResp.Direction = ParameterDirection.Output;
+                var parametroResp = new SqlParameter("@IdUsuario", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
 
                 await context.Database
                     .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_SEL_04 
@@ -214,17 +223,20 @@ namespace ApiRestCuestionario.Controllers
 
                 if (parametroResp.Value != DBNull.Value)
                 {
-                    IdUsuario = (int)parametroResp.Value;
-                    string agg = string.Format("{0}|{1}", ramdon, parametroResp.Value.ToString());
-                    string url = config.GetValue<string>("UrlApp");
+                    int IdUsuario = (int)parametroResp.Value;
+                    string agg = string.Format("{0}|{1}", randomGeneratedString, parametroResp.Value.ToString());
+                    string applicationUrl = config.GetValue<string>("UrlApp");
 
                     string rutaBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(agg));
-                    url = url + "reset-password?code=" + rutaBase64;
 
+                    string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
+
+                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", $"<a href=\"{recoveryUrl}\" >Enlace de recuperación</a>");
+                    response.status = 1;
                     if(response.status> 0)
                     {
                         await context.Database
-                        .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_UPD_01 @IdUsuario={IdUsuario}, @CodigoCambioPassword={ramdon}");
+                        .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_UPD_01 @IdUsuario={IdUsuario}, @CodigoCambioPassword={randomGeneratedString}");
                         response.status = 1;
                     }
                     else
