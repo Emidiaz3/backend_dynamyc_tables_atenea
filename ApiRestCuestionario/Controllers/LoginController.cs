@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 
 
 
@@ -279,18 +280,15 @@ namespace ApiRestCuestionario.Controllers
 
                 string codeVerificate = arrayDato[0];
                 string idUsuario = arrayDato[1];
-                List<entidad_lst_codigo> datos = new List<entidad_lst_codigo>();
-                var data_codigo = context.entidad_lst_codigo
+                
+                List<entidad_lst_codigo> entities = await context.entidad_lst_codigo
                 .FromSqlInterpolated($"Exec SP_USUARIO_SEL_03 @IdUsuario={idUsuario}")
-                .AsAsyncEnumerable();
-
+                .ToListAsync();
+                entidad_lst_codigo? data = entities.FirstOrDefault();
                 response.status = 1;
-                await foreach (var dato in data_codigo)
-                {
-                    datos.Add(dato);
-                }
-
-                if (datos[0].CodigoCambioPassword == codeVerificate)
+                
+                
+                if (data !=null && !string.IsNullOrEmpty(data?.CodigoCambioPassword) && data?.CodigoCambioPassword == codeVerificate)
                 {
                     response.status = Convert.ToInt32(idUsuario);
                 }

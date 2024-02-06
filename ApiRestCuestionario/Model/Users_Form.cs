@@ -268,10 +268,11 @@ namespace ApiRestCuestionario.Model
     {
         public int IdUsuario { get; set; }
     }
+
     public class entidad_lst_codigo
     {
         [Key]
-        //public int? IdUsuario { get; set; }
+        public int? IdUsuario { get; set; }
         public string? CodigoCambioPassword { get; set; }
         public int? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }

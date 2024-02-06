@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,6 +21,12 @@ using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
+    public class AvatarDto
+    {
+        public int UserId { get; set; }
+        public IFormFile File { get; set; }
+
+    }
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -27,9 +34,11 @@ namespace ApiRestCuestionario.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext context;
-        public UsuarioController(AppDbContext context)
+        private readonly StaticFolder staticFolder;
+        public UsuarioController(AppDbContext context, StaticFolder staticFolder)
         {
             this.context = context;
+            this.staticFolder = staticFolder;
         }
 
 
@@ -157,19 +166,13 @@ namespace ApiRestCuestionario.Controllers
 
             try
             {
-                List<entidad_lst_perfil> datos = new List<entidad_lst_perfil>();
-                var data_perfil = context.entidad_lst_perfil
-                .FromSqlInterpolated($"Exec SP_PERFIL_SEL_01 @IdUsuario={IdUsuario}")
-                .AsAsyncEnumerable();
+                entidad_lst_perfil data_perfil =  context.entidad_lst_perfil
+                .FromSqlInterpolated($"Exec SP_PERFIL_SEL_01 @IdUsuario={IdUsuario}").ToList().FirstOrDefault();
 
                 response.status = 1;
+                response.data = data_perfil;
 
-                await foreach (var dato in data_perfil)
-                {
-                    datos.Add(dato);
-                }
-
-                return Ok(datos);
+                return Ok(response);
             }
             catch (SqlException ex)
             {
@@ -185,49 +188,43 @@ namespace ApiRestCuestionario.Controllers
             }
         }
         [HttpPost("updatePerfilImage")]
-        public async Task<ActionResult> updatePerfilImage([FromForm] SaveFormDocumentDto form)
+        public async Task<ActionResult> updatePerfilImage([FromForm] AvatarDto avatar)
         {
             try
             {
-                int idUser = int.Parse(JsonConvert.DeserializeObject<string>(form.userId));
-                string filePath = "";
-                List<string> joinToPathDocument = new List<string>();
-                foreach (IFormFile document in form.file)
+                int userId = avatar.UserId;
+                IFormFile file = avatar.File;
+                string basePath = Path.Combine(staticFolder.Path, "Profile");
+                if (!Directory.Exists(basePath))
                 {
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage");
-                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage\\" + idUser.ToString() + "\\", document.FileName);
-                    joinToPathDocument.Add(filePath);
-                    System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "DocumentsPerfilImage\\" + idUser.ToString());
-                    using Stream fileStream = new FileStream(filePath, FileMode.Create);
-                    await document.CopyToAsync(fileStream);
+                    Directory.CreateDirectory(basePath);
                 }
-                var user = new t_mae_usuario { IdUsuario = idUser, FotoPerfil = filePath };
+                string userPath = Path.Combine(basePath, userId.ToString());
+
+                if (!Directory.Exists(userPath))
+                {
+                    Directory.CreateDirectory(userPath);
+                }
+              
+                string filePath = Path.Combine(userPath, file.FileName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                Stream fileStream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(fileStream);
+                string savePath = $"{userId}/{file.FileName}";
+                var user = new t_mae_usuario { IdUsuario = userId, FotoPerfil = savePath };
                 context.t_mae_usuario.Attach(user).Property(x => x.FotoPerfil).IsModified = true;
                 context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = "Subida de imagen correcta", data = filePath });
+                return StatusCode(200, new ItemResp { status = 200, message = "Subida de imagen correcta", data = savePath });
             }
             catch (InvalidCastException e)
             {
                 return BadRequest(e.ToString());
             }
         }
-        [HttpPost("GetPerfilImage")]
-        public ActionResult GetPerfilImage([FromBody] JsonElement form)
-        {
-            try
-            {
-                string filePath = JsonConvert.DeserializeObject<String>(form.GetProperty("path").ToString());
-                byte[] archivoBytes = System.IO.File.ReadAllBytes(filePath);
-                string base64 = Convert.ToBase64String(archivoBytes);
-                //Se junta las direcciones de guardado en un string
-
-                return StatusCode(200, new ItemResp { status = 200, message = "Se obtuvo correctamente la imagen", data = base64 });
-            }
-            catch (InvalidCastException e)
-            {
-                return BadRequest(e.ToString());
-            }
-        }
+    
 
         [HttpPost("PostUpdatePerfil")]
         public async Task<ActionResult<ItemResponse>> PostUpdatePerfil(entidad_actualizar_perfil ent)
