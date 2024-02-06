@@ -10,6 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ApiRestCuestionario.Utils;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using System;
 
 
 
@@ -44,8 +48,10 @@ namespace ApiRestCuestionario.Controllers
                 var decrypted_text = Encryptor.Decrypt("Y8zud9wauW0=");
                 ent.PassUsuario = encrypted_text;
 
-                var parametroResp = new SqlParameter("@resp", SqlDbType.Int);
-                parametroResp.Direction = ParameterDirection.Output;
+                var parametroResp = new SqlParameter("@resp", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"Exec SP_VALIDAR_USUARIO @NombreUsuario={ent.NombreUsuario}, @PassUsuario={ent.PassUsuario}, @resp={parametroResp} OUTPUT");
 
@@ -218,7 +224,6 @@ namespace ApiRestCuestionario.Controllers
                 if (parametroResp.Value != DBNull.Value)
                 {
                     int IdUsuario = (int)parametroResp.Value;
-                    Console.WriteLine(IdUsuario);
                     string agg = string.Format("{0}|{1}", randomGeneratedString, parametroResp.Value.ToString());
                     string applicationUrl = config.GetValue<string>("UrlApp");
 
@@ -226,8 +231,7 @@ namespace ApiRestCuestionario.Controllers
 
                     string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
 
-                    Console.WriteLine(recoveryUrl);
-                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", $"<a>{recoveryUrl}</a>");
+                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", $"<a href=\"{recoveryUrl}\" >Enlace de recuperación</a>");
                     response.status = 1;
                     if(response.status> 0)
                     {

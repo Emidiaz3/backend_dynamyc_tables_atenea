@@ -18,14 +18,11 @@ namespace ApiRestCuestionario.Context
         public DbSet<Form_Aparence> Form_Aparence { get; set; }
         public DbSet<entidad_usuario> entidad_usuarios { get; set; }
         public DbSet<entidad_rol_usuario> entidad_rol_usuarios { get; set; }
-        //public DbSet<entidad_guardar_usuario> entidad_guardar_usuarios { get; set; }
         public DbSet<entidad_lst_usuario> entidad_lst_usu { get; set; }
-        //public DbSet<entidad_guardar_empresa> entidad_guardar_empresas { get; set; }
         public DbSet<Proyecto_Form> entidad_lst_proyecto { get; set; }
         public DbSet<lst_usuarios_proyectos> entidad_lst_usuarios_proyectos { get; set; }
         public DbSet<entidad_lst_rol_privilegio> entidad_lst_rol_privilegios { get; set; } 
         public DbSet<entidad_lst_rol_acceso> entidad_lst_rol_accesos { get; set; }         
-        //public DbSet<entidad_dato_filtro_usu> entidad_dato_filtro_usu { get; set; }
         public DbSet<entidad_lst_empresa> entidad_lst_empresa { get; set; }
         public DbSet<entidad_lst_sucursal> entidad_lst_sucursal { get; set; }
         public DbSet<entidad_lst_pais> entidad_lst_pais { get; set; }
@@ -35,7 +32,6 @@ namespace ApiRestCuestionario.Context
         public DbSet<t_mae_usuario> t_mae_usuario { get; set; }
         public DbSet<T_REL_ROL_USUARIO> T_REL_ROL_USUARIO { get; set; }
         public DbSet<entidad_lst_tb_usuario> entidad_lst_tb_usuario { get; set; }
-        //public DbSet<entidad_lst_edit_usuario> entidad_lst_edit_usuario { get; set; }
         public DbSet<entidad_lst_modulos_accesos> entidad_lst_modulos_accesos { get; set; }
         public DbSet<entidad_lst_usuario_roles> entidad_lst_usuario_roles { get; set; }
         public DbSet<entidad_lst_dep> entidad_lst_dep { get; set; }
@@ -53,7 +49,6 @@ namespace ApiRestCuestionario.Context
         public DbSet<entity_get_proys> GetDBProys { get; set; }
         public DbSet<ColumnType> column_types { get; set; }
         public DbSet<QuestionType> question_types { get; set; }
-
         public DbSet<Documents> documents {  get; set; }
         public DbSet<Persona> Persona { get; set; }
         public DbSet<Persona_Organizacion> Persona_Organizacion { get; set; }

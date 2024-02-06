@@ -1,17 +1,19 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Mail;
 using System.Net;
+using System.Threading.Tasks;
+using System;
 
 namespace ApiRestCuestionario.Utils
 {
     public class EmailSettings
     {
-   public string From;
-    public string Host;
-    public int Port;
-    public string Password;
-    public string Username;  
-}
+        public string From { get; set; } = string.Empty;
+        public string Host { get; set; } = string.Empty; 
+        public int Port { get; set; } = 0;
+        public string Password { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+    }
     public interface IGmailSender
     {
         Task SendEmailAsync(string email, string subject, string message);

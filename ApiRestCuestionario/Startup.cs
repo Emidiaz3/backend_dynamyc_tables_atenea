@@ -39,6 +39,7 @@ namespace ApiRestCuestionario
         {
             Console.WriteLine(staticFolder.Path);
             services.AddSingleton(staticFolder);
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
 
