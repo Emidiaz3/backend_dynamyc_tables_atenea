@@ -3,7 +3,7 @@
     public class ColumnType
     {
         public int Id { get; set; }
-        public required string nombre_columna_db { get; set; }
+        public string? nombre_columna_db { get; set; }
         public string? nombre_columna_fronted { get; set; }
         public string? Datatype { get; set; }
         public string? props_ui { get; set; }
