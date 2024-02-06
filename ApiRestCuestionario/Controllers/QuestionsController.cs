@@ -18,7 +18,7 @@ namespace ApiRestCuestionario.Controllers
     {
         public int formId { get; set; }
         public Form_Aparence? aparence { get; set; }
-        public required List<Quest> questions { get; set; }
+        public List<Quest> questions { get; set; }
     }
     public class Quest
     {
@@ -95,7 +95,7 @@ namespace ApiRestCuestionario.Controllers
             }
             if (toUpdate.Any())
             {
-                List<string> toUpdateColumns = [];
+                List<string> toUpdateColumns = new List<string>();
                 foreach (var x in toUpdate)
                 {
                     var normalized = StringParser.NormalizeString(x.column_db_name);

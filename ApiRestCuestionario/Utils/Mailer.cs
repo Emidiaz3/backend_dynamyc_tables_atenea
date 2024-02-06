@@ -21,7 +21,7 @@ namespace ApiRestCuestionario.Utils
             RiesgosExternos = 3
         }
 
-        public void SendMailAll(string address, string subject, string body, string AddressCopy, string[] fileEntries = null, bool isAdjuntImage = true)
+        public void SendMailAll(string address, string subject, string body, string AddressCopy, string[] fileEntries, bool isAdjuntImage = true)
         {
             var message = new MailMessage();
 
@@ -37,7 +37,7 @@ namespace ApiRestCuestionario.Utils
             if (isAdjuntImage)
             {
 
-                LinkedResource lr = new(fileName, MediaTypeNames.Image.Jpeg)
+                LinkedResource lr = new LinkedResource(fileName, MediaTypeNames.Image.Jpeg)
                 {
                     ContentId = "Logo"
                 };
@@ -51,7 +51,7 @@ namespace ApiRestCuestionario.Utils
             {
                 foreach (string file in fileEntries)
                 {
-                    Attachment data = new(file, MediaTypeNames.Application.Octet);
+                    Attachment data = new Attachment(file, MediaTypeNames.Application.Octet);
                     if(data.ContentDisposition != null)
                     {
                         ContentDisposition disposition = data.ContentDisposition;
@@ -78,7 +78,7 @@ namespace ApiRestCuestionario.Utils
                     message.From = new MailAddress(fromAddress);
                     using var smtp = new SmtpClient(host, port);
                     smtp.EnableSsl = true;
-                    NetworkCredential NetworkCred = new(userName, password);
+                    NetworkCredential NetworkCred = new NetworkCredential(userName, password);
                     smtp.UseDefaultCredentials = true;
                     smtp.Credentials = NetworkCred;
                     smtp.Send(message);
