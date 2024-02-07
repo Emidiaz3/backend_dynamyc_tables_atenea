@@ -7,11 +7,11 @@ namespace ApiRestCuestionario.Model
     {
         [Key]
         public int? IdPersona { get; set; }
-        public string CodigoPersona { get; set; }
-        public string NomPersona { get; set; }
+        public string? CodigoPersona { get; set; }
+        public string? NomPersona { get; set; }
         public int? IdProyecto { get; set; }
         public int? IdLocalidad { get; set; }
-        public string NivelRiesgoGeneral { get; set; }
+        public string? NivelRiesgoGeneral { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public string? TipoDocumento { get; set; }
