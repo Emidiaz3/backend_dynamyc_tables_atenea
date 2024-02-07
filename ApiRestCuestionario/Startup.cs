@@ -29,8 +29,6 @@ namespace ApiRestCuestionario
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Console.WriteLine("documentspath");
-            Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             string pathCombination = string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) ? Environment.CurrentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             staticFolder = new StaticFolder(Path.Combine(pathCombination, "MyStaticFiles"));
 
