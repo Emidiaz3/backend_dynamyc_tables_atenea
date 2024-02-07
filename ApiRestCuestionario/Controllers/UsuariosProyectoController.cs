@@ -26,25 +26,20 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetListUsuariosProyectos")]
-        public async Task<ActionResult<dynamic>> GetListUsuariosProyectos(string filtro)
+        public async Task<ActionResult<dynamic>> GetListUsuariosProyectos(int userId)
         {
             var response = new ItemResponse();
 
             try
             {
-                List<lst_usuarios_proyectos> datos = new List<lst_usuarios_proyectos>();
-                var proyecto_data = context.entidad_lst_usuarios_proyectos
-                .FromSqlInterpolated($"Exec SP_PROYECTO_USUARIO_SEL_01 @FILTRO={filtro}")
-                .AsAsyncEnumerable();
+                List<lst_usuarios_proyectos> data = await context.entidad_lst_usuarios_proyectos
+                .FromSqlInterpolated($"Exec SP_PROYECTO_USUARIO_SEL_01 @userId={userId}")
+                .ToListAsync();
 
                 response.status = 1;
-
-                await foreach (var proyecto in proyecto_data)
-                {
-                    datos.Add(proyecto);
-                }
-
-                return Ok(datos);
+                response.data = data;
+            
+                return Ok(response);
             }
             catch (SqlException ex)
             {

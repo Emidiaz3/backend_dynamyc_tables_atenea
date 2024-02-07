@@ -159,7 +159,34 @@ namespace ApiRestCuestionario.Controllers
             return Ok(response); 
         }
 
-        
+        [HttpGet("GetListPerfil")]
+        public  async Task<ActionResult<dynamic>> GetListPerfil(int IdUsuario)
+        {
+            var response = new ItemResponse();   
+
+            try
+            {
+                entidad_lst_perfil data_perfil =  context.entidad_lst_perfil
+                .FromSqlInterpolated($"Exec SP_PERFIL_SEL_01 @IdUsuario={IdUsuario}").ToList().FirstOrDefault();
+
+                response.status = 1;
+                response.data = data_perfil;
+
+                return Ok(response);
+            }
+            catch (SqlException ex)
+            {
+                StringBuilder errorMessages = new StringBuilder();
+                for (int i = 0; i < ex.Errors.Count; i++)
+                {
+                    errorMessages.Append((errorMessages.Length != 0 ? "\n" : "") + ex.Errors[i].Message);
+                }
+
+                response.status = 0;
+                response.message = errorMessages.ToString();
+                return Ok(response); ;
+            }
+        }
         [HttpPost("updatePerfilImage")]
         public async Task<ActionResult> updatePerfilImage([FromForm] AvatarDto avatar)
         {

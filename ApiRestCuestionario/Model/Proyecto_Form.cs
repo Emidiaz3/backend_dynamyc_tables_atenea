@@ -11,8 +11,8 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdProyecto { get; set; }
         public int IdEmpresa { get; set; }
-        public string DescripcionEmpresa { get; set; }
-        public string NombreProyecto { get; set; }
+        public string? DescripcionEmpresa { get; set; }
+        public string? NombreProyecto { get; set; }
         public int? EstadoProyecto { get; set; }
         public int Flg_Estado { get; set; }
         public DateTime? FechaCreacion { get; set; }
