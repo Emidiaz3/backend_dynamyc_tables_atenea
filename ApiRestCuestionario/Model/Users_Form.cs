@@ -56,7 +56,7 @@ namespace ApiRestCuestionario.Model
         public string? DescripcionSucursal { get; set; }
         public string? NombreUsuario { get; set; }
         //public string PassUsuario { get; set; }
-        public int EstadoUsuario { get; set; }
+        public bool EstadoUsuario { get; set; }
         public string? ApellidoPaterno { get; set; }
         public string? ApellidoMaterno { get; set; }
         public string? Nombre { get; set; }
@@ -70,11 +70,13 @@ namespace ApiRestCuestionario.Model
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaAccion { get; set; }
         public string? CodigoCambioPassword { get; set; }
-        public int? FlgCambioPassword { get; set; }
+        public bool? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string? IdRol { get; set; }
+        public int? IdRol { get; set; }
         public string? DesRol { get; set; }
         public string? token { get; set; }
+        public string? FotoPerfil { get; set; }
+
     }
 
     public class entidad_lst_usuario_acceso
@@ -105,9 +107,10 @@ namespace ApiRestCuestionario.Model
         public string? CodigoCambioPassword { get; set; }
         public int? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string? IdRol { get; set; }
+        public int? IdRol { get; set; }
         public string? DesRol { get; set; }
         public string? token { get; set; }
+        public string? FotoPerfil { get; set; }
         public List<entidad_lst_rol_modulo>? datos_modulo { get; set; }
     }
 

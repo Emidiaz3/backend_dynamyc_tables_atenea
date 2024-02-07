@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+<<<<<<< HEAD
+=======
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+>>>>>>> 1389cd15521064c478a5b4e314f58d0c36cdaffd
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InvariantGlobalization>false</InvariantGlobalization>

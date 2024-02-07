@@ -7,7 +7,6 @@ namespace ApiRestCuestionario.Model
 {
     public class AnswerAnioMes
     {
-        public AnswerAnioMes(){}
         public int id { get; set; }
         public int idForm { get; set; }
         public int idQuestion { get; set; }
