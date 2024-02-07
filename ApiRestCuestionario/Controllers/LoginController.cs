@@ -112,7 +112,7 @@ namespace ApiRestCuestionario.Controllers
                             IdSucursal = i.IdSucursal,
                             DescripcionSucursal = i.DescripcionSucursal,
                             NombreUsuario = i.NombreUsuario,
-                            EstadoUsuario = i.EstadoUsuario,
+                            EstadoUsuario = i.EstadoUsuario ? 1 : 0,
                             ApellidoPaterno = i.ApellidoPaterno,
                             ApellidoMaterno = i.ApellidoMaterno,
                             Nombre = i.Nombre,
@@ -126,11 +126,12 @@ namespace ApiRestCuestionario.Controllers
                             FechaCreacion = i.FechaCreacion,
                             FechaAccion = i.FechaAccion,
                             CodigoCambioPassword = i.CodigoCambioPassword,
-                            FlgCambioPassword = i.FlgCambioPassword,
+                            FlgCambioPassword = i.FlgCambioPassword==true ? 1 : 0,
                             FechaCambioPassword = i.FechaCambioPassword,
                             IdRol = i.IdRol,
                             DesRol = i.DesRol,
                             token = i.token,
+                            FotoPerfil = i.FotoPerfil,
                             datos_modulo = lst_rol_modulo 
                         });
 
