@@ -85,10 +85,12 @@ namespace ApiRestCuestionario
                     "http://localhost",
                     "http://localhost:8080",
                     "http://localhost:8090",
+                    "http://localhost:8092",
                     "http://developer:8080",
                     "https://da3d-161-132-237-29.sa.ngrok.io",
                     "https://af97-161-132-237-29.sa.ngrok.io",
                     "https://dda1a3ece486.sa.ngrok.io",
+                    "https://encuestas1.ddigital.pe",
                     "https://encuestas.atenealatam.com",
                     "https://encuestas.atenealatam.com/",
                     "https://encuestas.atenealatam.com:8090"
@@ -98,6 +100,10 @@ namespace ApiRestCuestionario
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
