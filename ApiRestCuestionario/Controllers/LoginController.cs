@@ -9,12 +9,13 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
 using ApiRestCuestionario.Utils;
-using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
+
 
 
 namespace ApiRestCuestionario.Controllers
@@ -25,10 +26,14 @@ namespace ApiRestCuestionario.Controllers
     {
         private readonly AppDbContext context;
         private readonly IConfiguration config;
-        public LoginController(AppDbContext context, IConfiguration _config)
+        private readonly IGmailSender emailSender;
+
+
+        public LoginController(AppDbContext context, IConfiguration config, IGmailSender gmailSender)
         {
             this.context = context;
-            this.config = _config;
+            this.config = config;
+            this.emailSender = gmailSender;
         }
 
         [HttpPost("PostValidarUsu")]
@@ -44,8 +49,10 @@ namespace ApiRestCuestionario.Controllers
                 var decrypted_text = Encryptor.Decrypt("Y8zud9wauW0=");
                 ent.PassUsuario = encrypted_text;
 
-                var parametroResp = new SqlParameter("@resp", SqlDbType.Int);
-                parametroResp.Direction = ParameterDirection.Output;
+                var parametroResp = new SqlParameter("@resp", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
 
                 await context.Database.ExecuteSqlInterpolatedAsync($@"Exec SP_VALIDAR_USUARIO @NombreUsuario={ent.NombreUsuario}, @PassUsuario={ent.PassUsuario}, @resp={parametroResp} OUTPUT");
 
@@ -105,7 +112,7 @@ namespace ApiRestCuestionario.Controllers
                             IdSucursal = i.IdSucursal,
                             DescripcionSucursal = i.DescripcionSucursal,
                             NombreUsuario = i.NombreUsuario,
-                            EstadoUsuario = i.EstadoUsuario,
+                            EstadoUsuario = i.EstadoUsuario ? 1 : 0,
                             ApellidoPaterno = i.ApellidoPaterno,
                             ApellidoMaterno = i.ApellidoMaterno,
                             Nombre = i.Nombre,
@@ -119,11 +126,12 @@ namespace ApiRestCuestionario.Controllers
                             FechaCreacion = i.FechaCreacion,
                             FechaAccion = i.FechaAccion,
                             CodigoCambioPassword = i.CodigoCambioPassword,
-                            FlgCambioPassword = i.FlgCambioPassword,
+                            FlgCambioPassword = i.FlgCambioPassword==true ? 1 : 0,
                             FechaCambioPassword = i.FechaCambioPassword,
                             IdRol = i.IdRol,
                             DesRol = i.DesRol,
                             token = i.token,
+                            FotoPerfil = i.FotoPerfil,
                             datos_modulo = lst_rol_modulo 
                         });
 
@@ -197,15 +205,18 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("PostRecoverPassword")]
         public async Task<ActionResult<ItemResponse>> PostRecoverPassword(string email)
         {
-            var response = new ItemResponse();
-            response.status = 0;
+            var response = new ItemResponse
+            {
+                status = 0
+            };
             try
             {
-                string ramdon = Randomizer.generateString(8);
-                int IdUsuario = 0;
+                string randomGeneratedString = Randomizer.generateString(8);
 
-                var parametroResp = new SqlParameter("@IdUsuario", SqlDbType.Int);
-                parametroResp.Direction = ParameterDirection.Output;
+                var parametroResp = new SqlParameter("@IdUsuario", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
 
                 await context.Database
                     .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_SEL_04 
@@ -214,17 +225,20 @@ namespace ApiRestCuestionario.Controllers
 
                 if (parametroResp.Value != DBNull.Value)
                 {
-                    IdUsuario = (int)parametroResp.Value;
-                    string agg = string.Format("{0}|{1}", ramdon, parametroResp.Value.ToString());
-                    string url = config.GetValue<string>("UrlApp");
+                    int IdUsuario = (int)parametroResp.Value;
+                    string agg = string.Format("{0}|{1}", randomGeneratedString, parametroResp.Value.ToString());
+                    string applicationUrl = config.GetValue<string>("UrlApp");
 
                     string rutaBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(agg));
-                    url = url + "reset-password?code=" + rutaBase64;
 
+                    string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
+
+                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", $"<a href=\"{recoveryUrl}\" >Enlace de recuperación</a>");
+                    response.status = 1;
                     if(response.status> 0)
                     {
                         await context.Database
-                        .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_UPD_01 @IdUsuario={IdUsuario}, @CodigoCambioPassword={ramdon}");
+                        .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_UPD_01 @IdUsuario={IdUsuario}, @CodigoCambioPassword={randomGeneratedString}");
                         response.status = 1;
                     }
                     else
@@ -267,18 +281,15 @@ namespace ApiRestCuestionario.Controllers
 
                 string codeVerificate = arrayDato[0];
                 string idUsuario = arrayDato[1];
-                List<entidad_lst_codigo> datos = new List<entidad_lst_codigo>();
-                var data_codigo = context.entidad_lst_codigo
+                
+                List<entidad_lst_codigo> entities = await context.entidad_lst_codigo
                 .FromSqlInterpolated($"Exec SP_USUARIO_SEL_03 @IdUsuario={idUsuario}")
-                .AsAsyncEnumerable();
-
+                .ToListAsync();
+                entidad_lst_codigo? data = entities.FirstOrDefault();
                 response.status = 1;
-                await foreach (var dato in data_codigo)
-                {
-                    datos.Add(dato);
-                }
-
-                if (datos[0].CodigoCambioPassword == codeVerificate)
+                
+                
+                if (data !=null && !string.IsNullOrEmpty(data?.CodigoCambioPassword) && data?.CodigoCambioPassword == codeVerificate)
                 {
                     response.status = Convert.ToInt32(idUsuario);
                 }

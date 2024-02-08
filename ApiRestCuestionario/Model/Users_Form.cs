@@ -49,34 +49,34 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdUsuario { get; set; }
         public int IdPais { get; set; }
-        public string Pais { get; set; }
+        public string? Pais { get; set; }
         public int IdEmpresa { get; set; }
-        public string DescripcionEmpresa { get; set; }
+        public string? DescripcionEmpresa { get; set; }
         public int? IdSucursal { get; set; }
-        public string DescripcionSucursal { get; set; }
-        public string NombreUsuario { get; set; }
+        public string? DescripcionSucursal { get; set; }
+        public string? NombreUsuario { get; set; }
         //public string PassUsuario { get; set; }
-        public int EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
+        public bool EstadoUsuario { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
         public int IdTipoDocIdentidad { get; set; }
-        public string DesTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? DesTipoDocIdentidad { get; set; }
+        public string? NumDocIdentidad { get; set; }
+        public string? Telefono { get; set; }
         public int? UsuarioCreacion { get; set; }
         public int? UsuarioAccion { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaAccion { get; set; }
-        public string CodigoCambioPassword { get; set; }
-        public int? FlgCambioPassword { get; set; }
+        public string? CodigoCambioPassword { get; set; }
+        public bool? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string IdRol { get; set; }
-        public string DesRol { get; set; }
-        public string token { get; set; }
-        //public List<dynamic> datos_acceso { get; set; }
-        //public int IdIdioma { get; set; }
+        public int? IdRol { get; set; }
+        public string? DesRol { get; set; }
+        public string? token { get; set; }
+        public string? FotoPerfil { get; set; }
+
     }
 
     public class entidad_lst_usuario_acceso
@@ -84,33 +84,34 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdUsuario { get; set; }
         public int IdPais { get; set; }
-        public string Pais { get; set; }
+        public string? Pais { get; set; }
         public int IdEmpresa { get; set; }
-        public string DescripcionEmpresa { get; set; }
+        public string? DescripcionEmpresa { get; set; }
         public int? IdSucursal { get; set; }
-        public string DescripcionSucursal { get; set; }
-        public string NombreUsuario { get; set; }
+        public string? DescripcionSucursal { get; set; }
+        public string? NombreUsuario { get; set; }
         //public string PassUsuario { get; set; }
         public int EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
         public int IdTipoDocIdentidad { get; set; }
-        public string DesTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? DesTipoDocIdentidad { get; set; }
+        public string? NumDocIdentidad { get; set; }
+        public string? Telefono { get; set; }
         public int? UsuarioCreacion { get; set; }
         public int? UsuarioAccion { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaAccion { get; set; }
-        public string CodigoCambioPassword { get; set; }
+        public string? CodigoCambioPassword { get; set; }
         public int? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string IdRol { get; set; }
-        public string DesRol { get; set; }
-        public string token { get; set; }
-        public List<entidad_lst_rol_modulo> datos_modulo { get; set; }
+        public int? IdRol { get; set; }
+        public string? DesRol { get; set; }
+        public string? token { get; set; }
+        public string? FotoPerfil { get; set; }
+        public List<entidad_lst_rol_modulo>? datos_modulo { get; set; }
     }
 
     public class entidad_lst_tb_usuario
@@ -118,54 +119,34 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdUsuario { get; set; }
         public int IdPais { get; set; }
-        public string Pais { get; set; }
+        public string? Pais { get; set; }
         public int IdEmpresa { get; set; }
-        public string DescripcionEmpresa { get; set; }
+        public string? DescripcionEmpresa { get; set; }
         public int? IdSucursal { get; set; }
-        public string DescripcionSucursal { get; set; }
-        public string NombreUsuario { get; set; }
-        public string PassUsuario { get; set; }
+        public string? DescripcionSucursal { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? PassUsuario { get; set; }
         public int EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }        
-        public string Nombres_Completos { get; set; }
-        public string Email { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? Nombre { get; set; }        
+        public string? Nombres_Completos { get; set; }
+        public string? Email { get; set; }
         public int IdTipoDocIdentidad { get; set; }
-        public string DesTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? DesTipoDocIdentidad { get; set; }
+        public string? NumDocIdentidad { get; set; }
+        public string? Telefono { get; set; }
         public int? UsuarioCreacion { get; set; }
         public int? UsuarioAccion { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaAccion { get; set; }
-        public string CodigoCambioPassword { get; set; }
+        public string? CodigoCambioPassword { get; set; }
         public int? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
         public int? IdRol { get; set; }
-        public string DesRol { get; set; }
+        public string? DesRol { get; set; }
 
     }
-
-    /*public class entidad_lst_edit_usuario
-    {
-        [Key]
-        public int IdUsuario { get; set; }
-        public int IdPais { get; set; }
-        public int IdEmpresa { get; set; }
-        public int? IdSucursal { get; set; }
-        public string NombreUsuario { get; set; }
-        public string PassUsuario { get; set; }
-        public int EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
-        public int IdTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
-        public int? IdRol { get; set; }
-    }*/
 
     public class T_REL_ROL_USUARIO
     {
@@ -188,7 +169,7 @@ namespace ApiRestCuestionario.Model
         public int IdUsuario { get; set; }
         [Key]
         public int IdRol { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public int? IdUsuarioAccion { get; set; }
     }
     public class entidad_guardar_usuario
@@ -198,16 +179,16 @@ namespace ApiRestCuestionario.Model
         public int IdPais { get; set; }
         public int IdEmpresa { get; set; }
         public int IdSucursal { get; set; }
-        public string NombreUsuario { get; set; }
-        public string PassUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? PassUsuario { get; set; }
         public int EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
         public int IdTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? NumDocIdentidad { get; set; }
+        public string? Telefono { get; set; }
         public int UsuarioAccion { get; set; }
         public int IdRol { get; set; }
     }
@@ -218,24 +199,24 @@ namespace ApiRestCuestionario.Model
         public int IdPais { get; set; }
         public int IdEmpresa { get; set; }
         public int? IdSucursal { get; set; }
-        public string NombreUsuario { get; set; }
-        public string PassUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? PassUsuario { get; set; }
         public bool? EstadoUsuario { get; set; }
-        public string ApellidoPaterno { get; set; }
-        public string ApellidoMaterno { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
         public int IdTipoDocIdentidad { get; set; }
-        public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? NumDocIdentidad { get; set; }
+        public string? Telefono { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public int? UsuarioCreacion { get; set; }
         public DateTime FechaAccion { get; set; }
         public int UsuarioAccion { get; set; }
-        public string CodigoCambioPassword { get; set; }
+        public string? CodigoCambioPassword { get; set; }
         public bool? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
-        public string FotoPerfil { get; set; }
+        public string? FotoPerfil { get; set; }
 
 
 
@@ -243,68 +224,59 @@ namespace ApiRestCuestionario.Model
     public class Login_User
     {
         [Required(ErrorMessage = "El usuario es obligatorio.")]
-        public string NombreUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
 
         [Required(ErrorMessage = "La clave es obligatorio.")]
-        public string PassUsuario { get; set; }
+        public string? PassUsuario { get; set; }
     }
 
     public class entity_cod_pass
     {
         public int IdUsuario { get; set; }
-        public string CodigoCambioPassword { get; set; }
+        public string? CodigoCambioPassword { get; set; }
     }
 
     public class entity_update_pass
     {
         public int IdUsuario { get; set; }
-        public string PassUsuarioOld { get; set; }
-        public string PassUsuarioNew { get; set; }
+        public string? PassUsuarioOld { get; set; }
+        public string? PassUsuarioNew { get; set; }
     }
     public class entidad_lst_perfil
     {
         [Key]
         public int IdUsuario { get; set; }
-        public string Nombres { get; set; }
-        //public DateTime? Fecha_Nac { get; set; }
-        //public string Genero { get; set; }
-        public string Email { get; set; }
-        //public int IdTipoDocIdentidad { get; set; }
-        //public string DesTipoDocIdentidad { get; set; }
-        //public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
-        public string FotoPerfil { get; set; }
+        public string? Nombres { get; set; }
+        public string? Email { get; set; }
+        public string? Telefono { get; set; }
+        public string? FotoPerfil { get; set; }
 
     }
-
 
     public class entidad_actualizar_perfil
     {
         [Key]
         public int IdUsuario { get; set; }
-        public string Nombres { get; set; }
-        //public DateTime? Fecha_Nac { get; set; }
-        //public string Genero { get; set; }
-        public string Email { get; set; }
-        //public int IdTipoDocIdentidad { get; set; }
-        //public string NumDocIdentidad { get; set; }
-        public string Telefono { get; set; }
+        public string? Nombres { get; set; }
+        public string? Email { get; set; }
+        public string? Telefono { get; set; }
         public int? UsuarioAccion { get; set; }
     }
     public class entidad_correo
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 
     public class entidad_dato_id_user
     {
         public int IdUsuario { get; set; }
     }
+
     public class entidad_lst_codigo
     {
         [Key]
-        //public int? IdUsuario { get; set; }
-        public string CodigoCambioPassword { get; set; }
+        public int? IdUsuario { get; set; }
+        public string? CodigoCambioPassword { get; set; }
         public int? FlgCambioPassword { get; set; }
         public DateTime? FechaCambioPassword { get; set; }
     }
@@ -312,14 +284,7 @@ namespace ApiRestCuestionario.Model
     public class entity_password
     {
         public int IdUsuario { get; set; }
-        public string PassUsuario { get; set; }
+        public string? PassUsuario { get; set; }
     }
-    /*public class entidad_dato_filtro_usu
-    {
-        [Key]
-        public int IdUsuario { get; set; }
-        public string NombreUsuario { get; set; }
-       
-        public string PassUsuario { get; set; }
-    }*/
+
 }

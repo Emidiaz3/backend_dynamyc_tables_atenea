@@ -3,10 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
+	<InvariantGlobalization>false</InvariantGlobalization>
+
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Dapper" Version="2.1.28" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
@@ -20,10 +23,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
   </ItemGroup>
-
-	<ItemGroup>
-	    <ProjectReference Include="..\..\cuestionario_front\angularapp.client.esproj">
+	
+    <ItemGroup>
+		<ProjectReference Include="..\..\cuestionario_front\angularapp.client.esproj">
 		    <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 	    </ProjectReference>
-	</ItemGroup>
+    </ItemGroup>
+
 </Project>

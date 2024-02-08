@@ -32,19 +32,15 @@ namespace ApiRestCuestionario.Controllers
 
             try
             {
-                string filtro = " and T_MAE_PROYECTO.UsuarioAccion=" + IdUsuarioAccion;
-                List<Proyecto_Form> datos = new List<Proyecto_Form>();
-                var proyecto_data = context.entidad_lst_proyecto
-                .FromSqlInterpolated($"Exec SP_PROYECTO_SEL_01 @FILTRO={filtro}")
-                .AsAsyncEnumerable();
+                List<Proyecto_Form> data = await context.entidad_lst_proyecto
+                .FromSqlInterpolated($"Exec SP_PROYECTO_SEL_01 @userId={IdUsuarioAccion}")
+                .ToListAsync();
 
                 response.status = 1;
+                response.data = data;
 
-                await foreach (var proyecto in proyecto_data)
-                {
-                    datos.Add(proyecto);
-                }
-                return Ok(datos);
+
+                return Ok(response);
 
             }
             catch (SqlException ex)

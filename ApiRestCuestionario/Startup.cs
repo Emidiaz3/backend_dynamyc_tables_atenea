@@ -12,6 +12,7 @@ using System;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using ApiRestCuestionario.Utils;
 
 namespace ApiRestCuestionario
 {
@@ -28,6 +29,8 @@ namespace ApiRestCuestionario
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Console.WriteLine("documentspath");
+            Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             string pathCombination = string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) ? Environment.CurrentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             staticFolder = new StaticFolder(Path.Combine(pathCombination, "MyStaticFiles"));
 
@@ -38,6 +41,8 @@ namespace ApiRestCuestionario
         {
             Console.WriteLine(staticFolder.Path);
             services.AddSingleton(staticFolder);
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
 
             services.AddSwaggerGen(options =>
@@ -103,7 +108,6 @@ namespace ApiRestCuestionario
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
@@ -139,6 +143,7 @@ namespace ApiRestCuestionario
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("/index.html");
 
             });
 
