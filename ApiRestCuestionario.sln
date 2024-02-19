@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiRestCuestionario", "ApiRestCuestionario\ApiRestCuestionario.csproj", "{AA6AF011-605A-4B0E-B071-9351488FE5F4}"
+<<<<<<< HEAD
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "angularapp.client", "..\cuestionario_front\angularapp.client.esproj", "{C6BC1221-8DAA-4D43-ACF9-57227343FF98}"
+=======
+>>>>>>> 0d67e115d4ab7d1d4eedadf8930f15ae156d3f88
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,12 +20,15 @@ Global
 		{AA6AF011-605A-4B0E-B071-9351488FE5F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA6AF011-605A-4B0E-B071-9351488FE5F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA6AF011-605A-4B0E-B071-9351488FE5F4}.Release|Any CPU.Build.0 = Release|Any CPU
+<<<<<<< HEAD
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6BC1221-8DAA-4D43-ACF9-57227343FF98}.Release|Any CPU.Deploy.0 = Release|Any CPU
+=======
+>>>>>>> 0d67e115d4ab7d1d4eedadf8930f15ae156d3f88
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,8 +29,6 @@ namespace ApiRestCuestionario
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Console.WriteLine("documentspath");
-            Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             string pathCombination = string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) ? Environment.CurrentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             staticFolder = new StaticFolder(Path.Combine(pathCombination, "MyStaticFiles"));
 
@@ -39,7 +37,6 @@ namespace ApiRestCuestionario
         public StaticFolder staticFolder;
         public void ConfigureServices(IServiceCollection services)
         {
-            Console.WriteLine(staticFolder.Path);
             services.AddSingleton(staticFolder);
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddTransient<IGmailSender, GmailSender>();
@@ -106,8 +103,7 @@ namespace ApiRestCuestionario
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
+            
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
@@ -117,6 +113,10 @@ namespace ApiRestCuestionario
                     options.RoutePrefix = string.Empty;
                 });
                 app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseDefaultFiles();
+                app.UseStaticFiles();
             }
 
             app.UseHttpsRedirection();

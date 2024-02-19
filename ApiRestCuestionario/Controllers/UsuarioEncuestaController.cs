@@ -44,15 +44,21 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
-                
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.Usuario_Encuesta.ToList().Where(c => c.users_id == idUsuario)});
-            }
-            catch (InvalidCastException e)
-            {
 
-                return BadRequest(e.ToString());
+                // Filtrar directamente en la consulta a la base de datos.
+                var resultado = context.Usuario_Encuesta
+                    .Where(c => c.users_id == idUsuario)
+                    .ToList(); // Convertir a lista después de aplicar el filtro.
+
+                return StatusCode(200, new ItemResp { status = 200, message = "Confirm", data = resultado });
+            }
+            catch (Exception e) // Captura excepciones más generales para simplificar.
+            {
+                // Considera loguear la excepción e para análisis.
+                return BadRequest(e.Message); // Devuelve solo el mensaje de error para evitar exponer detalles innecesarios.
             }
         }
+
 
         [HttpPost("DeleteUsuarioEncuestaByObject")]
         public ActionResult DeleteUsuarioEncuestaById([FromBody] JsonElement form)

@@ -6,8 +6,8 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
 <Project>
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>C:\inetpub\wwwroot\CuestionarioBack</_PublishTargetUrl>
-    <History>True|2024-02-08T22:11:23.0612838Z;True|2024-02-08T17:06:38.0196405-05:00;</History>
+    <_PublishTargetUrl>C:\inetpub\wwwroot\CuestionarioFront</_PublishTargetUrl>
+    <History>True|2024-02-13T14:32:22.3276824Z;False|2024-02-13T09:31:29.2279428-05:00;False|2024-02-13T09:25:09.9677739-05:00;False|2024-02-13T09:23:36.3686947-05:00;False|2024-02-13T09:21:15.9866728-05:00;False|2024-02-13T09:19:51.6183880-05:00;True|2024-02-12T10:46:55.6817990-05:00;True|2024-02-12T10:36:29.9835888-05:00;True|2024-02-09T17:47:01.3052215-05:00;True|2024-02-09T14:45:45.0003810-05:00;True|2024-02-08T19:27:03.1409072-05:00;True|2024-02-08T18:28:26.1783930-05:00;True|2024-02-08T18:21:02.5843170-05:00;True|2024-02-08T17:18:31.9449176-05:00;True|2024-02-08T17:11:23.0612838-05:00;True|2024-02-08T17:06:38.0196405-05:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
