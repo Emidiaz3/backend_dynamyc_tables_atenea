@@ -13,6 +13,7 @@ using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using ApiRestCuestionario.Utils;
+using Microsoft.OpenApi.Models;
 
 namespace ApiRestCuestionario
 {
@@ -41,7 +42,10 @@ namespace ApiRestCuestionario
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
-
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title  = "Cuestionario", Version = "v1"});
+            });
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,13 +100,13 @@ namespace ApiRestCuestionario
             
             if (env.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    options.RoutePrefix = string.Empty;
+                    //options.RoutePrefix = string.Empty;
                 });
-                app.UseDeveloperExceptionPage();
             } else
             {
                 app.UseDefaultFiles();
