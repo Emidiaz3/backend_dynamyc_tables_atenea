@@ -42,13 +42,6 @@ namespace ApiRestCuestionario
             services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
 
-            services.AddSwaggerGen(options =>
-            {
-                //options.DocumentFilter<PathPrefixInsertDocumentFilter>();
-            });
-
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"));
-
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -60,15 +53,14 @@ namespace ApiRestCuestionario
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"))),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
             });
 
-            var db = Configuration.GetConnectionString("Database");
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(db));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
 
             services.AddCors(options =>
             {
