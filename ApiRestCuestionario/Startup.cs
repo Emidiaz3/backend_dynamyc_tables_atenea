@@ -96,7 +96,7 @@ namespace ApiRestCuestionario
                     "https://encuestas.atenealatam.com/",
                     "https://encuestas.atenealatam.com:8090"
                 };
-                options.AddDefaultPolicy(builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
+                options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             });
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
