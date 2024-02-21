@@ -174,11 +174,6 @@ namespace ApiRestCuestionario.Controllers
                         parsedColumn2 = null;
                     }
 
-                    Console.WriteLine(x);
-                    Console.WriteLine(parsedColumn);
-                    Console.WriteLine(parsedColumn2);
-
-
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_STATE_PROPS @Id={x.id}, @NuevoEstado={(x.hidden ? 0 : 1)};");
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN_2 @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @columnNameDB2={parsedColumn2}, @dataType2={x.column_type_2}, @propsUi = {x.props_ui};");
