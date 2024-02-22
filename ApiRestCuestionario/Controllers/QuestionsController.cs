@@ -16,7 +16,6 @@ namespace ApiRestCuestionario.Controllers
 
     public class SaveQuestionDTO
     {
-        public int formId { get; set; }
         public Form_Aparence? aparence { get; set; }
         public List<Quest> questions { get; set; }
     }
@@ -68,12 +67,11 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> SaveQuestions([FromBody] SaveQuestionDTO questionDTO)
+        [HttpPost("{formId}")]
+        public async Task<ActionResult> SaveQuestions([FromRoute] int formId, [FromBody] SaveQuestionDTO questionDTO)
         {
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
-            int formId = questionDTO.formId;
             List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
             var itemsCounter = StringParser.CheckColumnItems(columns);
             context.Form_Aparence.Add(aparenceSave);
