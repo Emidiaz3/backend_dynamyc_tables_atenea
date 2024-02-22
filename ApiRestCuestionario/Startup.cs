@@ -13,6 +13,7 @@ using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using ApiRestCuestionario.Utils;
+using Microsoft.OpenApi.Models;
 
 namespace ApiRestCuestionario
 {
@@ -41,14 +42,10 @@ namespace ApiRestCuestionario
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddTransient<IGmailSender, GmailSender>();
             services.AddControllers();
-
-            services.AddSwaggerGen(options =>
+            services.AddSwaggerGen(c =>
             {
-                //options.DocumentFilter<PathPrefixInsertDocumentFilter>();
+                c.SwaggerDoc("v1", new OpenApiInfo { Title  = "Cuestionario", Version = "v1"});
             });
-
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"));
-
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -60,15 +57,14 @@ namespace ApiRestCuestionario
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"))),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
             });
 
-            var db = Configuration.GetConnectionString("Database");
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(db));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
 
             services.AddCors(options =>
             {
@@ -106,13 +102,13 @@ namespace ApiRestCuestionario
             
             if (env.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    options.RoutePrefix = string.Empty;
+                    //options.RoutePrefix = string.Empty;
                 });
-                app.UseDeveloperExceptionPage();
             } else
             {
                 app.UseDefaultFiles();
