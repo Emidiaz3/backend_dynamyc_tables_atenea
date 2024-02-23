@@ -211,6 +211,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
+                Console.WriteLine(IdProyecto.ToString());
                 var ListPersona = await context.Persona.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_PERSONA_POR_PROYECTO] @IdProyecto={IdProyecto}").ToListAsync();
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ListPersona });

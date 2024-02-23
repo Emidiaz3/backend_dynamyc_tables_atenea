@@ -2,12 +2,14 @@
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +18,6 @@ namespace ApiRestCuestionario.Controllers
 
     public class SaveQuestionDTO
     {
-        public int formId { get; set; }
         public Form_Aparence? aparence { get; set; }
         public List<Quest> questions { get; set; }
     }
@@ -70,12 +71,11 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> SaveQuestions([FromBody] SaveQuestionDTO questionDTO)
+        [HttpPost("{formId}")]
+        public async Task<ActionResult> SaveQuestions([FromRoute] int formId, [FromBody] SaveQuestionDTO questionDTO)
         {
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
-            int formId = questionDTO.formId;
 
             List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
             var itemsCounter = StringParser.CheckColumnItems(columns);
@@ -100,32 +100,6 @@ namespace ApiRestCuestionario.Controllers
             }
             if (toUpdate.Any())
             {
-                //List<string> toUpdateColumns = new List<string>();
-                //foreach (var x in toUpdate)
-                //{
-                //    var normalized = StringParser.NormalizeString(x.column_db_name);
-                //    var parsedColumn = "";
-                //    if (!toUpdateColumns.Contains(normalized))
-                //    {
-                //        toUpdateColumns.Append(normalized);
-                //        parsedColumn = normalized;
-                //    }
-                //    else if (itemsCounter.ContainsKey(normalized))
-                //    {
-                //        itemsCounter[normalized]++;
-                //        parsedColumn = $"{normalized}_{itemsCounter[normalized]}";
-                //    }
-                //    else
-                //    {
-                //        itemsCounter[normalized] = 1;
-                //        parsedColumn = normalized;
-                //    }
-                //    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_STATE_PROPS @Id={x.id}, @NuevoEstado={(x.hidden ? 0 : 1)};");
-
-                //    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_ACTUALIZAR_COLUMNA @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @propsUi = {x.props_ui};");
-
-                //}
-
                 List<string> toUpdateColumns = new List<string>();
                 foreach (var x in toUpdate)
                 {
@@ -227,8 +201,37 @@ namespace ApiRestCuestionario.Controllers
                     };
                 }).ToList();
 
+               
+
                 var jsonParameter = JsonConvert.SerializeObject(insertList);
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
+
+                var outputValue = new SqlParameter
+                {
+                    ParameterName = "@@OutputResult",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Output
+                };
+
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT]
+                    @jsonInput = {jsonParameter},
+                    @formId = {formId},
+                    @result = {outputValue} OUTPUT");
+
+                Console.WriteLine(outputValue);
+
+                var boolOutput = (bool)outputValue.Value;
+
+                if (boolOutput)
+                {
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+
+                }
+                else
+                {
+                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
+
+                }
             }
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
