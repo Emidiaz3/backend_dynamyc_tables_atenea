@@ -12,9 +12,33 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace ApiRestCuestionario.Controllers
 {
+
+    public class GeoJsonFeature
+    {
+        public string Type { get; set; }
+        public GeoJsonProperties Properties { get; set; }
+        public GeoJsonGeometry Geometry { get; set; }
+    }
+
+    public class GeoJsonProperties
+    {
+        public int Zoom { get; set; }
+        public string DrawType { get; set; }
+        public string TypeDraw { get; set; }
+        // Añade otras propiedades según sean necesarias, por ejemplo, para el círculo
+        public double? Radius { get; set; } // Opcional, solo para círculos
+    }
+
+    public class GeoJsonGeometry
+    {
+        public string Type { get; set; }
+        public dynamic Coordinates { get; set; } // dynamic para soportar diferentes estructuras de coordenadas
+    }
 
     public class DeleteAnswerDto
     {
@@ -23,6 +47,17 @@ namespace ApiRestCuestionario.Controllers
         [Required]
         public List<int> IdList { get; set; }
     }
+    public class AnswerDTO
+    {
+        public string Answer { get; set; }
+        public DateTime? AnswerDate { get; set; }
+        public int UsersId { get; set; }
+        public int FormId { get; set; }
+        public string FlgProceso { get; set; }
+        public int QuestionsId { get; set; }
+        public string DbName { get; set; }
+    }
+
 
     [ApiController]
     [Route("api/[controller]")]
