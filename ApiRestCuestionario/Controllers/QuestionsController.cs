@@ -77,8 +77,23 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
 
-            List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
-            var itemsCounter = StringParser.CheckColumnItems(columns);
+            //List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
+            //var itemsCounter = StringParser.CheckColumnItems(columns);
+
+            List<string> columnsDB1 = context.column_types
+                .Where(x => x.form_id == formId)
+                .Select(x => x.nombre_columna_db)
+                .ToList();
+
+            List<string> columnsDB2 = context.column_types
+                .Where(x => x.form_id == formId)
+                .Select(x => x.nombre_columna_db_2)
+                .Where(x => x != null) // Asumiendo que nombre_columna_db_2 puede ser nulo y queremos excluir esos casos
+                .ToList();
+
+            List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
+            var itemsCounter = StringParser.CheckColumnItems(allColumns);
+
 
             context.Form_Aparence.Add(aparenceSave);
             if (aparenceSave.id != 0)
@@ -98,6 +113,7 @@ namespace ApiRestCuestionario.Controllers
                     await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
                 }
             }
+
             if (toUpdate.Any())
             {
                 List<string> toUpdateColumns = new List<string>();
@@ -154,9 +170,11 @@ namespace ApiRestCuestionario.Controllers
                 }
 
             }
+
+            Console.WriteLine(toUpdate);
+
             if (toInsert.Any())
             {
-
                 var insertList = toInsert.Select(x =>
                 {
                     // Normalización y generación del nombre de la primera columna de base de datos
@@ -191,20 +209,17 @@ namespace ApiRestCuestionario.Controllers
                     {
                         columnName = x.column_name,
                         columnType = x.column_type,
-                        columnType2 = columnType2, // Incluido columnType2
+                        columnType2,
                         propsUi = x.props_ui,
-                        formId = formId,
+                        formId,
                         state = 1,
                         questionTypeId = x.question_type_id,
-                        columnNameDB, // Calculated as above
-                        columnNameDB2 // Incluido columnNameDB2
+                        columnNameDB,
+                        columnNameDB2
                     };
                 }).ToList();
 
-               
-
                 var jsonParameter = JsonConvert.SerializeObject(insertList);
-
                 var outputValue = new SqlParameter
                 {
                     ParameterName = "@@OutputResult",
@@ -217,10 +232,7 @@ namespace ApiRestCuestionario.Controllers
                     @formId = {formId},
                     @result = {outputValue} OUTPUT");
 
-                Console.WriteLine(outputValue);
-
                 var boolOutput = (bool)outputValue.Value;
-
                 if (boolOutput)
                 {
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
@@ -230,9 +242,9 @@ namespace ApiRestCuestionario.Controllers
                 else
                 {
                     return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
-
                 }
             }
+            
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
         }
