@@ -171,7 +171,6 @@ namespace ApiRestCuestionario.Controllers
 
             }
 
-            Console.WriteLine(toUpdate);
 
             if (toInsert.Any())
             {
