@@ -184,7 +184,7 @@ namespace ApiRestCuestionario.Controllers
 
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+                    //return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
                 }
                 else
@@ -257,7 +257,7 @@ namespace ApiRestCuestionario.Controllers
                 if (boolOutput)
                 {
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+                    //return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
                 }
                 else
