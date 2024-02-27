@@ -117,61 +117,82 @@ namespace ApiRestCuestionario.Controllers
             if (toUpdate.Any())
             {
                 List<string> toUpdateColumns = new List<string>();
+
                 foreach (var x in toUpdate)
                 {
-                    // Normalización y manejo de column_db_name
-                    var normalized = StringParser.NormalizeString(x.column_db_name);
-                    var parsedColumn = "";
-                    if (!toUpdateColumns.Contains(normalized))
-                    {
-                        toUpdateColumns.Add(normalized); // Usa Add en lugar de Append para List
-                        parsedColumn = normalized;
-                    }
-                    else if (itemsCounter.ContainsKey(normalized))
-                    {
-                        itemsCounter[normalized]++;
-                        parsedColumn = $"{normalized}_{itemsCounter[normalized]}";
-                    }
-                    else
-                    {
-                        itemsCounter[normalized] = 1;
-                        parsedColumn = normalized;
-                    }
+                    var currentColumnObject = context.column_types.FirstOrDefault(y => y.Id == x.id);
 
-                    // Manejo de column_db_name_2, similar a column_db_name pero con control de null
-                    var parsedColumn2 = "";
-                    if (x.column_db_name_2 != null)
+                    if (currentColumnObject != null)
                     {
-                        var normalized2 = StringParser.NormalizeString(x.column_db_name_2);
-                        if (!toUpdateColumns.Contains(normalized2))
+                        var currentColDB = currentColumnObject.nombre_columna_db;
+                        var currentColDB2 = currentColumnObject.nombre_columna_db_2;
+
+                        var newColDB = x.column_db_name;
+                        var newColDB2 = x.column_db_name_2;
+
+                        // Verifica si el nombre de la columna db ha cambiado y no es null o vacío
+                        if (!string.IsNullOrWhiteSpace(newColDB) && !newColDB.Equals(currentColDB, StringComparison.OrdinalIgnoreCase))
                         {
-                            toUpdateColumns.Add(normalized2);
-                            parsedColumn2 = normalized2;
+                            toUpdateColumns.Add(newColDB);
                         }
-                        else if (itemsCounter.ContainsKey(normalized2))
+
+                        // Verifica si el nombre de la columna db2 ha cambiado y no es null o vacío
+                        if (!string.IsNullOrWhiteSpace(newColDB2) && !newColDB2.Equals(currentColDB2, StringComparison.OrdinalIgnoreCase))
                         {
-                            itemsCounter[normalized2]++;
-                            parsedColumn2 = $"{normalized2}_{itemsCounter[normalized2]}";
-                        }
-                        else
-                        {
-                            itemsCounter[normalized2] = 1;
-                            parsedColumn2 = normalized2;
+                            toUpdateColumns.Add(newColDB2);
                         }
                     }
-                    else
-                    {
-                        parsedColumn2 = null;
-                    }
-
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_STATE_PROPS @Id={x.id}, @NuevoEstado={(x.hidden ? 0 : 1)};");
-
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMN_2 @idColumn={x.id}, @columnName={x.column_name}, @columnNameDB={parsedColumn}, @dataType={x.column_type}, @columnNameDB2={parsedColumn2}, @dataType2={x.column_type_2}, @propsUi = {x.props_ui};");
                 }
 
+                var jsonList = JsonConvert.SerializeObject(toUpdateColumns);
+                var outputValue = new SqlParameter
+                {
+                    ParameterName = "@@OutputResult",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Output
+                };
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_UPDATE]
+                    @jsonInput = {jsonList},
+                    @formId = {formId},
+                    @result = {outputValue} OUTPUT");
+
+                var boolOutput = (bool)outputValue.Value;
+                if (boolOutput)
+                {
+                    var updateList = toUpdate.Select(x =>
+                    {
+                        var normalizedColumnName = StringParser.NormalizeString(x.column_db_name);
+                        var columnNameDB = normalizedColumnName;
+
+                        var columnNameDB2 = x.column_db_name_2 != null ? StringParser.NormalizeString(x.column_db_name_2) : null;
+                        var columnType2 = x.column_type_2 != null ? $"{x.column_type_2}" : null;
+
+                        return new
+                        {
+                            columnId = x.id,
+                            columnName = x.column_name,
+                            columnType = x.column_type,
+                            columnType2,
+                            propsUi = x.props_ui,
+                            state = x.hidden ? 0 : 1,
+                            columnNameDB,
+                            columnNameDB2
+                        };
+                    }).ToList();
+
+                    var jsonParam = JsonConvert.SerializeObject(updateList);
+
+
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+
+                }
+                else
+                {
+                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
+                }
             }
 
-            Console.WriteLine(toUpdate);
 
             if (toInsert.Any())
             {
@@ -244,7 +265,8 @@ namespace ApiRestCuestionario.Controllers
                     return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
                 }
             }
-            
+
+
             return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
         }
