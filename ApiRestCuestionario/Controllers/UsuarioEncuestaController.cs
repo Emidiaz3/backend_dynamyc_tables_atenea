@@ -1,13 +1,16 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class UsuarioEncuestaController : ControllerBase
@@ -39,18 +42,21 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("GetUsuarioEncuestaByIdUsuario")]
-        public ActionResult GetUsuarioEncuestaById([FromBody] JsonElement form)
+        public async  Task<ActionResult> GetUsuarioEncuestaById([FromBody] JsonElement form)
         {
             try
             {
+
+
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
+                var list = await context.UsuarioEncuesta.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_ENCUESTAS_POR_USUARIO] @usersId={idUsuario}").ToListAsync();
 
                 // Filtrar directamente en la consulta a la base de datos.
-                var resultado = context.Usuario_Encuesta
-                    .Where(c => c.users_id == idUsuario)
-                    .ToList(); // Convertir a lista después de aplicar el filtro.
+                //var resultado = context.Usuario_Encuesta
+                //    .Where(c => c.users_id == idUsuario)
+                //    .ToList(); // Convertir a lista después de aplicar el filtro.
 
-                return StatusCode(200, new ItemResp { status = 200, message = "Confirm", data = resultado });
+                return StatusCode(200, new ItemResp { status = 200, message = "Confirm", data = list });
             }
             catch (Exception e) // Captura excepciones más generales para simplificar.
             {

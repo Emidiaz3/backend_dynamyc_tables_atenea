@@ -52,6 +52,7 @@ namespace ApiRestCuestionario.Context
         public DbSet<Documents> documents {  get; set; }
         public DbSet<Persona> Persona { get; set; }
         public DbSet<Persona_Organizacion> Persona_Organizacion { get; set; }
+        public DbSet<UsuarioEncuesta> UsuarioEncuesta { get; set; }
 
 
     }
