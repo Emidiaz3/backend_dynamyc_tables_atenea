@@ -54,14 +54,16 @@ namespace ApiRestCuestionario.Controllers
                     {
                         Directory.CreateDirectory(userPath);
                     }
-
                     foreach (var document in formDocument.file)
                     {
                         string filePath = Path.Combine(userPath, document.FileName);
-                        Stream fileStream = new FileStream(filePath, FileMode.Create);
-                        await document.CopyToAsync(fileStream);
+                        using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await document.CopyToAsync(fileStream);
+                        }
                         documentsPath.Add($"{form_id}/{document.FileName}");
                     }
+                  
                     var answer = string.Join("|||", documentsPath);
                     return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer, questions_id } });
                 }

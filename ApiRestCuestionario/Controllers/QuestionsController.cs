@@ -181,7 +181,7 @@ namespace ApiRestCuestionario.Controllers
                     }).ToList();
 
                     var jsonParam = JsonConvert.SerializeObject(updateList);
-
+                    Console.WriteLine(jsonParam);
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
                     return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
