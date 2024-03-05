@@ -77,9 +77,6 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
 
-            //List<string> columns = context.column_types.Where(x => x.form_id == formId).Select(x => x.nombre_columna_db).ToList();
-            //var itemsCounter = StringParser.CheckColumnItems(columns);
-
             List<string> columnsDB1 = context.column_types
                 .Where(x => x.form_id == formId)
                 .Select(x => x.nombre_columna_db)
@@ -88,7 +85,7 @@ namespace ApiRestCuestionario.Controllers
             List<string> columnsDB2 = context.column_types
                 .Where(x => x.form_id == formId)
                 .Select(x => x.nombre_columna_db_2)
-                .Where(x => x != null) // Asumiendo que nombre_columna_db_2 puede ser nulo y queremos excluir esos casos
+                .Where(x => x != null) 
                 .ToList();
 
             List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
@@ -106,7 +103,7 @@ namespace ApiRestCuestionario.Controllers
             var toInsert = questions.Where(x => x.id == null);
             var toUpdate = questions.Where(x => x.deleted != true && x.id != null);
 
-            if (toDelete.Count() != 0)
+            if (toDelete.Any())
             {
                 foreach (var questionD in toDelete)
                 {
@@ -181,10 +178,8 @@ namespace ApiRestCuestionario.Controllers
                     }).ToList();
 
                     var jsonParam = JsonConvert.SerializeObject(updateList);
-                    Console.WriteLine(jsonParam);
 
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
-                    //return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
                 }
                 else
@@ -196,9 +191,9 @@ namespace ApiRestCuestionario.Controllers
 
             if (toInsert.Any())
             {
+                Console.WriteLine(JsonConvert.SerializeObject(toInsert));
                 var insertList = toInsert.Select(x =>
                 {
-                    // Normalización y generación del nombre de la primera columna de base de datos
                     var normalizedColumnName = StringParser.NormalizeString(x.column_db_name);
                     var columnNameDB = normalizedColumnName;
                     if (itemsCounter.ContainsKey(normalizedColumnName))
