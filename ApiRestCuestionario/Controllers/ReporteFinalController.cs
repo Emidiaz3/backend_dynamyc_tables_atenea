@@ -152,7 +152,6 @@ namespace ApiRestCuestionario.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 return StatusCode(400, new ItemResp { status = 400, message = CONFIRM, data = "Fallo Al guardar" });
             }
         }

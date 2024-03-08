@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-
+using DotLiquid;
 
 
 namespace ApiRestCuestionario.Controllers
@@ -232,8 +232,10 @@ namespace ApiRestCuestionario.Controllers
                     string rutaBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(agg));
 
                     string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
-
-                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", $"<a href=\"{recoveryUrl}\" >Enlace de recuperación</a>");
+                    TemplateEntity template = await context.Template.FirstOrDefaultAsync((e) => e.Id  == 1);
+                    Template html = Template.Parse(template.Body);
+                    string renderedTemplate = html.Render(Hash.FromAnonymousObject(new { link = recoveryUrl, header= "https://encuestas1.ddigital.pe/assets/images/logo-grupoatenea.png" }));
+                    await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", renderedTemplate);
                     response.status = 1;
                     if(response.status> 0)
                     {

@@ -89,6 +89,31 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
+        [HttpPost] // Asegúrate de especificar el verbo HTTP adecuado
+        [Route("GetUserFormsByProjectAux/{projectId}")]
+        public ActionResult PostAuxByProject([FromBody] JsonElement value, int projectId)
+        {
+            try
+            {
+                int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("users").GetProperty("users_id").ToString());
+
+                var userForm = context.Form
+                    .Join(context.Usuario_Encuesta,
+                        form => form.id,
+                        usuarioEncuesta => usuarioEncuesta.form_id,
+                        (form, usuarioEncuesta) => new { Form = form, UsuarioEncuesta = usuarioEncuesta })
+                    .Where(x => x.UsuarioEncuesta.users_id == user_id
+                                && x.Form.IdProyecto == projectId) 
+                    .ToList();
+
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
 
         [HttpPost("GetAnswerCountNum")]
         public ActionResult GetAnswerCountNum([FromBody] JsonElement value)
