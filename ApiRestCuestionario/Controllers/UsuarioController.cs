@@ -205,14 +205,17 @@ namespace ApiRestCuestionario.Controllers
                 {
                     Directory.CreateDirectory(userPath);
                 }
-              
+
                 string filePath = Path.Combine(userPath, file.FileName);
                 if (System.IO.File.Exists(filePath))
                 {
-                    System.IO.File.Delete(filePath);
+                    System.IO.File.Delete(filePath); // Asegúrate de que ningún otro proceso esté accediendo a este archivo
                 }
-                Stream fileStream = new FileStream(filePath, FileMode.Create);
-                await file.CopyToAsync(fileStream);
+                // Usar using para asegurar que el FileStream se cierre correctamente
+                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
                 string savePath = $"{userId}/{file.FileName}";
                 var user = new Usuario { IdUsuario = userId, FotoPerfil = savePath };
                 context.Usuarios.Attach(user).Property(x => x.FotoPerfil).IsModified = true;
@@ -224,7 +227,44 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-    
+
+        [HttpDelete("deleteProfileImage/{userId}")]
+        public async Task<IActionResult> DeleteProfileImage(int userId)
+        {
+            // Encuentra al usuario en la base de datos
+            var user = await context.t_mae_usuario.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "Usuario no encontrado." });
+            }
+
+            // Verifica si el usuario tiene una imagen de perfil
+            if (string.IsNullOrEmpty(user.FotoPerfil))
+            {
+                return NotFound(new { message = "No se encontró imagen de perfil para este usuario." });
+            }
+
+            // Construye la ruta completa al archivo de la imagen de perfil
+            string basePath = Path.Combine(staticFolder.Path, "Profile");
+            string filePath = Path.Combine(basePath, user.FotoPerfil);
+
+            // Elimina el archivo de imagen si existe
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+
+                // Elimina la referencia de la imagen de perfil en la base de datos
+                user.FotoPerfil = null;
+                await context.SaveChangesAsync();
+
+                return Ok(new { message = "Imagen eliminada correctamente." });
+            }
+            else
+            {
+                return NotFound(new { message = "Archivo de imagen no encontrado." });
+            }
+        }
+
 
         [HttpPost("PostUpdatePerfil")]
         public async Task<ActionResult<ItemResponse>> PostUpdatePerfil(entidad_actualizar_perfil ent)
