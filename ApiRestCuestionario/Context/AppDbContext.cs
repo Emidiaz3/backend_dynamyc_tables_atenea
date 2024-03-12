@@ -29,8 +29,8 @@ namespace ApiRestCuestionario.Context
         public DbSet<entidad_lst_codigo> entidad_lst_codigo { get; set; }
         public DbSet<entidad_lst_tipodoc> entidad_lst_tipodoc { get; set; }
         public DbSet<entidad_lst_perfil> entidad_lst_perfil { get; set; }
-        public DbSet<t_mae_usuario> t_mae_usuario { get; set; }
-        public DbSet<T_REL_ROL_USUARIO> T_REL_ROL_USUARIO { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<RolUsuario> RolUsuarios { get; set; }
         public DbSet<entidad_lst_tb_usuario> entidad_lst_tb_usuario { get; set; }
         public DbSet<entidad_lst_modulos_accesos> entidad_lst_modulos_accesos { get; set; }
         public DbSet<entidad_lst_usuario_roles> entidad_lst_usuario_roles { get; set; }

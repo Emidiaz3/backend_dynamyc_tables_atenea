@@ -44,7 +44,7 @@ namespace ApiRestCuestionario
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title  = "Cuestionario", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cuestionario", Version = "v1" });
             });
             services.AddAuthentication(x =>
             {
@@ -65,9 +65,9 @@ namespace ApiRestCuestionario
 
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
-
             services.AddCors(options =>
             {
+               //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
                 string[] origins =
                 new string[] {
                     "http://localhost:4200",
@@ -115,14 +115,13 @@ namespace ApiRestCuestionario
                 app.UseStaticFiles();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthentication();
 
             app.UseAuthorization();
-
             app.UseCors();
 
             if (!Directory.Exists(staticFolder.Path))

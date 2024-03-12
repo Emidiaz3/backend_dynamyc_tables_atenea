@@ -223,6 +223,8 @@ namespace ApiRestCuestionario.Controllers
                     @Email={email},
                     @IdUsuario={parametroResp} OUTPUT");
 
+                Console.WriteLine("value");
+                Console.WriteLine(parametroResp.Value);
                 if (parametroResp.Value != DBNull.Value)
                 {
                     int IdUsuario = (int)parametroResp.Value;
@@ -232,9 +234,9 @@ namespace ApiRestCuestionario.Controllers
                     string rutaBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(agg));
 
                     string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
-                    string html = await FileReader.LoadTemplateAsync("./Templates/Recovery.html");
-                    Template template = Template.Parse(html);
-                    string renderedTemplate = template.Render(Hash.FromAnonymousObject(new { link = recoveryUrl, header= "https://encuestas1.ddigital.pe/assets/images/logo-grupoatenea.png" }));
+                    TemplateEntity template = await context.Template.FirstOrDefaultAsync((e) => e.Id  == 1);
+                    Template html = Template.Parse(template.Body);
+                    string renderedTemplate = html.Render(Hash.FromAnonymousObject(new { link = recoveryUrl, header= $"{applicationUrl}/assets/images/logo-grupoatenea.png" }));
                     await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", renderedTemplate);
                     response.status = 1;
                     if(response.status> 0)

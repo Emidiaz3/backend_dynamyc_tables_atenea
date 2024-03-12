@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -148,21 +149,7 @@ namespace ApiRestCuestionario.Model
 
     }
 
-    public class T_REL_ROL_USUARIO
-    {
-       
-        public int IdRol { get; set; }
-        [Key]
-        public int IdUsuario { get; set; }
-        
-        public int estado { get; set; }
-
-        public DateTime FechaCreacion { get; set; }
-        public DateTime FechaAccion { get; set; }
-        public DateTime UsuarioCreacion { get; set; }
-
-        public int? UsuarioAccion { get; set; }
-    }
+ 
     public class entidad_rol_usuario
     {
 
@@ -192,35 +179,7 @@ namespace ApiRestCuestionario.Model
         public int UsuarioAccion { get; set; }
         public int IdRol { get; set; }
     }
-    public class t_mae_usuario
-    {
-        [Key]
-        public int IdUsuario { get; set; }
-        public int IdPais { get; set; }
-        public int IdEmpresa { get; set; }
-        public int? IdSucursal { get; set; }
-        public string? NombreUsuario { get; set; }
-        public string? PassUsuario { get; set; }
-        public bool? EstadoUsuario { get; set; }
-        public string? ApellidoPaterno { get; set; }
-        public string? ApellidoMaterno { get; set; }
-        public string? Nombre { get; set; }
-        public string? Email { get; set; }
-        public int IdTipoDocIdentidad { get; set; }
-        public string? NumDocIdentidad { get; set; }
-        public string? Telefono { get; set; }
-        public DateTime? FechaCreacion { get; set; }
-        public int? UsuarioCreacion { get; set; }
-        public DateTime FechaAccion { get; set; }
-        public int UsuarioAccion { get; set; }
-        public string? CodigoCambioPassword { get; set; }
-        public bool? FlgCambioPassword { get; set; }
-        public DateTime? FechaCambioPassword { get; set; }
-        public string? FotoPerfil { get; set; }
 
-
-
-    }
     public class Login_User
     {
         [Required(ErrorMessage = "El usuario es obligatorio.")]
