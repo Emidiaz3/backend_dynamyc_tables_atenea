@@ -232,7 +232,7 @@ namespace ApiRestCuestionario.Controllers
         public async Task<IActionResult> DeleteProfileImage(int userId)
         {
             // Encuentra al usuario en la base de datos
-            var user = await context.t_mae_usuario.FindAsync(userId);
+            var user = await context.Usuarios.FindAsync(userId);
             if (user == null)
             {
                 return NotFound(new { message = "Usuario no encontrado." });
