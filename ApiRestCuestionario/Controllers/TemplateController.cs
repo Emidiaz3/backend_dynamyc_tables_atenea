@@ -8,9 +8,13 @@ namespace ApiRestCuestionario.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class TemplateController(AppDbContext context) : ControllerBase
+    public class TemplateController : ControllerBase
     {
-        private readonly AppDbContext context = context;
+        private readonly AppDbContext context;
+
+        public TemplateController(AppDbContext context) {
+            this.context = context;
+        }
 
         [HttpGet]
         public async Task<ActionResult> GetTemplateItems()
