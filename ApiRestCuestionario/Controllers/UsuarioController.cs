@@ -217,8 +217,8 @@ namespace ApiRestCuestionario.Controllers
                     await file.CopyToAsync(fileStream);
                 }
                 string savePath = $"{userId}/{file.FileName}";
-                var user = new t_mae_usuario { IdUsuario = userId, FotoPerfil = savePath };
-                context.t_mae_usuario.Attach(user).Property(x => x.FotoPerfil).IsModified = true;
+                var user = new Usuario { IdUsuario = userId, FotoPerfil = savePath };
+                context.Usuarios.Attach(user).Property(x => x.FotoPerfil).IsModified = true;
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp { status = 200, message = "Subida de imagen correcta", data = savePath });
             }
