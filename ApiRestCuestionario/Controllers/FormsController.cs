@@ -79,27 +79,48 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Form editForm = context.Form.Where(c => c.id == formId).First();
-                if (editForm.link == null)
+                Form editForm = context.Form.Where(c => c.id == formId).FirstOrDefault();
+                if (editForm == null)
                 {
-                    Guid uuidV4 = Guid.NewGuid();
-                    editForm.link = uuidV4.ToString();
-                    editForm.status = "Publicado";
-                    context.Form.Update(editForm);
-                    context.SaveChanges();
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRMLINKSAVE, data = editForm });
-                }
-                else
-                {
-                    return StatusCode(200, new ItemResp { status = 200, message = UPDATELINKCANCEL, data = null });
+                    return NotFound("Form not found."); // Maneja el caso en que no se encuentra el formulario.
                 }
 
+                // Verifica si es necesario generar y actualizar el link en la tabla Form
+                bool isNewLinkGenerated = false;
+                if (editForm.link == null)
+                {
+                    editForm.link = Guid.NewGuid().ToString();
+                    editForm.status = "Publicado";
+                    context.Form.Update(editForm);
+                    isNewLinkGenerated = true; // Indica que se generó un nuevo link
+                }
+
+                // Actualiza el link en todos los registros de Usuario_Encuesta que coincidan con form_id
+                var userSurveys = context.Usuario_Encuesta.Where(us => us.form_id == formId).ToList();
+                foreach (var userSurvey in userSurveys)
+                {
+                    if (userSurvey.link == null || userSurvey.link != editForm.link)
+                    {
+                        userSurvey.link = editForm.link; // Copia el link de Form a Usuario_Encuesta
+                        context.Usuario_Encuesta.Update(userSurvey);
+                    }
+                }
+
+                context.SaveChanges(); // Guarda los cambios en la base de datos
+
+                // Prepara y devuelve la respuesta adecuada
+                string message = isNewLinkGenerated ? CONFIRMLINKSAVE : UPDATELINKCANCEL;
+                return StatusCode(200, new ItemResp { status = 200, message = message, data = editForm });
+
             }
-            catch (InvalidCastException e)
+            catch (Exception e) // Usa Exception para capturar cualquier tipo de error
             {
                 return BadRequest(e.ToString());
             }
         }
+
+
+
         [HttpPost]
         public async Task<ActionResult<ItemResponse>> Post([FromBody] JsonElement value)
         {
