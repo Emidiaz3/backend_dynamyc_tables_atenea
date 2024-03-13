@@ -142,18 +142,36 @@ namespace ApiRestCuestionario.Controllers
                 }
 
                 var jsonList = JsonConvert.SerializeObject(toUpdateColumns);
-                var outputValue = new SqlParameter
+                //var outputValue = new SqlParameter
+                //{
+                //    ParameterName = "@@OutputResult",
+                //    SqlDbType = SqlDbType.Bit,
+                //    Direction = ParameterDirection.Output
+                //};
+
+                var outputResult = new SqlParameter
                 {
-                    ParameterName = "@@OutputResult",
+                    ParameterName = "@result",
                     SqlDbType = SqlDbType.Bit,
                     Direction = ParameterDirection.Output
                 };
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_UPDATE]
+
+                var outputDuplicateColumnName = new SqlParameter
+                {
+                    ParameterName = "@duplicateColumnName",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 255,
+                    Direction = ParameterDirection.Output
+                };
+
+
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_UPDATE_TEMP]
                     @jsonInput = {jsonList},
                     @formId = {formId},
-                    @result = {outputValue} OUTPUT");
+                    @result = {outputResult} OUTPUT,
+                    @duplicateColumnName = {outputDuplicateColumnName} OUTPUT");
 
-                var boolOutput = (bool)outputValue.Value;
+                var boolOutput = (bool)outputResult.Value;
                 if (boolOutput)
                 {
                     var updateList = toUpdate.Select(x =>
@@ -184,7 +202,7 @@ namespace ApiRestCuestionario.Controllers
                 }
                 else
                 {
-                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
+                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
                 }
             }
 
@@ -236,19 +254,31 @@ namespace ApiRestCuestionario.Controllers
                 }).ToList();
 
                 var jsonParameter = JsonConvert.SerializeObject(insertList);
-                var outputValue = new SqlParameter
+
+                var outputResult = new SqlParameter
                 {
-                    ParameterName = "@@OutputResult",
+                    ParameterName = "@result",
                     SqlDbType = SqlDbType.Bit,
                     Direction = ParameterDirection.Output
                 };
 
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT]
+                var outputDuplicateColumnName = new SqlParameter
+                {
+                    ParameterName = "@duplicateColumnName",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 255,
+                    Direction = ParameterDirection.Output
+                };
+
+
+
+                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_TEMP]
                     @jsonInput = {jsonParameter},
                     @formId = {formId},
-                    @result = {outputValue} OUTPUT");
+                    @result = {outputResult} OUTPUT,
+                    @duplicateColumnName = {outputDuplicateColumnName} OUTPUT");
 
-                var boolOutput = (bool)outputValue.Value;
+                var boolOutput = (bool)outputResult.Value;
                 if (boolOutput)
                 {
                     await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
@@ -257,7 +287,7 @@ namespace ApiRestCuestionario.Controllers
                 }
                 else
                 {
-                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = null });
+                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
                 }
             }
 
