@@ -67,33 +67,7 @@ namespace ApiRestCuestionario
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
             services.AddCors(options =>
             {
-               //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-                string[] origins =
-                new string[] {
-                    "http://localhost:4200",
-                    "http://localhost:8084",
-                    "http://cjp.ddigital.pe",
-                    "https://cjp.ddigital.pe",
-                    "https://127.0.0.1",
-                    "http://localhost:8200",
-                    "http://localhost:9095",
-                    "http://localhost:9096",
-                    "http://localhost:80",
-                    "http://localhost:81",
-                    "http://localhost",
-                    "http://localhost:8080",
-                    "http://localhost:8090",
-                    "http://localhost:8092",
-                    "http://developer:8080",
-                    "https://da3d-161-132-237-29.sa.ngrok.io",
-                    "https://af97-161-132-237-29.sa.ngrok.io",
-                    "https://dda1a3ece486.sa.ngrok.io",
-                    "https://encuestas1.ddigital.pe",
-                    "https://encuestas.atenealatam.com",
-                    "https://encuestas.atenealatam.com/",
-                    "https://encuestas.atenealatam.com:8090"
-                };
-                options.AddDefaultPolicy(builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
+                options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             });
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
