@@ -223,7 +223,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-        [HttpDelete("DeleteMasiveAnswer")]
+        [HttpPost("DeleteMasiveAnswer")]
         public async Task<ActionResult> DeleteMasiveAnswer([FromBody] DeleteAnswerDto answerDto)
         {
             try
