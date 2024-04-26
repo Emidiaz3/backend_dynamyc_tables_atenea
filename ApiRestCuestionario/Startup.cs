@@ -91,7 +91,8 @@ namespace ApiRestCuestionario
                     "https://encuestas1.ddigital.pe",
                     "https://encuestas.atenealatam.com",
                     "https://encuestas.atenealatam.com/",
-                    "https://encuestas.atenealatam.com:8090"
+                    "https://encuestas.atenealatam.com:8090",
+                    "https://encuestasatenea.netlify.app"
                 };
                 options.AddDefaultPolicy(builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
             });
