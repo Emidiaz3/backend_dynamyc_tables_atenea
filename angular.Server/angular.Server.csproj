@@ -1,33 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <StartupObject></StartupObject>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.10.4" />
-    <PackageReference Include="Dapper" Version="2.1.28" />
-    <PackageReference Include="DotLiquid" Version="2.2.692" />
-    <PackageReference Include="Fluid.Core" Version="2.5.0" />
-    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.32">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
-    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RazorLight" Version="2.3.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
-  </ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\angular.client\angular.client.esproj">
+		<PackageReference Include="Azure.Identity" Version="1.10.4" />
+		<PackageReference Include="Dapper" Version="2.1.28" />
+		<PackageReference Include="DotLiquid" Version="2.2.692" />
+		<PackageReference Include="Fluid.Core" Version="2.5.0" />
+		<PackageReference Include="Microsoft.AspNet.Razor" Version="3.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.32">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
+		<PackageReference Include="NetTopologySuite" Version="2.5.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="RazorLight" Version="2.3.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\angular.client\angular.client.esproj">
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
