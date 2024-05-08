@@ -84,8 +84,8 @@ namespace ApiRestCuestionario.Controllers
                 .Select(x => x.nombre_columna_db_2)
                 .ToList();
 
-            List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
-            var itemsCounter = StringParser.CheckColumnItems(allColumns);
+            List<string?> allColumns = columnsDB1.Union(columnsDB2).ToList();
+            var itemsCounter = StringParser.CheckColumnItems(allColumns!);
 
 
             context.Form_Aparence.Add(aparenceSave);
