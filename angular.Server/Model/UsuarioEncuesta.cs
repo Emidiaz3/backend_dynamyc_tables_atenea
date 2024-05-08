@@ -1,13 +1,16 @@
-﻿namespace ApiRestCuestionario.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ApiRestCuestionario.Model
 {
     public class UsuarioEncuesta
     {
-        public int id { get; set; }
-        public string? form_name { get; set; }
-        public int form_id { get; set; }
-        public int users_id { get; set; }
-        public string? link { get; set; }
-        public int idTipoEncuesta { get; set; }
-        public int idProyecto { get; set; }
+
+        public int Id { get; set; }
+        public string? Form_name { get; set; }
+        public int Form_id { get; set; }
+        public int Users_id { get; set; }
+        public string? Link { get; set; }
+        public int? IdTipoEncuesta { get; set; }
+        public int IdProyecto { get; set; }
     }
 }

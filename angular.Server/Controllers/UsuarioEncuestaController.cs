@@ -46,6 +46,7 @@ namespace ApiRestCuestionario.Controllers
 
 
                 int idUsuario = JsonConvert.DeserializeObject<int>(form.GetProperty("idUsuario").ToString());
+                Console.WriteLine(idUsuario);
                 var list = await context.UsuarioEncuesta.FromSqlInterpolated($"EXEC [dbo].[SP_LISTAR_ENCUESTAS_POR_USUARIO] @usersId={idUsuario}").ToListAsync();
 
                 // Filtrar directamente en la consulta a la base de datos.
