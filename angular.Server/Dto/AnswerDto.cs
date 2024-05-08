@@ -1,5 +1,4 @@
 ﻿using ApiRestCuestionario.Model;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Dto
@@ -10,7 +9,7 @@ namespace ApiRestCuestionario.Dto
         public int FormId { get; set; }
 
         [Required]
-        public string Data { get; set; }
+        public required string Data { get; set; }
 
     }
     public  class SaveAnswerDTO
@@ -19,9 +18,9 @@ namespace ApiRestCuestionario.Dto
         public int FormId { get; set; }
 
         [Required]
-        public string Data { get; set; }
+        public string? Data { get; set; }
 
         [Required]
-        public List<AnswerAnioMes> listDataAnioMes { get; set; }
+        public List<AnswerAnioMes>? listDataAnioMes { get; set; }
     }
 }

@@ -5,13 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -51,7 +47,7 @@ namespace ApiRestCuestionario.Controllers
 
             try
             {
-                var questions = context.column_types.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link} and ct.state = 1").ToList();
+                var questions = context.ColumnTypes.FromSqlInterpolated($"SELECT ct.* FROM column_types ct join form f on (ct.form_id = f.id) where f.link = {link} and ct.state = 1").ToList();
                 var aparence = context.Form_Aparence.FromSqlInterpolated($"select fa.* from form_aparence fa join form f on (fa.form_id = f.id) where f.link  = {link}").First();
                 var form = context.Form.FromSqlInterpolated($"SELECT f.* from form f where f.link ={link}").First();
                 return StatusCode(200, new ItemResp { status = 200, message = OBTAIN, data = new { questions, aparence, form } });
@@ -79,7 +75,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Form editForm = context.Form.Where(c => c.id == formId).FirstOrDefault();
+                Form? editForm = context.Form.Where(c => c.id == formId).FirstOrDefault();
                 if (editForm == null)
                 {
                     return NotFound("Form not found."); // Maneja el caso en que no se encuentra el formulario.
@@ -126,7 +122,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Form form = JsonConvert.DeserializeObject<Form>(value.GetProperty("form").ToString());
+                Form form = JsonConvert.DeserializeObject<Form>(value.GetProperty("form").ToString())!;
                 int idUser = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
                 int proy_id = value.GetProperty("proyecto").GetProperty("id_proyecto").GetInt32();
 

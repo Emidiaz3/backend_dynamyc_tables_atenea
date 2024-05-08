@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Model
 {
-    public class Rol_Form
-    {
-
-    }
 
     public class entidad_guardar_rol
     {
         public int IdRol { get; set; }
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
         public int Estado { get; set; }
         public int IdUsuarioAccion { get; set; }
     }
@@ -24,8 +16,8 @@ namespace ApiRestCuestionario.Model
         public int IdRol { get; set; }
         [Key]
         public int IdPrivilegio { get; set; }
-        public string DesPrivilegio { get; set; }
-        public string Descripcion { get; set; }
+        public string? DesPrivilegio { get; set; }
+        public string? Descripcion { get; set; }
     }
 
     public class entidad_guardar_rol_privilegio
@@ -33,16 +25,6 @@ namespace ApiRestCuestionario.Model
         public int IdRol { get; set; }
         public int IdPrivilegio { get; set; }
     }
-
-    /*public class entidad_dato_id
-    {
-        public int IdRol { get; set; }
-    }
-    public class entidad_dato_id2
-    {
-        public int IdRol { get; set; }
-        public int IdIdioma { get; set; }
-    }*/
 
     public class entidad_lst_modulos_accesos
     {

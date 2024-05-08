@@ -1,22 +1,21 @@
-﻿using ApiRestCuestionario.Context;
+﻿using angular.Server.Model;
+using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+
 
 namespace ApiRestCuestionario.Controllers
 {
+    public class ReportByAnioMes
+    {
+        public required ReporteFinal dataAnioMes { get; set; } 
+    }
     public class SaveDocumentDTO
     {
         [Required]
@@ -24,7 +23,7 @@ namespace ApiRestCuestionario.Controllers
         [Required]
         public int? userId { get; set; }
         [Required]
-        public List<IFormFile> Files { get; set; }
+        public List<IFormFile> Files { get; set; } = [];
     }
 
     [ApiController]
@@ -62,13 +61,13 @@ namespace ApiRestCuestionario.Controllers
             }
         }
         [HttpPost("GetReportByAnioMes")]
-        public ActionResult GetReportByAnioMes([FromBody] JsonElement value)
+        public ActionResult GetReportByAnioMes([FromBody] ReportByAnioMes value)
         {
             var response = new ItemResponse();
 
             try
             {
-                ReporteFinal listDatosLaboratorio = JsonConvert.DeserializeObject<ReporteFinal>(value.GetProperty("dataAnioMes").ToString());
+                ReporteFinal listDatosLaboratorio = value.dataAnioMes;
 
                 var ReporteFinaldata = context.ReporteFinal.FromSqlInterpolated($"Exec SP_REPORTE_FINAL_SELECT_BY_MES_ANIO @anio={listDatosLaboratorio.Año} ,@mes ={listDatosLaboratorio.Numes}").AsAsyncEnumerable(); ;
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = ReporteFinaldata });
@@ -87,13 +86,13 @@ namespace ApiRestCuestionario.Controllers
             }
         }
         [HttpPost("DeleteReportByAnioMes")]
-        public ActionResult DeleteReportByAnioMes([FromBody] JsonElement value)
+        public ActionResult DeleteReportByAnioMes([FromBody] ReportByAnioMes value)
         {
             var response = new ItemResponse();
 
             try
             {
-                ReporteFinal listDatosLaboratorio = JsonConvert.DeserializeObject<ReporteFinal>(value.GetProperty("dataAnioMes").ToString());
+                ReporteFinal listDatosLaboratorio = value.dataAnioMes;
                 List<ReporteFinalDetail> lisdelete = context.ReporteFinal.Where(c => c.Numes == listDatosLaboratorio.Numes).Where(c => c.Año == listDatosLaboratorio.Año).ToList();
 
                 context.ReporteFinal.RemoveRange(lisdelete);
@@ -152,7 +151,7 @@ namespace ApiRestCuestionario.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(400, new ItemResp { status = 400, message = CONFIRM, data = "Fallo Al guardar" });
+                return StatusCode(400, new ItemResp { status = 400, message = ex.Message, data = null });
             }
         }
 

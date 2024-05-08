@@ -4,22 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace ApiRestCuestionario.Controllers
+namespace angular.Server.Controllers
 {
     public class MultipleInsertPersona
     {
-        public Persona person { get; set; }
-        public List<InsertPersonaOrganization> insertPersonaOrganizacionList { get; set; }
+        public required Persona person { get; set; }
+        public required List<InsertPersonaOrganization> insertPersonaOrganizacionList { get; set; }
     }
+
+    public class SavePersonDto
+    {
+        public required Persona person { get; set; }
+        public required List<Persona_Organizacion> insertPersonaOrganizacionList { get; set; }
+        public required List<Persona_Organizacion> deletePersonaOrganizacionList { get; set; }
+    }
+
 
     public class InsertPersonaOrganization
     {
@@ -36,28 +40,14 @@ namespace ApiRestCuestionario.Controllers
         {
             this.context = context;
         }
-        // GET: api/<PersonaController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
-        // GET api/<PersonaController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<PersonaController>
         [Route("SavePerson")]
         [HttpPost]
-        public async Task<ActionResult> SavePerson([FromBody] JsonElement value)
+        public async Task<ActionResult> SavePerson([FromBody] SavePersonDto dto)
         {
             try
             {
-                Persona persona = JsonConvert.DeserializeObject<Persona>(value.GetProperty("person").ToString());
+                Persona persona = dto.person;
 
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
@@ -82,7 +72,7 @@ namespace ApiRestCuestionario.Controllers
 
                 if (persona.IdPersona != null)
                 {
-                    List<Persona_Organizacion> removeList = JsonConvert.DeserializeObject<List<Persona_Organizacion>>(value.GetProperty("deletePersonaOrganizacionList").ToString());
+                    List<Persona_Organizacion> removeList = dto.deletePersonaOrganizacionList;
                     foreach (Persona_Organizacion persona_Organizacion in removeList)
                     {
                         await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_DELETE_SPECIFIC_PERSONA_ORGANIZACION] 
@@ -92,7 +82,7 @@ namespace ApiRestCuestionario.Controllers
                     }
                 }
 
-                List<Persona_Organizacion> insertList = JsonConvert.DeserializeObject<List<Persona_Organizacion>>(value.GetProperty("insertPersonaOrganizacionList").ToString());
+                List<Persona_Organizacion> insertList = dto.insertPersonaOrganizacionList;
 
                 foreach (Persona_Organizacion persona_Organizacion in insertList)
                 {
@@ -117,17 +107,16 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("MultipleInsertPerson")]
-        public async Task<ActionResult> MultipleInsertPerson([FromBody] JsonElement value)
+        public async Task<ActionResult> MultipleInsertPerson([FromBody] List<MultipleInsertPersona> list)
         {
             try
             {
-                List<MultipleInsertPersona> list = JsonConvert.DeserializeObject<List<MultipleInsertPersona>>(value.ToString());
 
                 var gruposPorProyecto = list.GroupBy(x => x.person.IdProyecto)
                                              .Select(group => new
                                              {
                                                  Proyecto = group.Key,
-                                                 Codigos = String.Join(",", group.Select(g => g.person.CodigoPersona))
+                                                 Codigos = string.Join(",", group.Select(g => g.person.CodigoPersona))
                                              });
 
 
@@ -229,14 +218,14 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                string[] tipoEncuesta = JsonConvert.DeserializeObject<string[]>(value.GetProperty("TipoEncuesta").ToString());
-                
+                string[] tipoEncuesta = JsonConvert.DeserializeObject<string[]>(value.GetProperty("TipoEncuesta").ToString())!;
+
                 List<T_MAE_PERSONA> ListPerson = context.T_MAE_PERSONA.ToList();
-                List<T_MAE_PERSONA> newListPerson = new List<T_MAE_PERSONA> { };
+                List<T_MAE_PERSONA> newListPerson = [];
 
                 foreach (T_MAE_PERSONA c in ListPerson)
                 {
-                    if (JsonConvert.DeserializeObject<string[]>(c.TipoEncuesta).Intersect(tipoEncuesta).Any())
+                    if (JsonConvert.DeserializeObject<string[]>(c.TipoEncuesta!)!.Intersect(tipoEncuesta).Any())
                     {
                         newListPerson.Add(c);
                     }
@@ -249,6 +238,6 @@ namespace ApiRestCuestionario.Controllers
             }
 
         }
-   
+
     }
 }

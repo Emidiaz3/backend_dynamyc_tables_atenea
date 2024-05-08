@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ApiRestCuestionario.Model
+﻿namespace ApiRestCuestionario.Model
 {
     public class Answers
     {

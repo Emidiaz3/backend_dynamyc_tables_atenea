@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Model
 {
@@ -25,8 +21,8 @@ namespace ApiRestCuestionario.Model
     public class entidad_guardar_proyecto
     {
         public int IdProyecto { get; set; }
-        public string NombreProyecto { get; set; }
-        public string NombreDB { get; set; }
+        public string? NombreProyecto { get; set; }
+        public string? NombreDB { get; set; }
         public int IdEmpresa { get; set; }
         public int EstadoProyecto { get; set; }
         public int? UsuarioAccion { get; set; }
@@ -37,9 +33,9 @@ namespace ApiRestCuestionario.Model
         [Key]
         public int IdRelUsuProy { get; set; }
         public int IdProyecto { get; set; }
-        public string NombreProyecto { get; set; }
+        public string? NombreProyecto { get; set; }
         public int IdUsuario { get; set; }
-        public string NombreUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
         public int Flg_Estado { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public int? UsuarioCreacion { get; set; }
@@ -69,8 +65,8 @@ namespace ApiRestCuestionario.Model
     {
         [Key]
         public int IdProyecto { get; set; }
-        public string NombreProyecto { get; set; }
-        public string NombreDB { get; set; }
+        public string? NombreProyecto { get; set; }
+        public string? NombreDB { get; set; }
     }
 
     /*public class entity_filtro

@@ -1,22 +1,14 @@
-﻿using ApiRestCuestionario.Context;
-using ApiRestCuestionario.Dto;
+﻿using angular.Server.Model;
+using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 using ApiRestCuestionario.Response;
 using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 
 namespace ApiRestCuestionario.Controllers
@@ -24,7 +16,7 @@ namespace ApiRestCuestionario.Controllers
     public class AvatarDto
     {
         public int UserId { get; set; }
-        public IFormFile File { get; set; }
+        public required IFormFile File { get; set; }
 
     }
     [ApiController]
@@ -51,14 +43,14 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 string filtro = $"and T_MAE_USUARIO.UsuarioAccion={IdUsuarioAccion}";
-                List<entidad_lst_tb_usuario> datos = new List<entidad_lst_tb_usuario>();
+                List<entidad_lst_tb_usuario> datos = [];
                 var rol_usuario_data = context.entidad_lst_tb_usuario
                                 .FromSqlInterpolated($"Exec SP_USUARIO_SEL_07 @filtro={filtro}")
                                 .AsAsyncEnumerable();
 
                 await foreach (var dato in rol_usuario_data)
                 {
-                    dato.PassUsuario = Encryptor.Decrypt(dato.PassUsuario);
+                    dato.PassUsuario = Encryptor.Decrypt(dato.PassUsuario!);
                     datos.Add(dato);
                 }
                 return Ok(datos);
@@ -85,7 +77,7 @@ namespace ApiRestCuestionario.Controllers
             var response = new ItemResponse();
             try
             {
-                var encrypted_text = Encryptor.Encrypt(ent.PassUsuario);
+                var encrypted_text = Encryptor.Encrypt(ent.PassUsuario!);
 
                 ent.PassUsuario = encrypted_text;
 
@@ -132,8 +124,8 @@ namespace ApiRestCuestionario.Controllers
 
             try
             {
-                ent.PassUsuarioOld = Encryptor.Encrypt(ent.PassUsuarioOld);
-                ent.PassUsuarioNew = Encryptor.Encrypt(ent.PassUsuarioNew);
+                ent.PassUsuarioOld = Encryptor.Encrypt(ent.PassUsuarioOld!);
+                ent.PassUsuarioNew = Encryptor.Encrypt(ent.PassUsuarioNew!);
 
                 await context.Database
                .ExecuteSqlInterpolatedAsync($@"Exec SP_USUARIO_PASSWORD_UPD_01
@@ -160,13 +152,13 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetListPerfil")]
-        public  async Task<ActionResult<dynamic>> GetListPerfil(int IdUsuario)
+        public ActionResult GetListPerfil(int IdUsuario)
         {
             var response = new ItemResponse();   
 
             try
             {
-                entidad_lst_perfil data_perfil =  context.entidad_lst_perfil
+                entidad_lst_perfil? data_perfil =  context.entidad_lst_perfil
                 .FromSqlInterpolated($"Exec SP_PERFIL_SEL_01 @IdUsuario={IdUsuario}").ToList().FirstOrDefault();
 
                 response.status = 1;
@@ -193,7 +185,7 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int userId = avatar.UserId;
-                IFormFile file = avatar.File;
+                IFormFile file = avatar.File!;
                 string basePath = Path.Combine(staticFolder.Path, "Profile");
                 if (!Directory.Exists(basePath))
                 {
@@ -277,7 +269,7 @@ namespace ApiRestCuestionario.Controllers
 
                 string ApellidoPaterno = "", ApellidoMaterno = "", Nombre = "";
 
-                string[] datos_nom = ent.Nombres.Split(" ");
+                string[] datos_nom = ent.Nombres!.Split(" ");
 
                 if (datos_nom.Length == 1)
                 {

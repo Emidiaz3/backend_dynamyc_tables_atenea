@@ -1,5 +1,8 @@
-﻿namespace ApiRestCuestionario.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ApiRestCuestionario.Model
 {
+    [Table("column_types")]
     public class ColumnType
     {
         public int Id { get; set; }

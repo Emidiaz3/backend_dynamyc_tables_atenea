@@ -1,6 +1,4 @@
 ﻿
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace ApiRestCuestionario.Dto
 {
@@ -8,9 +6,6 @@ namespace ApiRestCuestionario.Dto
     {
         public int formId { get; set; }
         public int questionsId { get; set; }
-        public List<IFormFile> file { get; set; }
-        public int userId { get; set; }
-        public string Flg_proceso { get; set; }
-
+        public required List<IFormFile> file { get; set; }
     }
 }

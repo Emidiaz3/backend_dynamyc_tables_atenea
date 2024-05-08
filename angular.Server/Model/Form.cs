@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ApiRestCuestionario.Model
+﻿namespace ApiRestCuestionario.Model
 {
     public class Form
     {
@@ -15,6 +10,6 @@ namespace ApiRestCuestionario.Model
         public string? status { get; set; }
         public string? link { get; set; }
         public string? archive { get; set; }
-        public int? IdProyecto { get; set; }
+        public int IdProyecto { get; set; }
     }
 }

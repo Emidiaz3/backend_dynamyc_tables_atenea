@@ -4,27 +4,21 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
 
 public class dataJoinForm
 {
-    public dataJoinForm() { }
-    public object userForm { get; set; }
-    public object formList { get; set; }
+    public required object userForm { get; set; }
+    public object? formList { get; set; }
 
 }
 public class dataJoinAnswer
 {
-    public dataJoinAnswer() { }
-    public object dataAnswer { get; set; }
-    public object dataQuestion { get; set; }
+    public object? dataAnswer { get; set; }
+    public required object dataQuestion { get; set; }
 
 }
 namespace ApiRestCuestionario.Controllers
@@ -39,7 +33,7 @@ namespace ApiRestCuestionario.Controllers
         public Users_FormController(AppDbContext context, IConfiguration configuration)
         {
             this.context = context;
-            this.connectionString = configuration.GetConnectionString("Database");
+            this.connectionString = configuration.GetConnectionString("Database")!;
         }
 
         [HttpPost]
@@ -103,32 +97,10 @@ namespace ApiRestCuestionario.Controllers
                         usuarioEncuesta => usuarioEncuesta.form_id,
                         (form, usuarioEncuesta) => new { Form = form, UsuarioEncuesta = usuarioEncuesta })
                     .Where(x => x.UsuarioEncuesta.users_id == user_id
-                                && x.Form.IdProyecto == projectId) 
+                                && x.Form.IdProyecto == projectId)
                     .ToList();
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinForm { formList = null, userForm = userForm } });
-            }
-            catch (InvalidCastException e)
-            {
-                return BadRequest(e.ToString());
-            }
-        }
-
-
-        [HttpPost("GetAnswerCountNum")]
-        public ActionResult GetAnswerCountNum([FromBody] JsonElement value)
-        {
-
-            try
-            {
-                int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
-                object form_aparence = context.Answers.Where(c => c.form_id == form_id).ToList();
-                return StatusCode(200, new ItemResp
-                {
-                    status = 200,
-                    message = CONFIRM,
-                    data = form_aparence
-                });
             }
             catch (InvalidCastException e)
             {
@@ -141,9 +113,9 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString());
+                Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString())!;
 
-                Users_Form userForm = context.Users_Form.FirstOrDefault(uf => uf.users_id == user_form.users_id && uf.form_id == user_form.form_id);
+                Users_Form? userForm = context.Users_Form.FirstOrDefault(uf => uf.users_id == user_form.users_id && uf.form_id == user_form.form_id);
 
                 if (userForm == null)
                 {
@@ -173,9 +145,9 @@ namespace ApiRestCuestionario.Controllers
             {
                 int form_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("form_id").ToString());
                 object questionResult = context.Questions.Where(c => c.form_id == form_id).ToList().OrderBy(c => c.position);
-                object answerList = null;
+                object? answerList = null;
 
-                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date);
+                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso!.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date);
 
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinAnswer { dataAnswer = answerList, dataQuestion = questionResult } });
@@ -201,9 +173,9 @@ namespace ApiRestCuestionario.Controllers
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("form").GetProperty("user_id").ToString());
 
                 object questionResult = context.Questions.Where(c => c.form_id == form_id).ToList().OrderBy(c => c.position);
-                object answerList = null;
+                object? answerList = null;
 
-                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date).Where(c => c.users_id == user_id);
+                answerList = context.Answers.Where(c => c.form_id == form_id).ToList().Where(c => (!c.Flg_proceso!.Equals("4") && !c.Flg_proceso.Equals("5"))).OrderBy(c => c.answer_date).Where(c => c.users_id == user_id);
 
 
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new dataJoinAnswer { dataAnswer = answerList, dataQuestion = questionResult } });
@@ -223,14 +195,15 @@ namespace ApiRestCuestionario.Controllers
         [HttpGet("GetAnswer")]
         public ActionResult GetAnswer([FromQuery][Required] int formId, [FromQuery][Required] int answerId)
         {
-          try
+            try
             {
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
                 var rows = connection.Query("SP_OBTENER_RESPUESTA", new { formId, answerId }, commandType: CommandType.StoredProcedure).ToList().FirstOrDefault();
                 connection.Close();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = rows });
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
 

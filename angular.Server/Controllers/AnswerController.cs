@@ -1,61 +1,50 @@
-﻿using ApiRestCuestionario.Context;
+﻿using angular.Server.Model;
+using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Dto;
 using ApiRestCuestionario.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using NetTopologySuite;
-using NetTopologySuite.Geometries;
 
 namespace ApiRestCuestionario.Controllers
 {
-
-    public class GeoJsonFeature
+    public class ArchiveForm
     {
-        public string Type { get; set; }
-        public GeoJsonProperties Properties { get; set; }
-        public GeoJsonGeometry Geometry { get; set; }
+        public string? path { get; set; }
+    }
+    public class AnswerAnioMesByHashUnic
+    {
+        public CustomForm? Form { get; set; }
     }
 
-    public class GeoJsonProperties
+    public class CustomForm
     {
-        public int Zoom { get; set; }
-        public string DrawType { get; set; }
-        public string TypeDraw { get; set; }
-        // Añade otras propiedades según sean necesarias, por ejemplo, para el círculo
-        public double? Radius { get; set; } // Opcional, solo para círculos
+        public string? form_id { get; set; }
     }
 
-    public class GeoJsonGeometry
+    public class AnswerDelete
     {
-        public string Type { get; set; }
-        public dynamic Coordinates { get; set; } // dynamic para soportar diferentes estructuras de coordenadas
+        public List<Answers>? answer {  get; set; }
     }
 
     public class DeleteAnswerDto
     {
-        [Required] 
+        [Required]
         public int FormId { get; set; }
         [Required]
-        public List<int> IdList { get; set; }
+        public List<int> IdList { get; set; } = [];
     }
     public class AnswerDTO
     {
-        public string Answer { get; set; }
+        public string? Answer { get; set; }
         public DateTime? AnswerDate { get; set; }
         public int UsersId { get; set; }
         public int FormId { get; set; }
-        public string FlgProceso { get; set; }
+        public string? FlgProceso { get; set; }
         public int QuestionsId { get; set; }
-        public string DbName { get; set; }
+        public string? DbName { get; set; }
     }
 
 
@@ -82,7 +71,7 @@ namespace ApiRestCuestionario.Controllers
                 {
                     int form_id = formDocument.formId;
                     int questions_id = formDocument.questionsId;
-                    List<string> documentsPath = new List<string>();
+                    List<string> documentsPath = [];
                     var formDocumentsPath = Path.Combine(staticFolder.Path, "Answers");
                     var userPath = Path.Combine(formDocumentsPath, form_id.ToString());
                     if (!Directory.Exists(userPath))
@@ -98,7 +87,7 @@ namespace ApiRestCuestionario.Controllers
                         }
                         documentsPath.Add($"{form_id}/{document.FileName}");
                     }
-                  
+
                     var answer = string.Join("|||", documentsPath);
                     return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer, questions_id } });
                 }
@@ -132,10 +121,15 @@ namespace ApiRestCuestionario.Controllers
                     using Stream fileStream = new FileStream(filePath, FileMode.Create);
                     await document.CopyToAsync(fileStream);
                 }
-                Form formEdit = context.Form.ToList().Where(c => c.id == form_id).FirstOrDefault();
-                formEdit.archive = filePath;
-                context.Form.Update(formEdit);
-                context.SaveChanges();
+                Form? formEdit = context.Form.ToList().Where(c => c.id == form_id).FirstOrDefault();
+                if (formEdit != null)
+                {
+                    formEdit.archive = filePath;
+                    context.Form.Update(formEdit);
+                    context.SaveChanges();
+
+                }
+
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = filePath });
             }
             catch (InvalidCastException e)
@@ -145,11 +139,11 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("GetArchiveForm")]
-        public ActionResult GetArchiveForm([FromBody] JsonElement form)
+        public ActionResult GetArchiveForm([FromBody] ArchiveForm form)
         {
             try
             {
-                string filePath = JsonConvert.DeserializeObject<string>(form.GetProperty("path").ToString());
+                string filePath = form.path!;
                 byte[] archivoBytes = System.IO.File.ReadAllBytes(filePath);
                 string base64 = Convert.ToBase64String(archivoBytes);
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = base64 });
@@ -180,7 +174,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-               var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.FormId} , @json = {answer.Data}");
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.FormId} , @json = {answer.Data}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
@@ -190,11 +184,11 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("GetAnswerAnioMesByIdForm")]
-        public ActionResult GetAnswerAnioMesByHashUnic([FromBody] JsonElement value)
+        public ActionResult GetAnswerAnioMesByHashUnic([FromBody] AnswerAnioMesByHashUnic value)
         {
             try
             {
-                string idform = JsonConvert.DeserializeObject<string>(value.GetProperty("form").GetProperty("form_id").ToString());
+                string idform = value.Form!.form_id!;
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = context.AnswerAnioMes.ToList().Where(c => c.hashUnic == idform) });
             }
             catch (InvalidCastException e)
@@ -204,11 +198,11 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("DeleteAnswer")]
-        public ActionResult DeleteAnswer([FromBody] JsonElement form)
+        public ActionResult DeleteAnswer([FromBody] AnswerDelete form)
         {
             try
             {
-                List<Answers> answersDelete = JsonConvert.DeserializeObject<List<Answers>>(form.GetProperty("answer").ToString());
+                List<Answers> answersDelete = form.answer!;
                 foreach (Answers ansa in answersDelete)
                 {
                     ansa.Flg_proceso = "4";
@@ -251,8 +245,8 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
-        
+
 
     }
-    
+
 }

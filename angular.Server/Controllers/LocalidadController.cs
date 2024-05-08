@@ -15,11 +15,10 @@ namespace ApiRestCuestionario.Controllers
     public class LocalidadInfo
     {
         public int? id { get; set; }
-
-        public string columnName { get; set; }
-        public string columnDBName { get; set; }
-        public string columnType { get; set; }
-        public JObject props_ui { get; set; }
+        public string? columnName { get; set; }
+        public string? columnDBName { get; set; }
+        public string? columnType { get; set; }
+        public JObject? props_ui { get; set; }
     }
 
     [Route("api/[controller]")]
@@ -52,7 +51,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Localidad localidadSave = JsonConvert.DeserializeObject<Localidad>(value.ToString());
+                Localidad localidadSave = JsonConvert.DeserializeObject<Localidad>(value.ToString())!;
 
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {

@@ -3,10 +3,7 @@ using ApiRestCuestionario.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
@@ -29,7 +26,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Usuario_Encuesta UsuarioEncuestaSave = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("usuario_encuesta").ToString());
+                Usuario_Encuesta UsuarioEncuestaSave = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("usuario_encuesta").ToString())!;
                 context.Usuario_Encuesta.AddRange(UsuarioEncuestaSave);
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
@@ -71,7 +68,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Usuario_Encuesta usuarioEncuesta = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("DeleteUsuarioEncuestaByObject").ToString());
+                Usuario_Encuesta usuarioEncuesta = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("DeleteUsuarioEncuestaByObject").ToString())!;
                 context.Usuario_Encuesta.Remove(usuarioEncuesta);
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null});

@@ -10,11 +10,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ApiRestCuestionario.Utils;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Linq;
 using DotLiquid;
 
 
@@ -63,7 +58,7 @@ namespace ApiRestCuestionario.Controllers
                     List<entidad_lst_usuario_acceso> datos = new List<entidad_lst_usuario_acceso>();
                     List<entidad_lst_usuario> datos_temp = new List<entidad_lst_usuario>();
 
-                    var secretkey = config.GetValue<string>("SecretKey");
+                    string secretkey = config.GetValue<string>("SecretKey")!;
                     var key = Encoding.ASCII.GetBytes(secretkey);
                     var claims = new ClaimsIdentity();
                     claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, ent.NombreUsuario));
@@ -229,13 +224,13 @@ namespace ApiRestCuestionario.Controllers
                 {
                     int IdUsuario = (int)parametroResp.Value;
                     string agg = string.Format("{0}|{1}", randomGeneratedString, parametroResp.Value.ToString());
-                    string applicationUrl = config.GetValue<string>("UrlApp");
+                    string applicationUrl = config.GetValue<string>("UrlApp")!;
 
                     string rutaBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(agg));
 
                     string recoveryUrl = $"{applicationUrl}/reset-password?code={rutaBase64}";
-                    TemplateEntity template = await context.Template.FirstOrDefaultAsync((e) => e.Id  == 1);
-                    Template html = Template.Parse(template.Body);
+                    TemplateEntity? template = await context.Template.FirstOrDefaultAsync((e) => e.Id  == 1);
+                    Template html = Template.Parse(template?.Body);
                     string renderedTemplate = html.Render(Hash.FromAnonymousObject(new { link = recoveryUrl, header= $"{applicationUrl}/assets/images/logo-grupoatenea.png" }));
                     await emailSender.SendEmailAsync(email, "Recuperación de contraseña | Cuestionario", renderedTemplate);
                     response.status = 1;

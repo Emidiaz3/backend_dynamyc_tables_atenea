@@ -1,10 +1,5 @@
 ﻿using ApiRestCuestionario.Model;
-using ApiRestCuestionario.Response;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Context
 {
@@ -47,7 +42,7 @@ namespace ApiRestCuestionario.Context
         public DbSet<ReporteFinal> ReporteFinalL { get; set; }
         public DbSet<ReporteFinalDetail> ReporteFinal { get; set; }
         public DbSet<entity_get_proys> GetDBProys { get; set; }
-        public DbSet<ColumnType> column_types { get; set; }
+        public DbSet<ColumnType> ColumnTypes { get; set; }
         public DbSet<QuestionType> question_types { get; set; }
         public DbSet<Documents> documents {  get; set; }
         public DbSet<Persona> Persona { get; set; }

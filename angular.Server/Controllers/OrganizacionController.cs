@@ -1,24 +1,19 @@
 ﻿using ApiRestCuestionario.Context;
 using ApiRestCuestionario.Model;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
     public class MultipleInsertOrganization
     {
         public int projectId { get; set; }
-        public List<Organizacion> organizations { get; set; }
+        public required List<Organizacion> organizations { get; set; }
     }
 
     [ApiController]
@@ -37,7 +32,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.ToString());
+                Organizacion organizacionSave = JsonConvert.DeserializeObject<Organizacion>(value.ToString())!;
 
                 var idParameter = new SqlParameter("@Id", SqlDbType.Int)
                 {
@@ -75,7 +70,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                List<Organizacion> organizaciones = JsonConvert.DeserializeObject<List<Organizacion>>(value.ToString());
+                List<Organizacion> organizaciones = JsonConvert.DeserializeObject<List<Organizacion>>(value.ToString())!;
 
                 var gruposPorProyecto = organizaciones.GroupBy(o => o.IdProyecto)
                                              .Select(group => new
@@ -239,7 +234,7 @@ namespace ApiRestCuestionario.Controllers
             try
             {
                 int user_id = JsonConvert.DeserializeObject<int>(value.GetProperty("user").GetProperty("user_id").ToString());
-                List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString());
+                List<Organizacion_localidad> organizacion_localidadSave = JsonConvert.DeserializeObject<List<Organizacion_localidad>>(value.GetProperty("organizacionLocalidad").ToString())!;
                 context.Organizacion_Localidad.RemoveRange(organizacion_localidadSave);
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });

@@ -6,20 +6,16 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ApiRestCuestionario.Controllers
 {
 
     public class SaveQuestionDTO
     {
-        public Form_Aparence? aparence { get; set; }
-        public List<Quest> questions { get; set; }
+        public required Form_Aparence aparence { get; set; }
+        public required List<Quest> questions { get; set; }
     }
     public class Quest
     {
@@ -59,7 +55,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                var questions = context.column_types.Where(c => c.form_id == formId && c.props_ui != null);
+                var questions = context.ColumnTypes.Where(c => c.form_id == formId && c.props_ui != null);
                 var aparence = context.Form_Aparence.FirstOrDefault(c => c.form_id == formId);
                 var form = context.Form.Where(c => c.id == formId).FirstOrDefault();
 
@@ -77,15 +73,15 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
 
-            List<string> columnsDB1 = context.column_types
+            List<string> columnsDB1 = context.ColumnTypes
                 .Where(x => x.form_id == formId)
                 .Select(x => x.nombre_columna_db)
                 .ToList();
 
-            List<string> columnsDB2 = context.column_types
+            List<string> columnsDB2 = context.ColumnTypes
                 .Where(x => x.form_id == formId)
+                .Where(x => x != null)
                 .Select(x => x.nombre_columna_db_2)
-                .Where(x => x != null) 
                 .ToList();
 
             List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
@@ -117,7 +113,7 @@ namespace ApiRestCuestionario.Controllers
 
                 foreach (var x in toUpdate)
                 {
-                    var currentColumnObject = context.column_types.FirstOrDefault(y => y.Id == x.id);
+                    var currentColumnObject = context.ColumnTypes.FirstOrDefault(y => y.Id == x.id);
 
                     if (currentColumnObject != null)
                     {
@@ -176,7 +172,7 @@ namespace ApiRestCuestionario.Controllers
                 {
                     var updateList = toUpdate.Select(x =>
                     {
-                        var normalizedColumnName = StringParser.NormalizeString(x.column_db_name);
+                        var normalizedColumnName = StringParser.NormalizeString(x.column_db_name!);
                         var columnNameDB = normalizedColumnName;
 
                         var columnNameDB2 = x.column_db_name_2 != null ? StringParser.NormalizeString(x.column_db_name_2) : null;
@@ -212,7 +208,7 @@ namespace ApiRestCuestionario.Controllers
                 Console.WriteLine(JsonConvert.SerializeObject(toInsert));
                 var insertList = toInsert.Select(x =>
                 {
-                    var normalizedColumnName = StringParser.NormalizeString(x.column_db_name);
+                    var normalizedColumnName = StringParser.NormalizeString(x.column_db_name!);
                     var columnNameDB = normalizedColumnName;
                     if (itemsCounter.ContainsKey(normalizedColumnName))
                     {

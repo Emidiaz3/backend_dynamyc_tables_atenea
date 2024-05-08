@@ -24,7 +24,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                TipoEncuesta localidadSave = JsonConvert.DeserializeObject<TipoEncuesta>(value.GetProperty("tipoEncuesta").ToString());
+                TipoEncuesta localidadSave = JsonConvert.DeserializeObject<TipoEncuesta>(value.GetProperty("tipoEncuesta").ToString())!;
                 context.TipoEncuesta.Add(localidadSave);
                 context.SaveChanges();
                 
@@ -43,7 +43,7 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                TipoEncuesta localidadSave = JsonConvert.DeserializeObject<TipoEncuesta>(value.GetProperty("tipoEncuesta").ToString());
+                TipoEncuesta localidadSave = JsonConvert.DeserializeObject<TipoEncuesta>(value.GetProperty("tipoEncuesta").ToString())!;
                 context.TipoEncuesta.Update(localidadSave);
                 context.SaveChanges();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = localidadSave });

@@ -27,11 +27,10 @@ namespace ApiRestCuestionario.Model
             this.form_id = form_id;
             this.state = state;
         }
-        Users_Form() { }
         public int id { get; set; }
         public int users_id { get; set; }
         public int form_id { get; set; }
-        public string state { get; set; }
+        public string? state { get; set; }
 
     }
 
@@ -39,7 +38,7 @@ namespace ApiRestCuestionario.Model
     {
         [Key]
         public int IdUser { get; set; }
-        public string Username { get; set; }
+        public string? Username { get; set; }
         public int Country { get; set; }
         public int IdIdioma { get; set; }
         public int IdEmpresa { get; set; }
@@ -183,10 +182,10 @@ namespace ApiRestCuestionario.Model
     public class Login_User
     {
         [Required(ErrorMessage = "El usuario es obligatorio.")]
-        public string? NombreUsuario { get; set; }
+        public required string NombreUsuario { get; set; }
 
         [Required(ErrorMessage = "La clave es obligatorio.")]
-        public string? PassUsuario { get; set; }
+        public required string PassUsuario { get; set; }
     }
 
     public class entity_cod_pass

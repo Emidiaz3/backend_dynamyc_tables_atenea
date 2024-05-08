@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ApiRestCuestionario.Model
+﻿namespace ApiRestCuestionario.Model
 {
     public class Questions
     {
@@ -31,7 +26,6 @@ namespace ApiRestCuestionario.Model
         public string? center { get; set; }
         public string? typeDraw { get; set; }
         public string? type_origin { get; set; }
-
         public int? zoom { get; set; }
         public string? optionsMap { get; set; }
         public string? map { get; set; }

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ApiRestCuestionario.Model
 {
     public class Organizacion_localidad
     {
-        public Organizacion_localidad() { }
         [Key]
         public int idOrganizacionLocalidad { get; set; }
         public int? idOrganizacion { get; set; }
