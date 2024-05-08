@@ -10,6 +10,6 @@
         public string? status { get; set; }
         public string? link { get; set; }
         public string? archive { get; set; }
-        public int IdProyecto { get; set; }
+        public int? IdProyecto { get; set; }
     }
 }

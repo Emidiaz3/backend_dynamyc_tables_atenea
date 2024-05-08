@@ -73,12 +73,12 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
 
-            List<string> columnsDB1 = context.ColumnTypes
+            List<string?> columnsDB1 = context.ColumnTypes
                 .Where(x => x.form_id == formId)
                 .Select(x => x.nombre_columna_db)
                 .ToList();
 
-            List<string> columnsDB2 = context.ColumnTypes
+            List<string?> columnsDB2 = context.ColumnTypes
                 .Where(x => x.form_id == formId)
                 .Where(x => x != null)
                 .Select(x => x.nombre_columna_db_2)
