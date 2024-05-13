@@ -25,6 +25,7 @@ namespace ApiRestCuestionario.Utils
 
             foreach (var x in columns)
             {
+                Console.WriteLine(x);
                 var items = x.Trim().Split("_");
                 var isNumeric = int.TryParse(items.Last(), out int n);
 

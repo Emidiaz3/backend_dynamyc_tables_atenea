@@ -4,6 +4,7 @@ using ApiRestCuestionario.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
@@ -73,18 +74,18 @@ namespace ApiRestCuestionario.Controllers
             var aparenceSave = questionDTO.aparence;
             var questions = questionDTO.questions;
 
-            List<string?> columnsDB1 = context.ColumnTypes
-                .Where(x => x.form_id == formId)
+            List<string> columnsDB1 = [.. context.ColumnTypes
+                .Where(x => x.nombre_columna_db !=null && x.form_id == formId)
                 .Select(x => x.nombre_columna_db)
-                .ToList();
+                ];
 
-            List<string?> columnsDB2 = context.ColumnTypes
-                .Where(x => x.form_id == formId)
-                .Where(x => x != null)
+            List<string> columnsDB2 = [..context.ColumnTypes
+                .Where(x => x.nombre_columna_db_2 != null && x.form_id == formId)
                 .Select(x => x.nombre_columna_db_2)
-                .ToList();
+                ];
 
-            List<string?> allColumns = columnsDB1.Union(columnsDB2).ToList();
+
+            List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
             var itemsCounter = StringParser.CheckColumnItems(allColumns!);
 
 
@@ -308,7 +309,7 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-    
+
 
         [HttpGet("types")]
         public async Task<ActionResult> GetQuestionTypes()
