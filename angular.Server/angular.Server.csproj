@@ -20,7 +20,7 @@
 
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\ClientPWA\pwa.client.esproj">
+		<ProjectReference Include="..\..\Client\angular.client.esproj">
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
