@@ -40,8 +40,8 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(buil
 builder.Services.AddCors(options =>
 {
     //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-    string[] origins = ["https://encuestas.atenealatam.com", "https://app.ddigital.pe", "https://localhost:4200"];
-    options.AddDefaultPolicy(builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
+    string[] origins = ["https://*.atenealatam.com", "https://*.ddigital.pe", "https://localhost:4200", "https://*.netlify.app"];
+    options.AddDefaultPolicy(builder => builder.SetIsOriginAllowedToAllowWildcardSubdomains().WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
 });
 
 var app = builder.Build();
