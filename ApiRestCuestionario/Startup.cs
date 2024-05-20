@@ -92,7 +92,9 @@ namespace ApiRestCuestionario
                     "https://encuestas.atenealatam.com",
                     "https://encuestas.atenealatam.com/",
                     "https://encuestas.atenealatam.com:8090",
-                    "https://encuestasatenea.netlify.app"
+                    "https://encuestasatenea.netlify.app",
+                    "https://127.0.0.1:4200",
+                    "https://127.0.0.1:4200/"
                 };
                 options.AddDefaultPolicy(builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
             });
