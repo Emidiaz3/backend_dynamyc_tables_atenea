@@ -113,7 +113,8 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(value.GetProperty("users_form").ToString())!;
+                var usersFormJson = value.GetProperty("users_form").ToString();
+                Users_Form user_form = JsonConvert.DeserializeObject<Users_Form>(usersFormJson);
 
                 Users_Form? userForm = context.Users_Form.FirstOrDefault(uf => uf.users_id == user_form.users_id && uf.form_id == user_form.form_id);
 
@@ -138,6 +139,7 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
+
         [HttpPost("GetResultAnswer")]
         public ActionResult GetResultAnswer([FromBody] JsonElement value)
         {
@@ -213,13 +215,13 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpGet("GetAnswers")]
-        public ActionResult GetAnswers([FromQuery][Required] int formId)
+        public ActionResult GetAnswers([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber = 1, [FromQuery][Required] int pageSize = 10)
         {
             try
             {
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
-                var rows = connection.Query("sp_dynamic_report", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                var rows = connection.Query("sp_dynamic_report", new { formId, PageNumber = pageNumber, PageSize = pageSize }, commandType: CommandType.StoredProcedure).ToList();
                 var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
                 connection.Close();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
@@ -229,6 +231,61 @@ namespace ApiRestCuestionario.Controllers
                 return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
             }
         }
+
+        [HttpGet("GetFilteredAnswers")]
+        public ActionResult GetFilteredAnswers([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber, [FromQuery][Required] int pageSize, [FromQuery] string searchQuery)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var rows = connection.Query("sp_dynamic_report_search", new { formId, PageNumber = pageNumber, PageSize = pageSize, SearchQuery = searchQuery }, commandType: CommandType.StoredProcedure).ToList();
+                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+            }
+        }
+
+        [HttpGet("GetUniqueColumnValues")]
+        public ActionResult GetUniqueColumnValues([FromQuery][Required] int formId, [FromQuery][Required] string columnName)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var uniqueValues = connection.Query<string>("sp_get_unique_column_values", new { formId, columnName }, commandType: CommandType.StoredProcedure).ToList();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = uniqueValues ?? new List<string>() });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+            }
+        }
+
+
+        [HttpGet("GetFilteredDynamicReport")]
+        public ActionResult GetFilteredDynamicReport([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber, [FromQuery][Required] int pageSize, [FromQuery] string filters)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var rows = connection.Query("sp_dynamic_filtered_report", new { formId, PageNumber = pageNumber, PageSize = pageSize, Filters = filters }, commandType: CommandType.StoredProcedure).ToList();
+                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+            }
+        }
+
 
 
     }

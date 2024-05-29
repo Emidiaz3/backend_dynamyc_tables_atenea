@@ -9,6 +9,10 @@ namespace ApiRestCuestionario.Model
 {
     public class Users_Form
     {
+        public Users_Form() { }
+
+
+
         public Users_Form(int users_id, int form_id)
         {
             this.users_id = users_id;
@@ -20,7 +24,7 @@ namespace ApiRestCuestionario.Model
             this.form_id = form_id;
             this.state = state;
         }
-        public Users_Form(int id,int users_id, int form_id, string state)
+        public Users_Form(int id, int users_id, int form_id, string state)
         {
             this.id = id;
             this.users_id = users_id;
