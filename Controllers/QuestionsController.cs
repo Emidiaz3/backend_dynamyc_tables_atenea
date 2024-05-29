@@ -71,225 +71,232 @@ namespace ApiRestCuestionario.Controllers
         [HttpPost("{formId}")]
         public async Task<ActionResult> SaveQuestions([FromRoute] int formId, [FromBody] SaveQuestionDTO questionDTO)
         {
-            var aparenceSave = questionDTO.aparence;
-            var questions = questionDTO.questions;
+            try
+            {
+                var aparenceSave = questionDTO.aparence;
+                var questions = questionDTO.questions;
 
-            List<string> columnsDB1 = [.. context.ColumnTypes
+                List<string> columnsDB1 = [.. context.ColumnTypes
                 .Where(x => x.nombre_columna_db !=null && x.form_id == formId)
                 .Select(x => x.nombre_columna_db)
-                ];
+                    ];
 
-            List<string> columnsDB2 = [..context.ColumnTypes
+                List<string> columnsDB2 = [..context.ColumnTypes
                 .Where(x => x.nombre_columna_db_2 != null && x.form_id == formId)
                 .Select(x => x.nombre_columna_db_2)
-                ];
+                    ];
 
 
-            List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
-            var itemsCounter = StringParser.CheckColumnItems(allColumns!);
+                List<string> allColumns = columnsDB1.Union(columnsDB2).ToList();
+                var itemsCounter = StringParser.CheckColumnItems(allColumns!);
 
 
-            context.Form_Aparence.Add(aparenceSave);
-            if (aparenceSave.id != 0)
-            {
-                context.Form_Aparence.Update(aparenceSave);
-            }
-            context.SaveChanges();
-
-            var toDelete = questions.Where(x => x.deleted == true && x.id != null);
-            var toInsert = questions.Where(x => x.id == null);
-            var toUpdate = questions.Where(x => x.deleted != true && x.id != null);
-
-            if (toDelete.Any())
-            {
-                foreach (var questionD in toDelete)
+                context.Form_Aparence.Add(aparenceSave);
+                if (aparenceSave.id != 0)
                 {
-                    await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
+                    context.Form_Aparence.Update(aparenceSave);
                 }
-            }
+                context.SaveChanges();
 
-            if (toUpdate.Any())
-            {
-                List<string> toUpdateColumns = new List<string>();
+                var toDelete = questions.Where(x => x.deleted == true && x.id != null);
+                var toInsert = questions.Where(x => x.id == null);
+                var toUpdate = questions.Where(x => x.deleted != true && x.id != null);
 
-                foreach (var x in toUpdate)
+                if (toDelete.Any())
                 {
-                    var currentColumnObject = context.ColumnTypes.FirstOrDefault(y => y.Id == x.id);
-
-                    if (currentColumnObject != null)
+                    foreach (var questionD in toDelete)
                     {
-                        var currentColDB = currentColumnObject.nombre_columna_db;
-                        var currentColDB2 = currentColumnObject.nombre_columna_db_2;
-
-                        var newColDB = x.column_db_name;
-                        var newColDB2 = x.column_db_name_2;
-
-                        // Verifica si el nombre de la columna db ha cambiado y no es null o vacío
-                        if (!string.IsNullOrWhiteSpace(newColDB) && !newColDB.Equals(currentColDB, StringComparison.OrdinalIgnoreCase))
-                        {
-                            toUpdateColumns.Add(newColDB);
-                        }
-
-                        // Verifica si el nombre de la columna db2 ha cambiado y no es null o vacío
-                        if (!string.IsNullOrWhiteSpace(newColDB2) && !newColDB2.Equals(currentColDB2, StringComparison.OrdinalIgnoreCase))
-                        {
-                            toUpdateColumns.Add(newColDB2);
-                        }
+                        await context.Database.ExecuteSqlInterpolatedAsync($"Exec dbo.UpdateStateById @id={questionD.id}, @newState={0}");
                     }
                 }
 
-                var jsonList = JsonConvert.SerializeObject(toUpdateColumns);
-                //var outputValue = new SqlParameter
-                //{
-                //    ParameterName = "@@OutputResult",
-                //    SqlDbType = SqlDbType.Bit,
-                //    Direction = ParameterDirection.Output
-                //};
-
-                var outputResult = new SqlParameter
+                if (toUpdate.Any())
                 {
-                    ParameterName = "@result",
-                    SqlDbType = SqlDbType.Bit,
-                    Direction = ParameterDirection.Output
-                };
+                    List<string> toUpdateColumns = new List<string>();
 
-                var outputDuplicateColumnName = new SqlParameter
-                {
-                    ParameterName = "@duplicateColumnName",
-                    SqlDbType = SqlDbType.NVarChar,
-                    Size = 255,
-                    Direction = ParameterDirection.Output
-                };
+                    foreach (var x in toUpdate)
+                    {
+                        var currentColumnObject = context.ColumnTypes.FirstOrDefault(y => y.Id == x.id);
+
+                        if (currentColumnObject != null)
+                        {
+                            var currentColDB = currentColumnObject.nombre_columna_db;
+                            var currentColDB2 = currentColumnObject.nombre_columna_db_2;
+
+                            var newColDB = x.column_db_name;
+                            var newColDB2 = x.column_db_name_2;
+
+                            // Verifica si el nombre de la columna db ha cambiado y no es null o vacío
+                            if (!string.IsNullOrWhiteSpace(newColDB) && !newColDB.Equals(currentColDB, StringComparison.OrdinalIgnoreCase))
+                            {
+                                toUpdateColumns.Add(newColDB);
+                            }
+
+                            // Verifica si el nombre de la columna db2 ha cambiado y no es null o vacío
+                            if (!string.IsNullOrWhiteSpace(newColDB2) && !newColDB2.Equals(currentColDB2, StringComparison.OrdinalIgnoreCase))
+                            {
+                                toUpdateColumns.Add(newColDB2);
+                            }
+                        }
+                    }
+
+                    var jsonList = JsonConvert.SerializeObject(toUpdateColumns);
+                    //var outputValue = new SqlParameter
+                    //{
+                    //    ParameterName = "@@OutputResult",
+                    //    SqlDbType = SqlDbType.Bit,
+                    //    Direction = ParameterDirection.Output
+                    //};
+
+                    var outputResult = new SqlParameter
+                    {
+                        ParameterName = "@result",
+                        SqlDbType = SqlDbType.Bit,
+                        Direction = ParameterDirection.Output
+                    };
+
+                    var outputDuplicateColumnName = new SqlParameter
+                    {
+                        ParameterName = "@duplicateColumnName",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Size = 255,
+                        Direction = ParameterDirection.Output
+                    };
 
 
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_UPDATE_TEMP]
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_UPDATE_TEMP]
                     @jsonInput = {jsonList},
                     @formId = {formId},
                     @result = {outputResult} OUTPUT,
                     @duplicateColumnName = {outputDuplicateColumnName} OUTPUT");
 
-                var boolOutput = (bool)outputResult.Value;
-                if (boolOutput)
+                    var boolOutput = (bool)outputResult.Value;
+                    if (boolOutput)
+                    {
+                        var updateList = toUpdate.Select(x =>
+                        {
+                            var normalizedColumnName = StringParser.NormalizeString(x.column_db_name!);
+                            var columnNameDB = normalizedColumnName;
+
+                            var columnNameDB2 = x.column_db_name_2 != null ? StringParser.NormalizeString(x.column_db_name_2) : null;
+                            var columnType2 = x.column_type_2 != null ? $"{x.column_type_2}" : null;
+
+                            return new
+                            {
+                                columnId = x.id,
+                                columnName = x.column_name,
+                                columnType = x.column_type,
+                                columnType2,
+                                propsUi = x.props_ui,
+                                state = x.hidden ? 0 : 1,
+                                columnNameDB,
+                                columnNameDB2
+                            };
+                        }).ToList();
+
+                        var jsonParam = JsonConvert.SerializeObject(updateList);
+
+                        await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
+
+                    }
+                    else
+                    {
+                        return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
+                    }
+                }
+
+
+                if (toInsert.Any())
                 {
-                    var updateList = toUpdate.Select(x =>
+                    Console.WriteLine(JsonConvert.SerializeObject(toInsert));
+                    var insertList = toInsert.Select(x =>
                     {
                         var normalizedColumnName = StringParser.NormalizeString(x.column_db_name!);
                         var columnNameDB = normalizedColumnName;
+                        if (itemsCounter.ContainsKey(normalizedColumnName))
+                        {
+                            itemsCounter[normalizedColumnName]++;
+                            columnNameDB = $"{normalizedColumnName}_{itemsCounter[normalizedColumnName]}";
+                        }
+                        else
+                        {
+                            itemsCounter[normalizedColumnName] = 1;
+                        }
 
+                        // Normalización y generación del nombre de la segunda columna de base de datos, si aplica
                         var columnNameDB2 = x.column_db_name_2 != null ? StringParser.NormalizeString(x.column_db_name_2) : null;
-                        var columnType2 = x.column_type_2 != null ? $"{x.column_type_2}" : null;
+                        if (columnNameDB2 != null && itemsCounter.ContainsKey(columnNameDB2))
+                        {
+                            itemsCounter[columnNameDB2]++;
+                            columnNameDB2 = $"{columnNameDB2}_{itemsCounter[columnNameDB2]}";
+                        }
+                        else if (columnNameDB2 != null)
+                        {
+                            itemsCounter[columnNameDB2] = 1;
+                        }
+
+                        // Ajuste para manejar column_type_2 cuando no es null
+                        var columnType2 = x.column_type_2 != null ? $"{x.column_type_2}" : null; // Ajuste según la lógica de formateo si es necesario
 
                         return new
                         {
-                            columnId = x.id,
                             columnName = x.column_name,
                             columnType = x.column_type,
                             columnType2,
                             propsUi = x.props_ui,
-                            state = x.hidden ? 0 : 1,
+                            formId,
+                            state = 1,
+                            questionTypeId = x.question_type_id,
                             columnNameDB,
                             columnNameDB2
                         };
                     }).ToList();
 
-                    var jsonParam = JsonConvert.SerializeObject(updateList);
+                    var jsonParameter = JsonConvert.SerializeObject(insertList);
 
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_UPDATE_COLUMNS @jsonInput={jsonParam}, @formId={formId};");
-
-                }
-                else
-                {
-                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
-                }
-            }
-
-
-            if (toInsert.Any())
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(toInsert));
-                var insertList = toInsert.Select(x =>
-                {
-                    var normalizedColumnName = StringParser.NormalizeString(x.column_db_name!);
-                    var columnNameDB = normalizedColumnName;
-                    if (itemsCounter.ContainsKey(normalizedColumnName))
+                    var outputResult = new SqlParameter
                     {
-                        itemsCounter[normalizedColumnName]++;
-                        columnNameDB = $"{normalizedColumnName}_{itemsCounter[normalizedColumnName]}";
-                    }
-                    else
-                    {
-                        itemsCounter[normalizedColumnName] = 1;
-                    }
-
-                    // Normalización y generación del nombre de la segunda columna de base de datos, si aplica
-                    var columnNameDB2 = x.column_db_name_2 != null ? StringParser.NormalizeString(x.column_db_name_2) : null;
-                    if (columnNameDB2 != null && itemsCounter.ContainsKey(columnNameDB2))
-                    {
-                        itemsCounter[columnNameDB2]++;
-                        columnNameDB2 = $"{columnNameDB2}_{itemsCounter[columnNameDB2]}";
-                    }
-                    else if (columnNameDB2 != null)
-                    {
-                        itemsCounter[columnNameDB2] = 1;
-                    }
-
-                    // Ajuste para manejar column_type_2 cuando no es null
-                    var columnType2 = x.column_type_2 != null ? $"{x.column_type_2}" : null; // Ajuste según la lógica de formateo si es necesario
-
-                    return new
-                    {
-                        columnName = x.column_name,
-                        columnType = x.column_type,
-                        columnType2,
-                        propsUi = x.props_ui,
-                        formId,
-                        state = 1,
-                        questionTypeId = x.question_type_id,
-                        columnNameDB,
-                        columnNameDB2
+                        ParameterName = "@result",
+                        SqlDbType = SqlDbType.Bit,
+                        Direction = ParameterDirection.Output
                     };
-                }).ToList();
 
-                var jsonParameter = JsonConvert.SerializeObject(insertList);
-
-                var outputResult = new SqlParameter
-                {
-                    ParameterName = "@result",
-                    SqlDbType = SqlDbType.Bit,
-                    Direction = ParameterDirection.Output
-                };
-
-                var outputDuplicateColumnName = new SqlParameter
-                {
-                    ParameterName = "@duplicateColumnName",
-                    SqlDbType = SqlDbType.NVarChar,
-                    Size = 255,
-                    Direction = ParameterDirection.Output
-                };
+                    var outputDuplicateColumnName = new SqlParameter
+                    {
+                        ParameterName = "@duplicateColumnName",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Size = 255,
+                        Direction = ParameterDirection.Output
+                    };
 
 
 
-                await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_TEMP]
+                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC [dbo].[SP_VALIDATE_COLUMNS_PROJECT_TEMP]
                     @jsonInput = {jsonParameter},
                     @formId = {formId},
                     @result = {outputResult} OUTPUT,
                     @duplicateColumnName = {outputDuplicateColumnName} OUTPUT");
 
-                var boolOutput = (bool)outputResult.Value;
-                if (boolOutput)
-                {
-                    await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
-                    //return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+                    var boolOutput = (bool)outputResult.Value;
+                    if (boolOutput)
+                    {
+                        await context.Database.ExecuteSqlInterpolatedAsync($@"EXEC SP_INSERT_COLUMNS @jsonInput={jsonParameter}, @formId={formId};");
+                        //return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
 
+                    }
+                    else
+                    {
+                        return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
+                    }
                 }
-                else
-                {
-                    return StatusCode(500, new ItemResp { status = 500, message = "NAME_COLUMN_ALREADY_EXISTS", data = outputDuplicateColumnName.Value });
-                }
+
+
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
             }
-
-
-            return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { questionDTO } });
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 500, message = "INTERNAL_SERVER_ERROR", data = null });
+            }
 
         }
         [HttpPost("UpdateQuestionState")]
