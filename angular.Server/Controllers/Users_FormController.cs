@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Globalization;
 using System.Text.Json;
 
 public class dataJoinForm
@@ -268,6 +269,9 @@ namespace ApiRestCuestionario.Controllers
         }
 
 
+
+
+      
         [HttpGet("GetFilteredDynamicReport")]
         public ActionResult GetFilteredDynamicReport([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber, [FromQuery][Required] int pageSize, [FromQuery] string filters)
         {
@@ -275,6 +279,27 @@ namespace ApiRestCuestionario.Controllers
             {
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
+
+                // Verifica y convierte el formato de fecha en C# si es necesario
+                var filterObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(filters);
+                var updatedFilterObj = new Dictionary<string, string>();
+
+                foreach (var filter in filterObj)
+                {
+                    DateTime parsedDate;
+                    // Intenta convertir el valor en distintos formatos posibles
+                    if (DateTime.TryParseExact(filter.Value, new[] { "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    {
+                        updatedFilterObj[filter.Key] = parsedDate.ToString("yyyy-MM-ddTHH:mm:ss"); // Formatea la fecha correctamente
+                    }
+                    else
+                    {
+                        updatedFilterObj[filter.Key] = filter.Value;
+                    }
+                }
+
+                filters = JsonConvert.SerializeObject(updatedFilterObj);
+
                 var rows = connection.Query("sp_dynamic_filtered_report", new { formId, PageNumber = pageNumber, PageSize = pageSize, Filters = filters }, commandType: CommandType.StoredProcedure).ToList();
                 var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
                 connection.Close();
@@ -285,6 +310,11 @@ namespace ApiRestCuestionario.Controllers
                 return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
             }
         }
+
+
+
+
+
 
 
 

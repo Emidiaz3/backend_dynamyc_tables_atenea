@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using angular.Server.Model;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +41,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(buil
 builder.Services.AddCors(options =>
 {
     //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-    string[] origins = ["https://*.atenealatam.com", "https://*.ddigital.pe", "https://localhost:4200", "https://*.netlify.app"];
+    string[] origins = ["https://*.atenealatam.com", "https://*.ddigital.pe", "https://localhost:4200", "https://*.netlify.app ", "https://127.0.0.1:4200"];
     options.AddDefaultPolicy(builder => builder.SetIsOriginAllowedToAllowWildcardSubdomains().WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
 });
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace ApiRestCuestionario.Controllers
@@ -159,8 +160,9 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
+                var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_PRUEBA_RESPUESTA @formId = {answer.FormId} , @json = {answer.Data}");
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_PRUEBA_RESPUESTA @formId = {answer.FormId} , @json = {answer.Data}, @user={userName}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
@@ -174,7 +176,9 @@ namespace ApiRestCuestionario.Controllers
         {
             try
             {
-                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.FormId} , @json = {answer.Data}");
+                var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC SP_GUARDAR_RESPUESTAS @formId = {answer.FormId} , @json = {answer.Data},@user={userName}");
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
             }
             catch (InvalidCastException e)
