@@ -4339,11 +4339,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Administrador\\Desktop\\ProyectoPWA\\backend_dynamyc_tables_atenea\\webapi.csproj",
+      "projectUniqueName": "C:\\Users\\Administrador\\Desktop\\backend_dynamyc_tables_atenea\\webapi.csproj",
       "projectName": "webapi",
-      "projectPath": "C:\\Users\\Administrador\\Desktop\\ProyectoPWA\\backend_dynamyc_tables_atenea\\webapi.csproj",
+      "projectPath": "C:\\Users\\Administrador\\Desktop\\backend_dynamyc_tables_atenea\\webapi.csproj",
       "packagesPath": "C:\\Users\\Administrador\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Administrador\\Desktop\\ProyectoPWA\\backend_dynamyc_tables_atenea\\obj\\",
+      "outputPath": "C:\\Users\\Administrador\\Desktop\\backend_dynamyc_tables_atenea\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Administrador\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -4354,6 +4354,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4431,7 +4432,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

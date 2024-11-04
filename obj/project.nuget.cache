@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "dBEjTH/eZbyaB2BArad8nbNsA+wJgPJi/hL9p+cw6FsA/cgkIwPuzjKX0x/syLw+A6V924nMF2sQuVdEMLGu3g==",
+  "dgSpecHash": "i5yPT4qpIro=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Administrador\\Desktop\\ProyectoPWA\\backend_dynamyc_tables_atenea\\webapi.csproj",
+  "projectFilePath": "C:\\Users\\Administrador\\Desktop\\backend_dynamyc_tables_atenea\\webapi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrador\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Administrador\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
