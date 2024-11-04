@@ -11,17 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 string pathCombination = string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) ? Environment.CurrentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 StaticFolder staticFolder = new(Path.Combine(pathCombination, "MyStaticFiles"));
-
 builder.Services.AddSingleton(staticFolder);
-
-// Configuración de EmailSettings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
 builder.Services.AddTransient<IGmailSender, GmailSender>();
-
-// Registrar NotificationService
-builder.Services.AddScoped<NotificationService>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
