@@ -37,6 +37,13 @@ namespace ApiRestCuestionario.Controllers
         [Required]
         public List<int> IdList { get; set; } = [];
     }
+    public class DeleteAnswerCorrelDTO
+    {
+        [Required]
+        public int FormId { get; set; }
+        [Required]
+        public List<string> Correlativos { get; set; } = [];
+    }
     public class AnswerDTO
     {
         public string? Answer { get; set; }
@@ -72,6 +79,7 @@ namespace ApiRestCuestionario.Controllers
                 {
                     int form_id = formDocument.formId;
                     int questions_id = formDocument.questionsId;
+                    string db_name = formDocument.db_name;
                     List<string> documentsPath = [];
                     var formDocumentsPath = Path.Combine(staticFolder.Path, "Answers");
                     var userPath = Path.Combine(formDocumentsPath, form_id.ToString());
@@ -90,7 +98,7 @@ namespace ApiRestCuestionario.Controllers
                     }
 
                     var answer = string.Join("|||", documentsPath);
-                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer, questions_id } });
+                    return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { answer, questions_id, db_name } });
                 }
                 else
                 {
@@ -186,6 +194,22 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
+        [HttpPost("SaveAnswerForm")]
+        public async Task<ActionResult> SaveAnswerForm([FromBody] SaveMasiveAnswerDto answer)
+        {
+            try
+            {
+                var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                //var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC [SP_REGISTRAR_FORMULARIO] @formId = {answer.FormId} , @json = {answer.Data},@user={userName}");
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC [dbo].[SP_REGISTRAR_FORMULARIO_MASIVO] @formId = {answer.FormId} , @jsons = {answer.Data},@user={userName}");
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
 
         [HttpPost("GetAnswerAnioMesByIdForm")]
         public ActionResult GetAnswerAnioMesByHashUnic([FromBody] AnswerAnioMesByHashUnic value)
@@ -235,6 +259,22 @@ namespace ApiRestCuestionario.Controllers
                 return BadRequest(e.ToString());
             }
         }
+
+        [HttpPost("DeleteAnswersByCorrel")]
+        public async Task<ActionResult> DeleteAnswersByCorrel([FromBody] DeleteAnswerCorrelDTO answerDto)
+        {
+            try
+            {
+                var itemsToDelete = string.Join(",", answerDto.Correlativos);
+                var response = await context.Database.ExecuteSqlInterpolatedAsync($"EXEC [SP_ELIMINAR_RESPUESTAS_V2] @formId = {answerDto.FormId} , @correlativos = {itemsToDelete}");
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
+            }
+            catch (InvalidCastException e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
 
         [HttpPost("GetAnswerAnioMesByIdFormReal")]
         public ActionResult GetAnswerAnioMesByIdForm([FromBody] JsonElement value)

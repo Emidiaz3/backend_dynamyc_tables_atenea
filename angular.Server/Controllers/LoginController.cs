@@ -35,20 +35,20 @@ namespace ApiRestCuestionario.Controllers
         public async Task<ActionResult<dynamic>> PostValidarUsu(Login_User ent)
         {
             var response = new ItemResponse();
-            string error = "";
 
             try
             {
+                // Encriptar la contraseña
                 var encrypted_text = Encryptor.Encrypt(ent.PassUsuario);
-                error += encrypted_text + Environment.NewLine;
-                var decrypted_text = Encryptor.Decrypt("Y8zud9wauW0=");
                 ent.PassUsuario = encrypted_text;
 
+                // Parámetro de respuesta para el procedimiento almacenado
                 var parametroResp = new SqlParameter("@resp", SqlDbType.Int)
                 {
                     Direction = ParameterDirection.Output
                 };
 
+                // Ejecutar el procedimiento almacenado para validar usuario
                 await context.Database.ExecuteSqlInterpolatedAsync($@"Exec SP_VALIDAR_USUARIO @NombreUsuario={ent.NombreUsuario}, @PassUsuario={ent.PassUsuario}, @resp={parametroResp} OUTPUT");
 
                 int respuesta = (int)parametroResp.Value;
@@ -72,17 +72,17 @@ namespace ApiRestCuestionario.Controllers
 
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var createdToken = tokenHandler.CreateToken(tokenDescriptor);
-
                     string bearer_token = tokenHandler.WriteToken(createdToken);
 
-                    var usuario_data = context.entidad_lst_usu
-                    .FromSqlInterpolated($"Exec SP_USUARIO_SEL_06 @NombreUsuario={ent.NombreUsuario},@PassUsuario={ent.PassUsuario}")
-                    .AsAsyncEnumerable();
-
+                    // Recuperar datos del procedimiento almacenado
+                    var usuario_data = await context.entidad_lst_usu
+                        .FromSqlRaw("Exec SP_USUARIO_SEL_06 @NombreUsuario = {0}, @PassUsuario = {1}", ent.NombreUsuario, ent.PassUsuario)
+                        .AsNoTracking()
+                        .ToListAsync();
 
                     response.status = 1;
 
-                    await foreach (var usuario in usuario_data)
+                    foreach (var usuario in usuario_data)
                     {
                         usuario.token = bearer_token;
                         datos_temp.Add(usuario);
@@ -91,11 +91,10 @@ namespace ApiRestCuestionario.Controllers
                     foreach (var i in datos_temp)
                     {
                         var lst_rol_modulo = new List<entidad_lst_rol_modulo>();
-
-                        List<entidad_lst_modulos_accesos> lst_rol_modulo_temp = new List<entidad_lst_modulos_accesos>();
-                        var accesos_rol = context.entidad_lst_modulos_accesos
-                            .FromSqlInterpolated($"Exec SP_ACCESO_SEL_02 @IdRol={i.IdRol}")
-                            .AsAsyncEnumerable();
+                        var lst_rol_modulo_temp = await context.entidad_lst_modulos_accesos
+                            .FromSqlRaw("Exec SP_ACCESO_SEL_02 @IdRol = {0}", i.IdRol)
+                            .AsNoTracking()
+                            .ToListAsync();
 
                         datos.Add(new entidad_lst_usuario_acceso()
                         {
@@ -121,81 +120,93 @@ namespace ApiRestCuestionario.Controllers
                             FechaCreacion = i.FechaCreacion,
                             FechaAccion = i.FechaAccion,
                             CodigoCambioPassword = i.CodigoCambioPassword,
-                            FlgCambioPassword = i.FlgCambioPassword==true ? 1 : 0,
+                            FlgCambioPassword = i.FlgCambioPassword == true ? 1 : 0,
                             FechaCambioPassword = i.FechaCambioPassword,
                             IdRol = i.IdRol,
                             DesRol = i.DesRol,
                             token = i.token,
                             FotoPerfil = i.FotoPerfil,
-                            datos_modulo = lst_rol_modulo 
+                            datos_modulo = lst_rol_modulo
                         });
 
                         var v_id_modulo = 0;
 
-                        await foreach (var acceso in accesos_rol)
+                        foreach (var acceso in lst_rol_modulo_temp)
                         {
-                            lst_rol_modulo_temp.Add(acceso);
-                        }
-
-
-                        foreach (var r in lst_rol_modulo_temp)
-                        {
-                            if (v_id_modulo != r.IdModulo)
+                            if (v_id_modulo != acceso.IdModulo)
                             {
                                 var lst_modulo_acceso = new List<entidad_lst_modulo_acceso>();
                                 lst_rol_modulo.Add(new entidad_lst_rol_modulo()
                                 {
-                                    IdModulo = r.IdModulo,
-                                    title = r.NombreModulo,
-                                    icon = r.Icon_Modulo,
+                                    IdModulo = acceso.IdModulo,
+                                    title = acceso.NombreModulo,
+                                    icon = acceso.Icon_Modulo,
                                     children = lst_modulo_acceso
                                 });
 
-                                foreach (var l in lst_rol_modulo_temp)
+                                foreach (var l in lst_rol_modulo_temp.Where(x => x.IdModulo == acceso.IdModulo))
                                 {
-                                    if (l.IdModulo == r.IdModulo)
+                                    lst_modulo_acceso.Add(new entidad_lst_modulo_acceso()
                                     {
-                                        lst_modulo_acceso.Add(new entidad_lst_modulo_acceso()
-                                        {
-                                            IdAcceso = l.IdAcceso,
-                                            title = l.NombreAcceso,
-                                            Descripcion = l.Descripcion,
-                                            type = "basic",
-                                            icon = l.Icon_Acceso,
-                                            link = l.Link,
-
-                                        });
-                                    }
+                                        IdAcceso = l.IdAcceso,
+                                        title = l.NombreAcceso,
+                                        Descripcion = l.Descripcion,
+                                        type = "basic",
+                                        icon = l.Icon_Acceso,
+                                        link = l.Link,
+                                    });
                                 }
-                                v_id_modulo = r.IdModulo;
+                                v_id_modulo = acceso.IdModulo;
+                            }
+                        }
+
+                        // Guardar o actualizar token FCM
+                        if (!string.IsNullOrEmpty(ent.FcmToken))
+                        {
+                            var tokenEntry = await context.T_MAE_USUARIO_TOKEN
+                                .FirstOrDefaultAsync(t => t.IdUsuario == i.IdUsuario && t.Activo);
+                            if (tokenEntry != null)
+                            {
+                                if (tokenEntry.Token != ent.FcmToken)
+                                {
+                                    tokenEntry.Token = ent.FcmToken;
+                                    tokenEntry.FechaCreacion = DateTime.Now;
+                                }
+                            }
+                            else
+                            {
+                                context.T_MAE_USUARIO_TOKEN.Add(new T_MAE_USUARIO_TOKEN
+                                {
+                                    IdUsuario = i.IdUsuario,
+                                    Token = ent.FcmToken,
+                                    Activo = true
+                                });
                             }
                         }
                     }
+
+                    // Guardar cambios en la base de datos solo para T_MAE_USUARIO_TOKEN
+                    await context.SaveChangesAsync();
+
                     return Ok(datos);
                 }
                 else
                 {
                     response.status = 0;
-                    response.message = "Usuario Incorrecto";
+                    response.message = "Usuario o contraseña incorrectos";
                     return Ok(response);
                 }
-
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
-                StringBuilder errorMessages = new StringBuilder();
-                for (int i = 0; i < ex.Errors.Count; i++)
-                {
-                    errorMessages.Append((errorMessages.Length != 0 ? "\n" : "") + ex.Errors[i].Message);
-                }
-
                 response.status = 0;
-                response.message = errorMessages.ToString();
+                response.message = ex.Message;
                 return Ok(response);
-         
             }
-
         }
+
+
+
 
         [HttpPost("PostRecoverPassword")]
         public async Task<ActionResult<ItemResponse>> PostRecoverPassword(string email)

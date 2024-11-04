@@ -23,4 +23,27 @@ namespace ApiRestCuestionario.Dto
         [Required]
         public List<AnswerAnioMes>? listDataAnioMes { get; set; }
     }
+
+    public class EditAnswerDto
+    {
+        [Required]
+        public int FormId { get; set; }
+
+        [Required]
+        public required string Data { get; set; }
+        [Required]
+        public string Correlativo { get; set; }
+    }
+
+    public class EditSingleAnswerDTO
+    {
+        [Required]
+        public int FormId { get; set; }
+
+        [Required]
+        public string? Data { get; set; }
+
+        [Required]
+        public string? Correlativo { get; set; }
+    }
 }

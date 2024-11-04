@@ -31,6 +31,24 @@ namespace ApiRestCuestionario.Controllers
         private readonly AppDbContext context;
         readonly string CONFIRM = "Se creo con exito";
         readonly string connectionString;
+
+        public class GetAnswersDTO
+        {
+            public string FormId { get; set; }
+            public string? Filters { get; set; }
+            public string? StartDate { get; set; }
+            public string? EndDate { get; set; }
+        }
+
+        public class GetAnswersPaginationDTO
+        {
+            public string FormId { get; set; }
+            public string? Filters { get; set; }
+            public string? StartDate { get; set; }
+            public string? EndDate { get; set; }
+            public int? PageNumber { get; set; }
+            public int? PageSize { get; set; }
+        }
         public Users_FormController(AppDbContext context, IConfiguration configuration)
         {
             this.context = context;
@@ -211,43 +229,23 @@ namespace ApiRestCuestionario.Controllers
                 return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
 
             }
-
-
         }
 
-        [HttpGet("GetAnswers")]
-        public ActionResult GetAnswers([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber = 1, [FromQuery][Required] int pageSize = 10)
+        [HttpGet("GetAnswerCorrel")]
+        public ActionResult GetAnswerCorrel([FromQuery][Required] int formId, [FromQuery][Required] string correlativo)
         {
             try
             {
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
-                var rows = connection.Query("sp_dynamic_report", new { formId, PageNumber = pageNumber, PageSize = pageSize }, commandType: CommandType.StoredProcedure).ToList();
-                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                var rows = connection.Query("[SP_OBTENER_RESPUESTA_V2]", new { formId, correlativo }, commandType: CommandType.StoredProcedure).ToList();
                 connection.Close();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = rows });
             }
             catch (Exception e)
             {
                 return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
-            }
-        }
 
-        [HttpGet("GetFilteredAnswers")]
-        public ActionResult GetFilteredAnswers([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber, [FromQuery][Required] int pageSize, [FromQuery] string searchQuery)
-        {
-            try
-            {
-                using var connection = new SqlConnection(connectionString);
-                connection.Open();
-                var rows = connection.Query("sp_dynamic_report_search", new { formId, PageNumber = pageNumber, PageSize = pageSize, SearchQuery = searchQuery }, commandType: CommandType.StoredProcedure).ToList();
-                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
-                connection.Close();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
             }
         }
 
@@ -268,40 +266,44 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
-
-
-
-      
-        [HttpGet("GetFilteredDynamicReport")]
-        public ActionResult GetFilteredDynamicReport([FromQuery][Required] int formId, [FromQuery][Required] int pageNumber, [FromQuery][Required] int pageSize, [FromQuery] string filters)
+        [HttpPost("GetAllAnswers")]
+        public ActionResult GetAllAnswers([FromBody] GetAnswersDTO payload)
         {
             try
             {
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
 
-                // Verifica y convierte el formato de fecha en C# si es necesario
-                var filterObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(filters);
-                var updatedFilterObj = new Dictionary<string, string>();
+                Object filters = null;
 
-                foreach (var filter in filterObj)
+                if (payload.Filters != null)
                 {
-                    DateTime parsedDate;
-                    // Intenta convertir el valor en distintos formatos posibles
-                    if (DateTime.TryParseExact(filter.Value, new[] { "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    var filterObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(payload.Filters);
+                    var updatedFilterObj = new Dictionary<string, string>();
+
+                    foreach (var filter in filterObj)
                     {
-                        updatedFilterObj[filter.Key] = parsedDate.ToString("yyyy-MM-ddTHH:mm:ss"); // Formatea la fecha correctamente
+                        DateTime parsedDate;
+                        // Intenta convertir el valor en distintos formatos posibles
+                        if (DateTime.TryParseExact(filter.Value, new[] { "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                        {
+                            updatedFilterObj[filter.Key] = parsedDate.ToString("yyyy-MM-ddTHH:mm:ss"); // Formatea la fecha correctamente
+                        }
+                        else
+                        {
+                            updatedFilterObj[filter.Key] = filter.Value;
+                        }
                     }
-                    else
-                    {
-                        updatedFilterObj[filter.Key] = filter.Value;
-                    }
+                    filters = JsonConvert.SerializeObject(updatedFilterObj);
                 }
 
-                filters = JsonConvert.SerializeObject(updatedFilterObj);
 
-                var rows = connection.Query("sp_dynamic_filtered_report", new { formId, PageNumber = pageNumber, PageSize = pageSize, Filters = filters }, commandType: CommandType.StoredProcedure).ToList();
-                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId }, commandType: CommandType.StoredProcedure).ToList();
+                //object filtersParam = filters == "{}" ? DBNull.Value : (object)filters;
+                //object fechaInicioParam = fechaInicio == null ? DBNull.Value : (object)fechaInicio;
+                //object fechaFinParam = fechaFin == null ? DBNull.Value : (object)fechaFin;
+
+                var rows = connection.Query("SP_DYNAMIC_REPORT_ALL", new { formId = payload.FormId, Filters = filters, fechaInicio = payload.StartDate, fechaFin = payload.EndDate }, commandType: CommandType.StoredProcedure).ToList();
+                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId = payload.FormId }, commandType: CommandType.StoredProcedure).ToList();
                 connection.Close();
                 return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
             }
@@ -311,12 +313,49 @@ namespace ApiRestCuestionario.Controllers
             }
         }
 
+        [HttpPost("GetFilteredDynamicReport")]
+        public ActionResult GetFilteredDynamicReport([FromBody] GetAnswersPaginationDTO payload)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                Object filters = null;
+
+                if (payload.Filters != null)
+                {
+                    // Verifica y convierte el formato de fecha en C# si es necesario
+                    var filterObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(payload.Filters);
+                    var updatedFilterObj = new Dictionary<string, string>();
+
+                    foreach (var filter in filterObj)
+                    {
+                        DateTime parsedDate;
+                        // Intenta convertir el valor en distintos formatos posibles
+                        if (DateTime.TryParseExact(filter.Value, new[] { "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                        {
+                            updatedFilterObj[filter.Key] = parsedDate.ToString("yyyy-MM-ddTHH:mm:ss"); // Formatea la fecha correctamente
+                        }
+                        else
+                        {
+                            updatedFilterObj[filter.Key] = filter.Value;
+                        }
+                    }
+
+                    filters = JsonConvert.SerializeObject(updatedFilterObj);
+                }
 
 
-
-
-
-
-
+                var rows = connection.Query("sp_dynamic_filtered_report", new { formId = payload.FormId, payload.PageNumber, payload.PageSize, Filters = filters, fechaInicio = payload.StartDate, fechaFin = payload.EndDate }, commandType: CommandType.StoredProcedure).ToList();
+                var columns = connection.Query("SP_OBTENER_COLUMNAS", new { formId = payload.FormId }, commandType: CommandType.StoredProcedure).ToList();
+                connection.Close();
+                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = new { rows = rows ?? new List<dynamic>(), columns = columns ?? new List<dynamic>() } });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ItemResp { status = 200, message = e.ToString(), data = null });
+            }
+        }
     }
 }

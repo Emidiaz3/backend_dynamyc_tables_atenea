@@ -22,21 +22,7 @@ namespace ApiRestCuestionario.Controllers
         }
 
         [HttpPost("SaveUsuarioEncuesta")]
-        public ActionResult SaveUsuarioEncuesta([FromBody] JsonElement form)
-        {
-            try
-            {
-                Usuario_Encuesta UsuarioEncuestaSave = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("usuario_encuesta").ToString())!;
-                context.Usuario_Encuesta.AddRange(UsuarioEncuestaSave);
-                context.SaveChanges();
-                return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null });
-            }
-            catch (InvalidCastException e)
-            {
-
-                return BadRequest(e.ToString());
-            }
-        }
+        public ActionResult SaveUsuarioEncuesta([FromBody] JsonElement form) { try { Usuario_Encuesta UsuarioEncuestaSave = JsonConvert.DeserializeObject<Usuario_Encuesta>(form.GetProperty("usuario_encuesta").ToString())!; context.Usuario_Encuesta.AddRange(UsuarioEncuestaSave); context.SaveChanges(); return StatusCode(200, new ItemResp { status = 200, message = CONFIRM, data = null }); } catch (InvalidCastException e) { return BadRequest(e.ToString()); } }
 
         [HttpPost("GetUsuarioEncuestaByIdUsuario")]
         public async  Task<ActionResult> GetUsuarioEncuestaById([FromBody] JsonElement form)

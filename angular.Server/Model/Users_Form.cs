@@ -190,7 +190,10 @@ namespace ApiRestCuestionario.Model
 
         [Required(ErrorMessage = "La clave es obligatorio.")]
         public required string PassUsuario { get; set; }
+
+        public string? FcmToken { get; set; }
     }
+
 
     public class entity_cod_pass
     {
